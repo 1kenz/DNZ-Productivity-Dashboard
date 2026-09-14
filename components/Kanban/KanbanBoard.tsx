@@ -3,13 +3,17 @@
 import React, { useState } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { Todo } from '@/types';
+import { TaskCard } from '@/components/TodoList/TaskCard';
 import { TaskDetailDrawer } from '@/components/TodoList/TaskDetailModal';
 import styles from './KanbanBoard.module.css';
 
 export const KanbanBoard: React.FC = () => {
-  const { todos, kanbanColumns, updateTodo, projects, selectedProjectId } = useApp();
+  const { todos, kanbanColumns, updateTodo, addTodo, selectedProjectId } = useApp();
+
   const [selectedTask, setSelectedTask] = useState<Todo | null>(null);
   const [dragTaskId, setDragTaskId] = useState<string | null>(null);
+  const [addingColumnId, setAddingColumnId] = useState<string | null>(null);
+  const [newTaskTitle, setNewTaskTitle] = useState('');
 
   const handleDragStart = (e: React.DragEvent, taskId: string) => {
     e.dataTransfer.setData('taskId', taskId);
@@ -37,14 +41,35 @@ export const KanbanBoard: React.FC = () => {
       (todo) =>
         todo.status === status &&
         !todo.completed &&
+        !todo.parentTodoId && // subtasks are tracked inside their parent task, not as their own kanban card
         (!selectedProjectId || todo.projectId === selectedProjectId)
     );
   };
 
-  const priorityColors = {
-    high: 'var(--color-error)',
-    medium: 'var(--color-warning)',
-    low: 'var(--color-success)',
+  const handleAddTask = (columnId: string) => {
+    if (!newTaskTitle.trim()) {
+      setAddingColumnId(null);
+      setNewTaskTitle('');
+      return;
+    }
+    addTodo({
+      title: newTaskTitle.trim(),
+      priority: 'medium',
+      status: columnId,
+      projectId: selectedProjectId || undefined,
+      completed: false,
+    });
+    setNewTaskTitle('');
+  };
+
+  const handleAddKeyDown = (e: React.KeyboardEvent, columnId: string) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleAddTask(columnId);
+    } else if (e.key === 'Escape') {
+      setAddingColumnId(null);
+      setNewTaskTitle('');
+    }
   };
 
   return (
@@ -61,65 +86,70 @@ export const KanbanBoard: React.FC = () => {
               onDragOver={handleDragOver}
               onDrop={(e) => handleDrop(e, column.id)}
             >
-              <div className={styles.columnHeader} style={{ borderTopColor: column.color }}>
-                <h3 className={styles.columnTitle}>{column.name}</h3>
+              <div className={styles.columnHeader}>
+                <span
+                  className={styles.columnPill}
+                  style={{ color: column.color, background: `color-mix(in srgb, ${column.color} 16%, transparent)` }}
+                >
+                  <span className={styles.columnDot} style={{ backgroundColor: column.color }} />
+                  {column.name}
+                </span>
                 <span className={styles.taskCount}>{tasks.length}</span>
+                <div className={styles.headerSpacer} />
+                <button
+                  type="button"
+                  className={styles.headerAddBtn}
+                  onClick={() => setAddingColumnId(column.id)}
+                  title="Add task"
+                >
+                  +
+                </button>
               </div>
 
               <div className={styles.taskList}>
-                {tasks.map((task) => {
-                  const project = projects.find((p) => p.id === task.projectId);
-                  return (
-                    <div
-                      key={task.id}
-                      className={styles.taskCard}
-                      style={project ? { borderLeftColor: project.color } : undefined}
-                      draggable
-                      onDragStart={(e) => handleDragStart(e, task.id)}
-                      onDragEnd={handleDragEnd}
-                      onClick={() => {
-                        if (dragTaskId === task.id) return; // was a drag, not a click
-                        setSelectedTask(task);
-                      }}
-                      role="button"
-                      tabIndex={0}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                          e.preventDefault();
-                          setSelectedTask(task);
-                        }
-                      }}
-                    >
-                      <div className={styles.taskHeader}>
-                        <span className={styles.taskTitle}>{task.title}</span>
-                        <div
-                          className={styles.priorityDot}
-                          style={{ backgroundColor: priorityColors[task.priority] }}
-                          title={task.priority}
-                        />
-                      </div>
-                      {task.description && (
-                        <p className={styles.taskDescription}>{task.description}</p>
-                      )}
-                      {(project || task.deadline) && (
-                        <div className={styles.taskMeta}>
-                          {project && (
-                            <span className={styles.metaTag} style={{ color: project.color }}>
-                              {project.icon} {project.name}
-                            </span>
-                          )}
-                          {task.deadline && (
-                            <span className={styles.metaTag}>
-                              ⏰ {new Date(task.deadline).toLocaleDateString()}
-                            </span>
-                          )}
-                        </div>
-                      )}
+                {tasks.map((task) => (
+                  <TaskCard
+                    key={task.id}
+                    todo={task}
+                    draggable
+                    onDragStart={(e) => handleDragStart(e, task.id)}
+                    onDragEnd={handleDragEnd}
+                    onClick={() => {
+                      if (dragTaskId === task.id) return; // was a drag, not a click
+                      setSelectedTask(task);
+                    }}
+                  />
+                ))}
+
+                {addingColumnId === column.id ? (
+                  <div className={styles.addTaskForm}>
+                    <input
+                      type="text"
+                      className={styles.addTaskInput}
+                      placeholder="Task name..."
+                      value={newTaskTitle}
+                      onChange={(e) => setNewTaskTitle(e.target.value)}
+                      onKeyDown={(e) => handleAddKeyDown(e, column.id)}
+                      autoFocus
+                    />
+                    <div className={styles.addTaskActions}>
+                      <button type="button" className={styles.addTaskCancel} onClick={() => { setAddingColumnId(null); setNewTaskTitle(''); }}>
+                        Cancel
+                      </button>
+                      <button type="button" className={styles.addTaskSave} onClick={() => handleAddTask(column.id)}>
+                        Save
+                      </button>
                     </div>
-                  );
-                })}
-                {tasks.length === 0 && (
-                  <div className={styles.emptyColumn}>No tasks</div>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    className={styles.addTaskLink}
+                    style={{ color: column.color }}
+                    onClick={() => setAddingColumnId(column.id)}
+                  >
+                    + Add Task
+                  </button>
                 )}
               </div>
             </div>
