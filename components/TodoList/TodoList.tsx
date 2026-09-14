@@ -2,12 +2,15 @@
 
 import React, { useState } from 'react';
 import { useApp } from '@/contexts/AppContext';
-import { TodoItem } from './TodoItem';
+import { TaskCard } from './TaskCard';
 import { TodoForm } from './TodoForm';
 import { ViewControls } from './ViewControls';
+import { TaskGroup, TaskGroupDefaults } from './TaskGroup';
 import { KanbanBoard } from '@/components/Kanban';
+import { SectionManager } from '@/components/Sections';
 import { Button } from '@/components/ui/Button';
 import { Todo, ViewPreferences } from '@/types';
+import { PRIORITY_ORDER, PRIORITY_RANK, PRIORITY_META } from '@/lib/priority';
 import styles from './TodoList.module.css';
 
 type FilterType = 'all' | 'active' | 'completed';
@@ -23,21 +26,19 @@ interface TodoGroup {
 }
 
 const NO_PROJECT_KEY = '__no-project__';
+const NO_SECTION_KEY = '__no-section__';
 const NO_DATE_KEY = '__no-date__';
-const PRIORITY_ORDER: Record<Todo['priority'], number> = { high: 0, medium: 1, low: 2 };
-const PRIORITY_LABELS: Record<Todo['priority'], string> = {
-  high: '🔴 High Priority',
-  medium: '🟡 Medium Priority',
-  low: '🟢 Low Priority',
-};
+const NO_STATUS_KEY = '__no-status__';
 
 export const TodoList: React.FC = () => {
-  const { todos, projects, viewPreferences, updateViewPreferences, selectedProjectId, setSelectedProjectId } = useApp();
+  const { todos, projects, sections, kanbanColumns, viewPreferences, updateViewPreferences, selectedProjectId, setSelectedProjectId } = useApp();
   const [filter, setFilter] = useState<FilterType>('all');
   const [sort, setSort] = useState<SortType>('date');
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
   const [showForm, setShowForm] = useState(false);
 
   const filteredTodos = todos.filter((todo) => {
+    if (todo.parentTodoId) return false; // subtasks render nested inside their parent, not as top-level items
     if (selectedProjectId && todo.projectId !== selectedProjectId) return false;
     if (filter === 'active') return !todo.completed;
     if (filter === 'completed') return todo.completed;
@@ -45,14 +46,31 @@ export const TodoList: React.FC = () => {
   });
 
   const sortedTodos = [...filteredTodos].sort((a, b) => {
+    let cmp: number;
     if (sort === 'priority') {
-      return PRIORITY_ORDER[a.priority] - PRIORITY_ORDER[b.priority];
+      cmp = PRIORITY_RANK[a.priority] - PRIORITY_RANK[b.priority];
+    } else if (sort === 'alphabetical') {
+      cmp = a.title.localeCompare(b.title);
+    } else {
+      // Due date, ascending -- tasks with no deadline sort to the end.
+      const aTime = a.deadline ? new Date(a.deadline).getTime() : Infinity;
+      const bTime = b.deadline ? new Date(b.deadline).getTime() : Infinity;
+      cmp = aTime - bTime;
     }
-    if (sort === 'alphabetical') {
-      return a.title.localeCompare(b.title);
-    }
-    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    return sortDir === 'desc' ? -cmp : cmp;
   });
+
+  // Clicking a column header (Name / Due date / Priority) sorts by that
+  // field; clicking the same header again flips direction, matching the
+  // ClickUp reference. The "Sort by..." dropdown drives the same state.
+  const handleSortClick = (field: SortType) => {
+    if (sort === field) {
+      setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setSort(field);
+      setSortDir('asc');
+    }
+  };
 
   const stats = {
     total: todos.length,
@@ -89,10 +107,42 @@ export const TodoList: React.FC = () => {
       return [...byProject.values(), noProject].filter((g) => g.todos.length > 0);
     }
 
+    if (groupBy === 'section') {
+      const relevantSections = selectedProjectId
+        ? sections.filter((s) => s.projectId === selectedProjectId)
+        : sections;
+      const bySection = new Map<string, TodoGroup>();
+      for (const section of relevantSections) {
+        bySection.set(section.id, {
+          key: section.id,
+          label: section.name,
+          color: section.color,
+          icon: section.icon,
+          todos: [],
+        });
+      }
+      const noSection: TodoGroup = { key: NO_SECTION_KEY, label: 'No Section', todos: [] };
+
+      for (const todo of sortedTodos) {
+        if (todo.sectionId && bySection.has(todo.sectionId)) {
+          bySection.get(todo.sectionId)!.todos.push(todo);
+        } else {
+          noSection.todos.push(todo);
+        }
+      }
+
+      return [...bySection.values(), noSection].filter((g) => g.todos.length > 0);
+    }
+
     if (groupBy === 'priority') {
       const byPriority = new Map<Todo['priority'], TodoGroup>();
-      (['high', 'medium', 'low'] as const).forEach((p) => {
-        byPriority.set(p, { key: p, label: PRIORITY_LABELS[p], todos: [] });
+      PRIORITY_ORDER.forEach((p) => {
+        byPriority.set(p, {
+          key: p,
+          label: `${PRIORITY_META[p].icon} ${PRIORITY_META[p].label}`,
+          color: PRIORITY_META[p].color,
+          todos: [],
+        });
       });
       for (const todo of sortedTodos) {
         byPriority.get(todo.priority)?.todos.push(todo);
@@ -123,13 +173,55 @@ export const TodoList: React.FC = () => {
       return [...byDate.values(), noDate].filter((g) => g.todos.length > 0);
     }
 
+    if (groupBy === 'status') {
+      const byStatus = new Map<string, TodoGroup>();
+      const sortedColumns = [...kanbanColumns].sort((a, b) => a.order - b.order);
+      for (const column of sortedColumns) {
+        byStatus.set(column.id, { key: column.id, label: column.name, color: column.color, todos: [] });
+      }
+      const noStatus: TodoGroup = { key: NO_STATUS_KEY, label: 'No Status', todos: [] };
+
+      for (const todo of sortedTodos) {
+        if (byStatus.has(todo.status)) {
+          byStatus.get(todo.status)!.todos.push(todo);
+        } else {
+          noStatus.todos.push(todo);
+        }
+      }
+
+      return [...byStatus.values(), noStatus].filter((g) => g.todos.length > 0);
+    }
+
     return null;
   })();
 
+  // Quick-add presets for each group's inline "+ Add Task" row: a task
+  // added inside a status group starts in that status, inside a project
+  // group belongs to that project, etc. -- mirrors what the group actually
+  // represents instead of always falling back to generic defaults.
+  const defaultsForGroup = (group: TodoGroup): TaskGroupDefaults => {
+    if (groupBy === 'status' && group.key !== NO_STATUS_KEY) {
+      return { status: group.key };
+    }
+    if (groupBy === 'project' && group.key !== NO_PROJECT_KEY) {
+      return { projectId: group.key };
+    }
+    if (groupBy === 'section' && group.key !== NO_SECTION_KEY) {
+      return { sectionId: group.key, projectId: selectedProjectId || undefined };
+    }
+    if (groupBy === 'priority') {
+      return { priority: group.key as Todo['priority'] };
+    }
+    return { projectId: selectedProjectId || undefined };
+  };
+
+  // Grid view only (the List view renders through TaskGroup/TaskRow) --
+  // same ClickUp-style card as Kanban, just sized up since it's not
+  // squeezed into a narrow column here.
   const renderTodos = (list: Todo[]) => (
-    <div className={viewPreferences.taskView === 'grid' ? styles.grid : styles.list}>
+    <div className={styles.grid}>
       {list.map((todo) => (
-        <TodoItem key={todo.id} todo={todo} />
+        <TaskCard key={todo.id} todo={todo} size="large" />
       ))}
     </div>
   );
@@ -137,8 +229,11 @@ export const TodoList: React.FC = () => {
   return (
     <div className={styles.container} id="tasks-section">
       <div className={styles.header}>
-        <div>
-          <h2 className={styles.title}>Tasks</h2>
+        <div className={styles.titleGroup}>
+          <div className={styles.titleRow}>
+            <h2 className={styles.title}>Tasks</h2>
+            <ViewControls />
+          </div>
           <p className={styles.subtitle}>
             {stats.active} active, {stats.completed} completed
           </p>
@@ -154,8 +249,6 @@ export const TodoList: React.FC = () => {
         </div>
       )}
 
-      <ViewControls />
-
       {selectedProjectId && (
         <div className={styles.projectFilterBanner}>
           <span>
@@ -168,6 +261,12 @@ export const TodoList: React.FC = () => {
             </strong>
           </span>
           <button onClick={() => setSelectedProjectId(null)} title="Clear filter">✕ Clear</button>
+        </div>
+      )}
+
+      {selectedProjectId && (
+        <div className={styles.sectionManagerWrap}>
+          <SectionManager projectId={selectedProjectId} />
         </div>
       )}
 
@@ -206,8 +305,10 @@ export const TodoList: React.FC = () => {
                 }
                 title="Group tasks"
               >
+                <option value="status">Group by Status</option>
                 <option value="none">No Grouping</option>
                 <option value="project">Group by Project</option>
+                <option value="section">Group by Section</option>
                 <option value="priority">Group by Priority</option>
                 <option value="date">Group by Due Date</option>
               </select>
@@ -215,7 +316,7 @@ export const TodoList: React.FC = () => {
               <select
                 className={styles.sortSelect}
                 value={sort}
-                onChange={(e) => setSort(e.target.value as SortType)}
+                onChange={(e) => { setSort(e.target.value as SortType); setSortDir('asc'); }}
               >
                 <option value="date">Sort by Date</option>
                 <option value="priority">Sort by Priority</option>
@@ -231,26 +332,59 @@ export const TodoList: React.FC = () => {
                 {filter !== 'all' ? 'Try changing the filter' : 'Add your first task to get started'}
               </p>
             </div>
-          ) : groups ? (
-            <div className={styles.groupedList}>
-              {groups.map((group) => (
-                <div key={group.key} className={styles.group}>
-                  <div
-                    className={styles.groupHeader}
-                    style={{ borderTopColor: group.color || 'var(--color-border)' }}
-                  >
-                    <h3 className={styles.groupTitle}>
-                      {group.icon ? `${group.icon} ` : ''}
-                      {group.label}
-                    </h3>
-                    <span className={styles.groupCount}>{group.todos.length}</span>
+          ) : viewPreferences.taskView === 'grid' ? (
+            groups ? (
+              <div className={styles.groupedList}>
+                {groups.map((group) => (
+                  <div key={group.key} className={styles.group}>
+                    <div
+                      className={styles.groupHeader}
+                      style={{ borderTopColor: group.color || 'var(--color-border)' }}
+                    >
+                      <h3 className={styles.groupTitle}>
+                        {group.icon ? `${group.icon} ` : ''}
+                        {group.label}
+                      </h3>
+                      <span className={styles.groupCount}>{group.todos.length}</span>
+                    </div>
+                    {renderTodos(group.todos)}
                   </div>
-                  {renderTodos(group.todos)}
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              renderTodos(sortedTodos)
+            )
           ) : (
-            renderTodos(sortedTodos)
+            // Compact ClickUp-style grouped table for the List view.
+            <div className={styles.taskTableList}>
+              {groups ? (
+                groups.map((group) => (
+                  <TaskGroup
+                    key={group.key}
+                    groupKey={group.key}
+                    label={group.label}
+                    icon={group.icon}
+                    color={group.color}
+                    todos={group.todos}
+                    defaults={defaultsForGroup(group)}
+                    sortField={sort}
+                    sortDir={sortDir}
+                    onSortChange={handleSortClick}
+                  />
+                ))
+              ) : (
+                <TaskGroup
+                  groupKey="all"
+                  label="Tasks"
+                  todos={sortedTodos}
+                  showHeader={false}
+                  defaults={{ projectId: selectedProjectId || undefined }}
+                  sortField={sort}
+                  sortDir={sortDir}
+                  onSortChange={handleSortClick}
+                />
+              )}
+            </div>
           )}
         </>
       )}
