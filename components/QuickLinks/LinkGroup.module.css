@@ -55,13 +55,14 @@
 }
 
 .actionBtn {
-  width: 32px;
-  height: 32px;
+  width: 26px;
+  height: 26px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: var(--radius-md);
-  color: var(--color-text-secondary);
+  font-size: 13px;
+  border-radius: var(--radius-sm);
+  color: var(--color-text-tertiary);
   transition: all var(--transition-fast);
 }
 
@@ -71,8 +72,8 @@
 }
 
 .deleteBtn:hover {
-  background: var(--color-error);
-  color: white;
+  background: color-mix(in srgb, var(--color-error) 15%, transparent);
+  color: var(--color-error);
 }
 
 .linksContainer {

@@ -59,8 +59,8 @@
 }
 
 .deleteBtn:hover {
-  background: var(--color-error);
-  color: white;
+  background: color-mix(in srgb, var(--color-error) 15%, transparent);
+  color: var(--color-error);
 }
 
 .header {
