@@ -2,13 +2,14 @@
 
 import React from 'react';
 import { useApp } from '@/contexts/AppContext';
+import { PRIORITY_META } from '@/lib/priority';
 import styles from './StatsCard.module.css';
 
 export const StatsCard: React.FC = () => {
   const { todos, timeEntries } = useApp();
 
   const activeTasks = todos.filter(t => !t.completed && t.status !== 'done').length;
-  const highPriority = todos.filter(t => !t.completed && (['high', 'urgent'] as string[]).includes(t.priority)).length;
+  const urgentCount = todos.filter(t => !t.completed && t.priority === 'urgent').length;
   
   const today = new Date().toDateString();
   const completedToday = todos.filter(t => 
@@ -34,7 +35,7 @@ export const StatsCard: React.FC = () => {
 
   const statItems = [
     { label: 'Active', value: activeTasks, icon: '📋', color: 'var(--color-primary)', targetId: 'tasks-section' },
-    { label: 'Urgent', value: highPriority, icon: '🔥', color: 'var(--color-error)', targetId: 'tasks-section' },
+    { label: 'Urgent', value: urgentCount, icon: PRIORITY_META.urgent.icon, color: PRIORITY_META.urgent.color, targetId: 'tasks-section' },
     { label: 'Done Today', value: completedToday, icon: '✅', color: 'var(--color-success)', targetId: 'tasks-section' },
     { label: 'Tracked', value: formatTime(totalTimeSeconds), icon: '⏱️', color: 'var(--color-warning)', targetId: 'time-tracker-section' },
   ];

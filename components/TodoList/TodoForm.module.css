@@ -70,7 +70,7 @@
 }
 
 .routine {
-  background: #a1a1aa;
+  background: var(--color-routine);
   color: white;
 }
 
@@ -90,7 +90,7 @@
 }
 
 .urgent {
-  background: #7f1d1d;
+  background: var(--color-urgent);
   color: white;
 }
 

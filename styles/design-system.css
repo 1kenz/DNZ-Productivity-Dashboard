@@ -14,6 +14,12 @@
   --color-warning: hsl(35, 100%, 50%);
   --color-error: hsl(0, 100%, 50%);
   --color-info: hsl(210, 100%, 52%);
+
+  /* Priority scale (beyond the 3 status colors above) -- Urgent sits below
+     Error's bright red as a deeper, more alarming maroon; Routine sits below
+     everything as a quiet neutral gray. */
+  --color-urgent: hsl(25, 75%, 47%); /* vivid brown (chocolate/sienna) -- distinct from warning (bright orange) and error (bright red), but bold enough not to look faded */
+  --color-routine: hsl(240, 5%, 65%);
   
   --color-bg-primary: hsl(0, 0%, 98%);
   --color-bg-secondary: hsl(0, 0%, 100%);
