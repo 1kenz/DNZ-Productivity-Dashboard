@@ -1,0 +1,145 @@
+:root {
+  /* Apple-inspired Color Palette - Light Theme */
+  --color-primary: hsl(210, 100%, 52%);      /* SF Blue */
+  --color-primary-hover: hsl(210, 100%, 45%);
+  --color-primary-light: hsl(210, 100%, 97%);
+  
+  --color-secondary: hsl(0, 0%, 54%);         /* Gray */
+  --color-secondary-hover: hsl(0, 0%, 45%);
+  
+  --color-accent: hsl(0, 100%, 50%);          /* Red */
+  --color-accent-hover: hsl(0, 100%, 45%);
+  
+  --color-success: hsl(120, 100%, 40%);
+  --color-warning: hsl(35, 100%, 50%);
+  --color-error: hsl(0, 100%, 50%);
+  --color-info: hsl(210, 100%, 52%);
+  
+  --color-bg-primary: hsl(0, 0%, 98%);
+  --color-bg-secondary: hsl(0, 0%, 100%);
+  --color-bg-tertiary: hsl(0, 0%, 95%);
+  
+  --color-text-primary: hsl(0, 0%, 0%);
+  --color-text-secondary: hsl(0, 0%, 50%);
+  --color-text-tertiary: hsl(0, 0%, 75%);
+  
+  --color-border: hsl(0, 0%, 90%);
+  --color-border-hover: hsl(0, 0%, 85%);
+  
+  /* Apple Typography */
+  --font-family-base: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Icons", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-family-mono: "SF Mono", "Monaco", "Inconsolata", monospace;
+  
+  --font-size-xs: 11px;
+  --font-size-sm: 13px;
+  --font-size-base: 15px;
+  --font-size-lg: 17px;
+  --font-size-xl: 19px;
+  --font-size-2xl: 22px;
+  --font-size-3xl: 28px;
+  --font-size-4xl: 34px;
+  
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  
+  --line-height-tight: 1.2;
+  --line-height-normal: 1.4;
+  --line-height-relaxed: 1.6;
+  
+  /* Spacing */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 28px;
+  --space-10: 32px;
+  --space-12: 40px;
+  --space-16: 56px;
+  
+  /* Border Radius - Apple standard is ~10-12px for cards */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 20px;
+  --radius-full: 9999px;
+  
+  /* Apple Shadows - very subtle */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 10px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.15);
+  --shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.2);
+  --shadow-2xl: 0 30px 60px rgba(0, 0, 0, 0.25);
+  
+  /* Transitions */
+  --transition-fast: 150ms cubic-bezier(0.25, 0.1, 0.25, 1);
+  --transition-base: 300ms cubic-bezier(0.25, 0.1, 0.25, 1);
+  --transition-slow: 500ms cubic-bezier(0.25, 0.1, 0.25, 1);
+  
+  /* Z-index */
+  --z-dropdown: 1000;
+  --z-sticky: 1020;
+  --z-fixed: 1030;
+  --z-modal-backdrop: 1040;
+  --z-modal: 1050;
+  --z-popover: 1060;
+  --z-tooltip: 1070;
+}
+
+/* Dark Theme */
+[data-theme="dark"] {
+  --color-primary: hsl(210, 100%, 60%);
+  --color-primary-hover: hsl(210, 100%, 67%);
+  --color-primary-light: hsl(210, 100%, 15%);
+  
+  --color-secondary: hsl(0, 0%, 50%);
+  --color-secondary-hover: hsl(0, 0%, 60%);
+  
+  --color-bg-primary: hsl(0, 0%, 5%);
+  --color-bg-secondary: hsl(0, 0%, 10%);
+  --color-bg-tertiary: hsl(0, 0%, 15%);
+  
+  --color-text-primary: hsl(0, 0%, 100%);
+  --color-text-secondary: hsl(0, 0%, 65%);
+  --color-text-tertiary: hsl(0, 0%, 45%);
+  
+  --color-border: hsl(0, 0%, 18%);
+  --color-border-hover: hsl(0, 0%, 25%);
+  
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 8px 16px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 16px 32px rgba(0, 0, 0, 0.7);
+  --shadow-xl: 0 24px 48px rgba(0, 0, 0, 0.8);
+}
+
+/* Gradient Utilities */
+.gradient-primary {
+  background: linear-gradient(135deg, var(--color-primary) 0%, hsl(260, 100%, 60%) 100%);
+}
+
+.gradient-accent {
+  background: linear-gradient(135deg, var(--color-accent) 0%, hsl(30, 100%, 50%) 100%);
+}
+
+.gradient-success {
+  background: linear-gradient(135deg, var(--color-success) 0%, hsl(150, 100%, 40%) 100%);
+}
+
+/* Glass Morphism */
+.glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+[data-theme="dark"] .glass {
+  background: rgba(18, 18, 18, 0.7);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}

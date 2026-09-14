@@ -1,0 +1,31 @@
+services:
+  productivity-dashboard:
+    container_name: i-kenz-dashboard-v2
+    build: .
+    image: localhost:5001/productivity-dashboard:v2.5-fixed
+    ports:
+      - "9999:3000"
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://postgres:postgrespassword@postgres:5432/productivity_dashboard
+    restart: unless-stopped
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: productivity_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+      POSTGRES_DB: productivity_dashboard
+    ports:
+      - "5532:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: always
+
+volumes:
+  postgres_data:

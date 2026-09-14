@@ -1,0 +1,48 @@
+services:
+  app:
+    image: node:20-alpine
+    working_dir: /app
+    container_name: productivity-dashboard-dev
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./:/app
+      - /app/node_modules
+      - /app/.next
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://postgres:postgrespassword@postgres:5432/productivity_dashboard
+    command: sh -c "npm install && npm run dev"
+    networks:
+      - pd-dev
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: productivity-db-dev
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+      POSTGRES_DB: productivity_dashboard
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata_dev:/var/lib/postgresql/data
+    networks:
+      - pd-dev
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d productivity_dashboard"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+networks:
+  pd-dev:
+    driver: bridge
+
+volumes:
+  pgdata_dev:

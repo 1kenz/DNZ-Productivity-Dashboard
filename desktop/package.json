@@ -1,0 +1,50 @@
+{
+  "name": "productivity-dashboard-desktop",
+  "version": "2.5.0",
+  "private": true,
+  "description": "DNZ Productivity Dashboard — native macOS app (bundled PostgreSQL, no Docker needed to run it)",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder --mac"
+  },
+  "dependencies": {
+    "embedded-postgres": "17.10.0-beta.17",
+    "pg": "^8.17.2"
+  },
+  "devDependencies": {
+    "electron": "^33.0.0",
+    "electron-builder": "^25.0.0"
+  },
+  "build": {
+    "appId": "com.dnzsecurity.productivitydashboard",
+    "productName": "DNZ Productivity Dashboard",
+    "files": [
+      "main.js",
+      "package.json",
+      ".env"
+    ],
+    "extraResources": [
+      {
+        "from": "resources/app-server",
+        "to": "app-server"
+      },
+      {
+        "from": "resources/prisma-schema",
+        "to": "prisma-schema"
+      },
+      {
+        "from": "resources/icon.png",
+        "to": "icon.png"
+      }
+    ],
+    "mac": {
+      "category": "public.app-category.productivity",
+      "icon": "resources/icon.png",
+      "target": [
+        "dmg"
+      ]
+    },
+    "asar": false
+  }
+}

@@ -1,0 +1,168 @@
+.container {
+  width: 100%;
+}
+
+.clockGrid {
+  display: flex;
+  gap: var(--space-3);
+  overflow-x: auto;
+  padding-bottom: var(--space-2);
+}
+
+/* Custom scrollbar for horizontal scrolling */
+.clockGrid::-webkit-scrollbar {
+  height: 4px;
+}
+
+.clockCard {
+  position: relative;
+  flex: 0 0 155px;
+  padding: var(--space-3);
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  transition: all var(--transition-base);
+  cursor: grab;
+}
+
+.clockCard:active {
+  cursor: grabbing;
+}
+
+.clockCard.dragging {
+  opacity: 0.4;
+  border: 2px dashed var(--color-primary);
+  transform: scale(0.98);
+}
+
+.clockCard:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-primary);
+}
+
+.deleteBtn {
+  position: absolute;
+  bottom: var(--space-1);
+  right: var(--space-1);
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  color: var(--color-text-secondary);
+  background: var(--color-bg-tertiary);
+  transition: all var(--transition-fast);
+  z-index: 10;
+  font-size: 12px;
+}
+
+.deleteBtn:hover {
+  background: var(--color-error);
+  color: white;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+
+.emoji {
+  font-size: 20px;
+}
+
+.city {
+  flex: 1;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.timeIcon {
+  font-size: 16px;
+}
+
+.time {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--color-text-primary);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.5px;
+}
+
+.date {
+  font-size: 10px;
+  color: var(--color-text-tertiary);
+  font-weight: 600;
+}
+
+.addClockBtn {
+  flex: 0 0 100px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  background: var(--color-bg-tertiary);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-lg);
+  color: var(--color-text-secondary);
+  transition: all var(--transition-fast);
+}
+
+.addClockBtn:hover {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.addIcon {
+  font-size: 24px;
+  font-weight: var(--font-weight-bold);
+}
+
+.addText {
+  font-size: 13px;
+  font-weight: var(--font-weight-medium);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  margin-top: var(--space-6);
+}
+
+.inputGuide {
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  font-size: 11px;
+  font-weight: 600;
+  margin-bottom: var(--space-2);
+}
+
+.helperText {
+  font-size: 10px;
+  color: var(--color-text-tertiary);
+  margin-top: -4px;
+}
+
+@media (max-width: 768px) {
+  .clockGrid {
+    flex-wrap: nowrap;
+  }
+}
