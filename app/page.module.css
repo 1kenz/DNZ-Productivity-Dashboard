@@ -1,31 +1,57 @@
 .main {
   min-height: 100vh;
-  padding: var(--space-8) 0;
+  padding: var(--space-6) 0;
   background-color: var(--color-bg-primary);
+}
+
+.tabBar {
+  display: flex;
+  gap: var(--space-2);
+  margin: var(--space-6) 0 var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.tabBtn {
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+  border-bottom: 2px solid transparent;
+  transition: all var(--transition-fast);
+}
+
+.tabBtn:hover {
+  color: var(--color-text-primary);
+}
+
+.tabActive {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
 }
 
 .dashboardGrid {
   display: grid;
   grid-template-columns: 280px 1fr;
-  gap: var(--space-8);
+  gap: var(--space-6);
   align-items: start;
 }
 
+/* Sidebar and content share the exact same gap so both columns keep the
+   same visual rhythm even though their panels are different heights --
+   that's what actually reads as "aligned", since the page is a two-column
+   masonry (independent panel heights per column) rather than a shared
+   row grid where every row could line up pixel for pixel. */
 .sidebar {
   display: flex;
   flex-direction: column;
-  gap: var(--space-6);
+  gap: var(--space-5);
 }
 
 .content {
   display: flex;
   flex-direction: column;
-  gap: var(--space-8);
+  gap: var(--space-5);
   min-width: 0;
-}
-
-.spacer {
-  height: var(--space-4);
 }
 
 .card {
