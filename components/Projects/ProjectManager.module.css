@@ -18,6 +18,12 @@
   color: var(--color-text-primary);
 }
 
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
 .addBtn {
   width: 24px;
   height: 24px;
@@ -36,23 +42,101 @@
   transform: scale(1.1);
 }
 
+.sortMenuWrap {
+  position: relative;
+}
+
+.iconBtn {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg-tertiary);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  transition: all var(--transition-fast);
+}
+
+.iconBtn:hover {
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+}
+
+.iconBtnActive {
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+}
+
+.sortMenu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 20;
+  min-width: 190px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: var(--space-1);
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+}
+
+.sortMenuItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  width: 100%;
+  padding: 6px var(--space-2);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  text-align: left;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+}
+
+.sortMenuItem:hover {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+}
+
+.sortMenuItemActive {
+  color: var(--color-primary);
+  font-weight: var(--font-weight-medium);
+}
+
+.sortMenuCheck {
+  font-size: 11px;
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+
 .list {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: var(--space-1);
 }
 
+/* Each row is boxed in its own project color, set once via --item-color and
+   shaded with color-mix at increasing strength for hover/selected -- gives
+   every project a distinct, glanceable chip instead of plain colored text
+   floating on the sidebar background. */
 .item {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: var(--space-2) var(--space-3);
-  border-radius: var(--radius-md);
-  transition: all var(--transition-fast);
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--item-color, transparent) 12%, var(--color-bg-secondary));
+  transition: background var(--transition-fast);
 }
 
 .item:hover {
-  background: var(--color-bg-tertiary);
+  background: color-mix(in srgb, var(--item-color, transparent) 24%, var(--color-bg-secondary));
 }
 
 .info {
@@ -70,25 +154,62 @@
 }
 
 .item.selected {
-  background: var(--color-bg-tertiary);
-  outline: 1px solid var(--color-border-hover);
+  background: color-mix(in srgb, var(--item-color, transparent) 32%, var(--color-bg-secondary));
+  outline: 1px solid color-mix(in srgb, var(--item-color, var(--color-border-hover)) 60%, transparent);
 }
 
 .icon {
   font-size: var(--font-size-lg);
 }
 
+.infoText {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  flex: 1;
+}
+
 .name {
   font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-bold);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
+.projectProgressRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.projectProgressTrack {
+  flex: 1;
+  height: 4px;
+  min-width: 30px;
+  background: var(--color-bg-tertiary);
+  border-radius: var(--radius-full, 9999px);
+  overflow: hidden;
+}
+
+.projectProgressFill {
+  height: 100%;
+  border-radius: var(--radius-full, 9999px);
+  transition: width var(--transition-fast);
+}
+
+.projectProgressLabel {
+  font-size: 11px;
+  color: var(--color-text-tertiary);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
 .actions {
   display: flex;
-  gap: var(--space-2);
+  gap: 2px;
+  flex-shrink: 0;
   opacity: 0;
   transition: opacity var(--transition-fast);
 }
@@ -98,13 +219,14 @@
 }
 
 .actions button {
-  width: 32px;
-  height: 32px;
+  width: 20px;
+  height: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: var(--radius-md);
-  color: var(--color-text-secondary);
+  font-size: 11px;
+  border-radius: var(--radius-sm);
+  color: var(--color-text-tertiary);
   transition: all var(--transition-fast);
 }
 
@@ -114,8 +236,8 @@
 }
 
 .actions .deleteBtn:hover {
-  background: var(--color-error);
-  color: white;
+  background: color-mix(in srgb, var(--color-error) 15%, transparent);
+  color: var(--color-error);
 }
 
 .empty {
