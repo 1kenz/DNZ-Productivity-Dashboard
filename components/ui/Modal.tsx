@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import styles from './Modal.module.css';
 
 export interface ModalProps {
@@ -38,7 +39,11 @@ export const Modal: React.FC<ModalProps> = ({
 
   if (!isOpen) return null;
 
-  return (
+  // Portal straight onto <body> -- see Drawer.tsx for why: any ancestor with
+  // a hover `transform` (list rows, cards, etc.) becomes a new containing
+  // block for `position: fixed` children and shrinks this backdrop down to
+  // that ancestor's box instead of the full viewport.
+  return createPortal(
     <div className={styles.backdrop} onClick={onClose}>
       <div
         ref={modalRef}
@@ -61,6 +66,7 @@ export const Modal: React.FC<ModalProps> = ({
         )}
         <div className={styles.content}>{children}</div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
