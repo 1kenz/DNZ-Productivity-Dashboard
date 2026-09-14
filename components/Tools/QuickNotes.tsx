@@ -9,9 +9,15 @@ export const QuickNotes: React.FC = () => {
   const [selectedNoteId, setSelectedNoteId] = useState<string | null>(notes[0]?.id || null);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [titleDraft, setTitleDraft] = useState('');
+  const [search, setSearch] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const selectedNote = notes.find(n => n.id === selectedNoteId);
+  const filteredNotes = notes.filter((n) => {
+    const q = search.trim().toLowerCase();
+    if (!q) return true;
+    return n.title.toLowerCase().includes(q) || n.content.toLowerCase().includes(q);
+  });
 
   const handleNewNote = () => {
     const title = `Note ${new Date().toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}`;
@@ -116,8 +122,17 @@ export const QuickNotes: React.FC = () => {
 
         <div className={styles.sidebar}>
           <div className={styles.sidebarHeader}>Your Notes</div>
+          <div className={styles.searchRow}>
+            <input
+              type="text"
+              className={styles.searchInput}
+              placeholder="Search notes..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
           <div className={styles.notesList}>
-            {notes.map(note => (
+            {filteredNotes.map(note => (
               <div 
                 key={note.id} 
                 className={`${styles.noteItem} ${selectedNoteId === note.id ? styles.active : ''}`}
@@ -143,8 +158,10 @@ export const QuickNotes: React.FC = () => {
                 </span>
               </div>
             ))}
-            {notes.length === 0 && (
-              <p className={styles.emptyText}>No notes yet</p>
+            {filteredNotes.length === 0 && (
+              <p className={styles.emptyText}>
+                {notes.length === 0 ? 'No notes yet' : 'No notes match your search'}
+              </p>
             )}
           </div>
         </div>

@@ -14,6 +14,7 @@ export const RecurringTaskManager: React.FC = () => {
   const { recurringTasks, projects, addRecurringTask, updateRecurringTask, deleteRecurringTask } = useApp();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editing, setEditing] = useState<RecurringTask | null>(null);
+  const [search, setSearch] = useState('');
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -106,8 +107,20 @@ export const RecurringTaskManager: React.FC = () => {
         </button>
       </div>
 
+      {recurringTasks.length > 0 && (
+        <input
+          type="text"
+          className={styles.searchInput}
+          placeholder="Search recurring tasks..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+      )}
+
       <div className={styles.list}>
-        {recurringTasks.map((task) => {
+        {recurringTasks
+          .filter((task) => task.title.toLowerCase().includes(search.trim().toLowerCase()))
+          .map((task) => {
           const project = projects.find((p) => p.id === task.projectId);
           return (
             <div key={task.id} className={`${styles.item} ${!task.active ? styles.paused : ''}`}>
@@ -142,6 +155,10 @@ export const RecurringTaskManager: React.FC = () => {
           );
         })}
         {recurringTasks.length === 0 && <p className={styles.empty}>No recurring tasks yet</p>}
+        {recurringTasks.length > 0 &&
+          recurringTasks.filter((task) => task.title.toLowerCase().includes(search.trim().toLowerCase())).length === 0 && (
+            <p className={styles.empty}>No recurring tasks match your search</p>
+          )}
       </div>
 
       <Modal
