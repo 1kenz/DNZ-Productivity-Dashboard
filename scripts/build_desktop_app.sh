@@ -47,6 +47,12 @@ if [ ! -s desktop/resources/prisma-schema/init.sql ]; then
   exit 1
 fi
 
+# Hand-maintained, idempotent DDL applied on EVERY launch (not just first
+# run) — see prisma/incremental.sql for why this exists. Runs after
+# init.sql on fresh installs (all no-ops there) and is what brings an
+# EXISTING install's database up to date with schema.prisma.
+cp prisma/incremental.sql desktop/resources/prisma-schema/incremental.sql
+
 cp public/icons/icon-512.png desktop/resources/icon.png
 
 echo "📦 [5/6] Installing Electron + electron-builder..."

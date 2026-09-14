@@ -1,0 +1,254 @@
+.container {
+  padding: var(--space-4);
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-4);
+}
+
+.title {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
+
+.addBtn {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-3);
+  background: var(--color-bg-tertiary);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-primary);
+  transition: all var(--transition-fast);
+}
+
+.addBtn:hover {
+  background: var(--color-primary-light);
+}
+
+.sectionTree {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.sectionRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+}
+
+.sectionRow:hover {
+  background: var(--color-bg-tertiary);
+}
+
+.sectionRow:hover .sectionActions {
+  opacity: 1;
+}
+
+.collapseBtn {
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: var(--color-text-tertiary);
+  flex-shrink: 0;
+}
+
+.collapseSpacer {
+  width: 18px;
+  flex-shrink: 0;
+}
+
+.sectionIcon {
+  font-size: var(--font-size-base);
+  flex-shrink: 0;
+}
+
+.sectionName {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 60px;
+  max-width: 200px;
+}
+
+.progressTrack {
+  flex: 1;
+  height: 6px;
+  min-width: 40px;
+  background: var(--color-bg-tertiary);
+  border-radius: var(--radius-full, 9999px);
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: var(--radius-full, 9999px);
+  transition: width var(--transition-fast);
+}
+
+.progressCount {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-tertiary);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.progressPercent {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-secondary);
+  width: 36px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.sectionActions {
+  display: flex;
+  gap: var(--space-1);
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.sectionActions button {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  color: var(--color-text-tertiary);
+  transition: all var(--transition-fast);
+}
+
+.sectionActions button:hover {
+  background: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+}
+
+.sectionActions .deleteBtn:hover {
+  background: color-mix(in srgb, var(--color-error) 15%, transparent);
+  color: var(--color-error);
+}
+
+.empty {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-tertiary);
+  text-align: center;
+  padding: var(--space-4);
+  line-height: 1.5;
+}
+
+/* Modal Styles (mirrors ProjectManager.module.css) */
+.formSplit {
+  display: flex;
+  gap: var(--space-6);
+}
+
+.iconPicker {
+  width: 120px;
+}
+
+.details {
+  flex: 1;
+}
+
+.label {
+  display: block;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  text-transform: uppercase;
+  color: var(--color-text-tertiary);
+  margin-bottom: var(--space-2);
+}
+
+.iconGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-2);
+}
+
+.iconBtn {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-2xl);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-tertiary);
+  border: 2px solid transparent;
+  transition: all var(--transition-fast);
+}
+
+.iconBtn:hover {
+  background: var(--color-bg-secondary);
+}
+
+.iconBtn.active {
+  background: var(--color-bg-primary);
+  border-color: var(--color-primary);
+}
+
+.colorPicker {
+  margin-top: var(--space-4);
+}
+
+.colorGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-2);
+}
+
+.colorBtn {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  border: 2px solid transparent;
+  transition: all var(--transition-fast);
+}
+
+.colorBtn.active {
+  border-color: var(--color-text-primary);
+  transform: scale(1.1);
+}
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  margin-top: var(--space-6);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-border);
+}
+
+@media (max-width: 500px) {
+  .formSplit {
+    flex-direction: column;
+  }
+  .iconPicker {
+    width: 100%;
+  }
+  .sectionName {
+    max-width: 100px;
+  }
+}

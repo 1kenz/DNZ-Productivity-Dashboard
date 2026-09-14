@@ -31,7 +31,18 @@ export async function deleteProject(id: string) {
   // Prisma should handle cascade if configured, but let's be safe or let simple delete handle it
   // Our schema doesn't have cascade on Todos->Project (optional relation), so we might need to update todos first if we want to keep them.
   // The AppContext logic was: setTodos(todos.map((todo) => (todo.projectId === id ? { ...todo, projectId: undefined } : todo)));
-  
+
+  // Sections DO cascade-delete with their project (schema-level onDelete:
+  // Cascade), but their Todos should be orphaned first, not deleted with
+  // them -- same "keep the work items" policy as the projectId clear below.
+  const sections = await prisma.section.findMany({ where: { projectId: id }, select: { id: true } });
+  if (sections.length > 0) {
+    await prisma.todo.updateMany({
+      where: { sectionId: { in: sections.map((s) => s.id) } },
+      data: { sectionId: null },
+    });
+  }
+
   // Update todos to remove projectId
   await prisma.todo.updateMany({
     where: { projectId: id },

@@ -21,6 +21,7 @@ const resourcesPath = isPackaged ? process.resourcesPath : path.join(__dirname, 
 
 const APP_SERVER_DIR = path.join(resourcesPath, 'app-server');
 const INIT_SQL_PATH = path.join(resourcesPath, 'prisma-schema', 'init.sql');
+const INCREMENTAL_SQL_PATH = path.join(resourcesPath, 'prisma-schema', 'incremental.sql');
 const ICON_PATH = path.join(resourcesPath, 'icon.png');
 
 // Must match desktop/package.json's "productName" (electron-builder names
@@ -168,16 +169,29 @@ async function syncDatabaseSchema() {
   try {
     const { rows } = await client.query(`SELECT to_regclass('public."Todo"') AS exists`);
     if (rows[0] && rows[0].exists) {
-      log('Database schema already present, skipping init.');
-      return;
+      log('Database schema already present.');
+    } else {
+      if (!fs.existsSync(INIT_SQL_PATH)) {
+        throw new Error(`init.sql not found at ${INIT_SQL_PATH}`);
+      }
+      log('Creating database schema (first launch)...');
+      const sql = fs.readFileSync(INIT_SQL_PATH, 'utf8');
+      await client.query(sql);
+      log('Database schema created.');
     }
-    if (!fs.existsSync(INIT_SQL_PATH)) {
-      throw new Error(`init.sql not found at ${INIT_SQL_PATH}`);
+
+    // Always apply incremental (idempotent) schema updates too, whether
+    // this is a brand-new database (every statement below is a no-op,
+    // since init.sql just created everything already) or an EXISTING
+    // install being upgraded to a newer app version that added
+    // tables/columns. Without this, an existing user's database would
+    // silently stay on the schema it was first created with forever.
+    if (fs.existsSync(INCREMENTAL_SQL_PATH)) {
+      log('Applying incremental schema updates...');
+      const incrementalSql = fs.readFileSync(INCREMENTAL_SQL_PATH, 'utf8');
+      await client.query(incrementalSql);
+      log('Incremental schema updates applied.');
     }
-    log('Creating database schema (first launch)...');
-    const sql = fs.readFileSync(INIT_SQL_PATH, 'utf8');
-    await client.query(sql);
-    log('Database schema created.');
   } finally {
     await client.end();
   }

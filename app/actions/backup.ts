@@ -13,6 +13,7 @@ export async function exportAllData(): Promise<BackupPayload> {
   try {
     const [
       projects,
+      sections,
       recurringTasks,
       todos,
       linkGroups,
@@ -24,6 +25,7 @@ export async function exportAllData(): Promise<BackupPayload> {
       viewPreferences,
     ] = await Promise.all([
       prisma.project.findMany(),
+      prisma.section.findMany(),
       prisma.recurringTask.findMany(),
       prisma.todo.findMany(),
       prisma.linkGroup.findMany(),
@@ -40,6 +42,7 @@ export async function exportAllData(): Promise<BackupPayload> {
       exportedAt: new Date().toISOString(),
       data: {
         projects,
+        sections,
         recurringTasks,
         todos,
         linkGroups,
@@ -86,6 +89,11 @@ async function restoreBackupInternal(backup: BackupPayload) {
   const d = backup.data;
 
   const projects = (d.projects || []).map((p) => ({ ...p, createdAt: toDate(p.createdAt) }));
+  const sections = (d.sections || []).map((s: any) => ({
+    ...s,
+    createdAt: toDate(s.createdAt),
+    updatedAt: toDate(s.updatedAt),
+  }));
   const recurringTasks = (d.recurringTasks || []).map((t) => ({
     ...t,
     startDate: toDate(t.startDate),
@@ -114,8 +122,11 @@ async function restoreBackupInternal(backup: BackupPayload) {
   const viewPreferences = d.viewPreferences || [];
 
   await prisma.$transaction(async (tx) => {
-    // Children before parents.
+    // Children before parents. Todo self-references (parentTodoId) and
+    // references Section, so it must go before Section, which in turn must
+    // go before Project.
     await tx.todo.deleteMany();
+    await tx.section.deleteMany();
     await tx.quickLink.deleteMany();
     await tx.linkGroup.deleteMany();
     await tx.recurringTask.deleteMany();
@@ -126,10 +137,17 @@ async function restoreBackupInternal(backup: BackupPayload) {
     await tx.timeEntry.deleteMany();
     await tx.viewPreferences.deleteMany();
 
-    // Parents before children.
+    // Parents before children. Project before Section before Todo (Todo can
+    // reference both a Section and, via parentTodoId, another Todo -- since
+    // createMany doesn't guarantee row order for a self-reference, subtasks
+    // are inserted in a second pass below once their parent rows exist).
     if (projects.length) await tx.project.createMany({ data: projects });
+    if (sections.length) await tx.section.createMany({ data: sections });
     if (recurringTasks.length) await tx.recurringTask.createMany({ data: recurringTasks });
-    if (todos.length) await tx.todo.createMany({ data: todos });
+    const topLevelTodos = todos.filter((t: any) => !t.parentTodoId);
+    const subTodos = todos.filter((t: any) => t.parentTodoId);
+    if (topLevelTodos.length) await tx.todo.createMany({ data: topLevelTodos });
+    if (subTodos.length) await tx.todo.createMany({ data: subTodos });
     if (linkGroups.length) await tx.linkGroup.createMany({ data: linkGroups });
     if (quickLinks.length) await tx.quickLink.createMany({ data: quickLinks });
     if (kanbanColumns.length) await tx.kanbanColumn.createMany({ data: kanbanColumns });

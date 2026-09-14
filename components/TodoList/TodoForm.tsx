@@ -14,11 +14,12 @@ interface TodoFormProps {
 }
 
 export const TodoForm: React.FC<TodoFormProps> = ({ onClose }) => {
-  const { addTodo, addRecurringTask, projects, kanbanColumns } = useApp();
+  const { addTodo, addRecurringTask, projects, sections, kanbanColumns } = useApp();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [priority, setPriority] = useState<any>('medium');
+  const [priority, setPriority] = useState<Priority>('medium');
   const [projectId, setProjectId] = useState<string>('');
+  const [sectionId, setSectionId] = useState<string>('');
   const [deadline, setDeadline] = useState('');
   const [status, setStatus] = useState(kanbanColumns[0]?.id || 'todo');
 
@@ -42,6 +43,7 @@ export const TodoForm: React.FC<TodoFormProps> = ({ onClose }) => {
     setDescription('');
     setPriority('medium');
     setProjectId('');
+    setSectionId('');
     setDeadline('');
     setIsRecurring(false);
     setFrequency('weekly');
@@ -78,6 +80,7 @@ export const TodoForm: React.FC<TodoFormProps> = ({ onClose }) => {
         description: description.trim() || undefined,
         priority,
         projectId: projectId || undefined,
+        sectionId: sectionId || undefined,
         deadline: deadline ? new Date(deadline) : undefined,
         status,
         completed: false,
@@ -113,7 +116,10 @@ export const TodoForm: React.FC<TodoFormProps> = ({ onClose }) => {
           <select
             className={styles.select}
             value={projectId}
-            onChange={(e) => setProjectId(e.target.value)}
+            onChange={(e) => {
+              setProjectId(e.target.value);
+              setSectionId(''); // sections belong to a single project
+            }}
           >
             <option value="">No Project</option>
             {projects.map((project) => (
@@ -121,6 +127,26 @@ export const TodoForm: React.FC<TodoFormProps> = ({ onClose }) => {
                 {project.icon} {project.name}
               </option>
             ))}
+          </select>
+        </div>
+      )}
+
+      {!isRecurring && projectId && sections.some((s) => s.projectId === projectId) && (
+        <div className={styles.selectGroup}>
+          <label className={styles.label}>Section (optional)</label>
+          <select
+            className={styles.select}
+            value={sectionId}
+            onChange={(e) => setSectionId(e.target.value)}
+          >
+            <option value="">No Section</option>
+            {sections
+              .filter((s) => s.projectId === projectId)
+              .map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.icon ? `${s.icon} ` : ''}{s.name}
+                </option>
+              ))}
           </select>
         </div>
       )}

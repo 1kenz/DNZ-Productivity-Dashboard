@@ -1,9 +1,10 @@
 'use client';
 
 import React, { createContext, useContext, ReactNode, useEffect, useState } from 'react';
-import { Todo, LinkGroup, Project, RecurringTask, KanbanColumn, ViewPreferences, Clock, TimeEntry, Note, QuickLink } from '@/types';
+import { Todo, LinkGroup, Project, Section, RecurringTask, KanbanColumn, ViewPreferences, Clock, TimeEntry, Note, QuickLink } from '@/types';
 import * as todoActions from '@/app/actions/todo';
 import * as projectActions from '@/app/actions/project';
+import * as sectionActions from '@/app/actions/section';
 import * as recurringActions from '@/app/actions/recurring';
 import * as kanbanActions from '@/app/actions/kanban';
 import * as clockActions from '@/app/actions/clock';
@@ -28,6 +29,12 @@ interface AppContextType {
   addProject: (project: Omit<Project, 'id' | 'createdAt'>) => void;
   updateProject: (id: string, updates: Partial<Project>) => void;
   deleteProject: (id: string) => void;
+
+  // Sections (Ana Bolum / Alt Bolum -- Proje > Ana Bolum > Alt Bolum > Task > Mikro Task)
+  sections: Section[];
+  addSection: (section: Omit<Section, 'id' | 'createdAt' | 'updatedAt'>) => void;
+  updateSection: (id: string, updates: Partial<Section>) => void;
+  deleteSection: (id: string) => void;
 
   // Recurring Tasks
   recurringTasks: RecurringTask[];
@@ -114,6 +121,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [isLoading, setIsLoading] = useState(true);
   const [todos, setTodos] = useState<Todo[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
+  const [sections, setSections] = useState<Section[]>([]);
   const [recurringTasks, setRecurringTasks] = useState<RecurringTask[]>([]);
   const [kanbanColumns, setKanbanColumns] = useState<KanbanColumn[]>([]);
   const [clocks, setClocks] = useState<Clock[]>([]);
@@ -124,7 +132,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     taskView: 'list',
     linkView: 'grid',
     showCompleted: true,
-    groupBy: 'none',
+    groupBy: 'status', // ClickUp-style: List view defaults to grouped-by-status
   });
   
   // Theme and Focus Mode can remain local storage driven for pure UI preference availability immediately?
@@ -150,6 +158,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         const [
           loadedTodos,
           loadedProjects,
+          loadedSections,
           loadedRecurringTasks,
           loadedKanban,
           loadedClocks,
@@ -160,6 +169,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         ] = await Promise.all([
           todoActions.getTodos(),
           projectActions.getProjects(),
+          sectionActions.getSections(),
           recurringActions.getRecurringTasks(),
           kanbanActions.getKanbanColumns(),
           clockActions.getClocks(),
@@ -172,6 +182,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         // Cast prisma types to our types if necessary (Dates are objects coming from server actions usually)
         setTodos(loadedTodos as unknown as Todo[]);
         setProjects(loadedProjects as unknown as Project[]);
+        setSections(loadedSections as unknown as Section[]);
         setRecurringTasks(loadedRecurringTasks as unknown as RecurringTask[]);
         setKanbanColumns(loadedKanban.length > 0 ? loadedKanban : DEFAULT_KANBAN_COLUMNS);
         setClocks(loadedClocks.length > 0 ? loadedClocks : DEFAULT_CLOCKS);
@@ -211,10 +222,16 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
             ...todo,
             description: todo.description ?? null,
             projectId: todo.projectId ?? null,
+            sectionId: todo.sectionId ?? null,
+            parentTodoId: todo.parentTodoId ?? null,
             dueDate: todo.dueDate ?? null,
             deadline: todo.deadline ?? null,
             tags: todo.tags ?? [], // Ensure array
             recurringTaskId: todo.recurringTaskId ?? null,
+            targetCount: todo.targetCount ?? null,
+            currentCount: todo.currentCount ?? null,
+            unit: todo.unit ?? null,
+            estimateHours: todo.estimateHours ?? null,
         };
         const created = await todoActions.createTodo(payload);
         // Replace temp with actual
@@ -279,10 +296,68 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   };
 
   const deleteProject = async (id: string) => {
+    const projectSectionIds = new Set(sections.filter(s => s.projectId === id).map(s => s.id));
     setProjects(prev => prev.filter(p => p.id !== id));
-    // Also remove project from todos locally
-    setTodos(prev => prev.map(t => t.projectId === id ? { ...t, projectId: undefined } : t));
+    setSections(prev => prev.filter(s => s.projectId !== id));
+    // Also remove project (and any of its sections) from todos locally
+    setTodos(prev => prev.map(t => {
+      if (t.projectId === id) return { ...t, projectId: undefined, sectionId: undefined };
+      if (t.sectionId && projectSectionIds.has(t.sectionId)) return { ...t, sectionId: undefined };
+      return t;
+    }));
     await projectActions.deleteProject(id);
+  };
+
+  // Section operations (Ana Bolum / Alt Bolum)
+  const addSection = async (section: Omit<Section, 'id' | 'createdAt' | 'updatedAt'>) => {
+    const tempId = crypto.randomUUID();
+    const newSection: Section = { ...section, id: tempId, createdAt: new Date(), updatedAt: new Date() };
+    setSections(prev => [...prev, newSection]);
+    try {
+      const payload = {
+        ...section,
+        color: section.color ?? null,
+        icon: section.icon ?? null,
+        parentId: section.parentId ?? null,
+      };
+      const created = await sectionActions.createSection(payload);
+      setSections(prev => prev.map(s => s.id === tempId ? (created as unknown as Section) : s));
+    } catch (e) {
+      console.error(e);
+      setSections(prev => prev.filter(s => s.id !== tempId));
+    }
+  };
+
+  const updateSection = async (id: string, updates: Partial<Section>) => {
+    setSections(prev => prev.map(s => s.id === id ? { ...s, ...updates, updatedAt: new Date() } : s));
+    try {
+      await sectionActions.updateSection(id, updates);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const deleteSection = async (id: string) => {
+    // Mirror the backend's cascade-to-subsections behavior locally so the
+    // UI doesn't show orphaned child sections until the next full reload.
+    const idsToRemove = new Set<string>([id]);
+    let added = true;
+    while (added) {
+      added = false;
+      for (const s of sections) {
+        if (s.parentId && idsToRemove.has(s.parentId) && !idsToRemove.has(s.id)) {
+          idsToRemove.add(s.id);
+          added = true;
+        }
+      }
+    }
+    setSections(prev => prev.filter(s => !idsToRemove.has(s.id)));
+    setTodos(prev => prev.map(t => (t.sectionId && idsToRemove.has(t.sectionId)) ? { ...t, sectionId: undefined } : t));
+    try {
+      await sectionActions.deleteSection(id);
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   // Recurring Task operations
@@ -511,6 +586,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         addProject,
         updateProject,
         deleteProject,
+        sections,
+        addSection,
+        updateSection,
+        deleteSection,
         recurringTasks,
         addRecurringTask,
         updateRecurringTask,
