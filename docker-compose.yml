@@ -24,8 +24,10 @@ services:
     ports:
       - "5532:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - productivity_dashboard_data:/var/lib/postgresql/data
     restart: always
 
 volumes:
-  postgres_data:
+  productivity_dashboard_data:
+    name: productivity-dashboardv25_postgres_data
+    external: true

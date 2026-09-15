@@ -42,18 +42,13 @@ docker push $REGISTRY/$IMAGE_NAME:latest || true
 
 # 3. Start with Docker Compose
 echo "🛠️ [3/3] Starting Service with Docker Compose..."
-# Remove any previous v2 dashboard container to free port 9999
-docker stop i-kenz-dashboard-v2 2>/dev/null || true
-docker rm i-kenz-dashboard-v2 2>/dev/null || true
+# Safely stop old v2 dashboard and old db container (volume data is 100% preserved)
+echo "🧹 Stopping previous container instances..."
+docker stop i-kenz-dashboard-v2 productivity_db 2>/dev/null || true
+docker rm i-kenz-dashboard-v2 productivity_db 2>/dev/null || true
 
-# If productivity_db container already exists, safely start the v3 dashboard service without container name collision
-if docker ps -a --format '{{.Names}}' | grep -q "^productivity_db$"; then
-  echo "ℹ️ Existing database container 'productivity_db' detected. Starting v3 dashboard..."
-  docker compose up -d --no-recreate postgres 2>/dev/null || true
-  docker compose up -d --force-recreate productivity-dashboard
-else
-  docker compose up -d
-fi
+echo "🚀 Starting v3 stack with PostgreSQL..."
+docker compose up -d
 
 echo "🎉 Deployment Complete!"
 echo "👉 App is running at http://localhost:9999"
