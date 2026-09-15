@@ -1,0 +1,186 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 5, 10, 0.88);
+  backdrop-filter: blur(25px);
+  z-index: 1200;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 40px 24px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.98); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.topBar {
+  width: 100%;
+  max-width: 800px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.modelBadge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 9999px;
+  padding: 6px 14px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.closeBtn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.closeBtn:hover {
+  background: rgba(255, 255, 255, 0.18);
+  transform: scale(1.05);
+}
+
+.centerStage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+}
+
+.orbContainer {
+  position: relative;
+  width: 180px;
+  height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.orb {
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.orb.idle {
+  background: radial-gradient(circle at 30% 30%, #6366f1, #3b82f6, #1e1b4b);
+  box-shadow: 0 0 40px rgba(99, 102, 241, 0.4), inset 0 0 20px rgba(255, 255, 255, 0.3);
+}
+
+.orb.listening {
+  background: radial-gradient(circle at 30% 30%, #06b6d4, #3b82f6, #0284c7);
+  box-shadow: 0 0 60px rgba(6, 182, 212, 0.7), inset 0 0 25px rgba(255, 255, 255, 0.5);
+  animation: pulseListening 1.4s infinite alternate ease-in-out;
+}
+
+.orb.thinking {
+  background: radial-gradient(circle at 30% 30%, #a855f7, #ec4899, #4f46e5);
+  box-shadow: 0 0 60px rgba(168, 85, 247, 0.7), inset 0 0 25px rgba(255, 255, 255, 0.5);
+  animation: rotateThinking 2s infinite linear;
+}
+
+.orb.speaking {
+  background: radial-gradient(circle at 30% 30%, #10b981, #06b6d4, #047857);
+  box-shadow: 0 0 70px rgba(16, 185, 129, 0.8), inset 0 0 30px rgba(255, 255, 255, 0.6);
+  animation: pulseSpeaking 0.8s infinite alternate ease-in-out;
+}
+
+@keyframes pulseListening {
+  0% { transform: scale(0.95); }
+  100% { transform: scale(1.1); }
+}
+
+@keyframes rotateThinking {
+  0% { transform: rotate(0deg) scale(1); }
+  50% { transform: rotate(180deg) scale(1.05); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+
+@keyframes pulseSpeaking {
+  0% { transform: scale(1); }
+  100% { transform: scale(1.15); }
+}
+
+.statusText {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #ededed;
+  text-align: center;
+  letter-spacing: -0.01em;
+}
+
+.statusHint {
+  font-size: 0.82rem;
+  color: #a1a1aa;
+  margin-top: 4px;
+}
+
+.transcriptBox {
+  width: 100%;
+  max-width: 650px;
+  min-height: 90px;
+  max-height: 140px;
+  overflow-y: auto;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 16px;
+  color: #f4f4f5;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.interim {
+  color: #93c5fd;
+  font-style: italic;
+}
+
+.controlsRow {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.controlBtn {
+  padding: 10px 20px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.controlBtn:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.controlBtn.primary {
+  background: linear-gradient(135deg, #4f46e5, #6366f1);
+  border: none;
+}

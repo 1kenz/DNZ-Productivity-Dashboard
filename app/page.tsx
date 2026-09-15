@@ -1,0 +1,134 @@
+'use client';
+
+import React, { useState } from 'react';
+import { useApp } from '@/contexts/AppContext';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { Header } from '@/components/Dashboard/Header';
+import { TodoList } from '@/components/TodoList';
+import { LinkGroupGrid } from '@/components/QuickLinks/LinkGroupGrid';
+import { ProjectManager } from '@/components/Projects';
+import { RecurringTaskManager } from '@/components/Recurring';
+import { Pomodoro, QuickNotes, TimeTracker, QuickNotesPopover, CommandPalette } from '@/components/Tools';
+import { StatsCard } from '@/components/Dashboard/StatsCard';
+import { AnalyticsView } from '@/components/Analytics';
+import { AiChatView } from '@/components/AiChat';
+import { TimeTrackingView } from '@/components/TimeTracking/TimeTrackingView';
+import { NotesView } from '@/components/Notes/NotesView';
+import { AppleNotesIcon } from '@/components/ui/AppleNotesIcon';
+import {
+  DashboardTabIcon,
+  TimeTrackerTabIcon,
+  AnalyticsTabIcon,
+  AiAssistantTabIcon,
+} from '@/components/ui/TabIcons';
+import { KeyboardShortcutsModal } from '@/components/ui/KeyboardShortcutsModal';
+import styles from './page.module.css';
+
+type MainTab = 'dashboard' | 'time-tracker' | 'notes' | 'analytics' | 'ai';
+
+export default function Home() {
+  const { focusMode } = useApp();
+  const { t } = useLanguage();
+  const [tab, setTab] = useState<MainTab>('dashboard');
+
+  return (
+    <main className={styles.main}>
+      <div className="container">
+        <Header />
+
+        {!focusMode && (
+          <div className={styles.tabBar}>
+            <button
+              type="button"
+              className={`${styles.tabBtn} ${tab === 'dashboard' ? styles.tabActive : ''}`}
+              onClick={() => setTab('dashboard')}
+            >
+              <DashboardTabIcon size={16} />
+              <span>{t('dashboardTab')}</span>
+            </button>
+            <button
+              type="button"
+              className={`${styles.tabBtn} ${tab === 'time-tracker' ? styles.tabActive : ''}`}
+              onClick={() => setTab('time-tracker')}
+            >
+              <TimeTrackerTabIcon size={16} />
+              <span>{t('timeTrackerTab')}</span>
+            </button>
+            <button
+              type="button"
+              className={`${styles.tabBtn} ${tab === 'notes' ? styles.tabActive : ''}`}
+              onClick={() => setTab('notes')}
+            >
+              <AppleNotesIcon size={16} />
+              <span>{t('notesTab')}</span>
+            </button>
+            <button
+              type="button"
+              className={`${styles.tabBtn} ${tab === 'analytics' ? styles.tabActive : ''}`}
+              onClick={() => setTab('analytics')}
+            >
+              <AnalyticsTabIcon size={16} />
+              <span>{t('analyticsTab')}</span>
+            </button>
+            <button
+              type="button"
+              className={`${styles.tabBtn} ${tab === 'ai' ? styles.tabActive : ''}`}
+              onClick={() => setTab('ai')}
+            >
+              <AiAssistantTabIcon size={16} />
+              <span>{t('aiTab')}</span>
+            </button>
+          </div>
+        )}
+
+        {tab === 'ai' && !focusMode ? (
+          <AiChatView />
+        ) : tab === 'analytics' && !focusMode ? (
+          <AnalyticsView />
+        ) : tab === 'time-tracker' && !focusMode ? (
+          <TimeTrackingView />
+        ) : tab === 'notes' && !focusMode ? (
+          <NotesView />
+        ) : focusMode ? (
+          <div className={styles.dashboardGrid}>
+            <div className={styles.sidebar}>
+              <ProjectManager />
+              <RecurringTaskManager />
+            </div>
+
+            <div className={styles.content}>
+              <div className={styles.card}>
+                <TodoList />
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className={styles.dashboardGrid}>
+            <div className={styles.sidebar}>
+              <StatsCard />
+              <ProjectManager />
+              <RecurringTaskManager />
+              <QuickNotes />
+              <Pomodoro />
+              <TimeTracker />
+            </div>
+
+            <div className={styles.content}>
+              <div className={styles.card}>
+                <LinkGroupGrid />
+              </div>
+              <div className={styles.card}>
+                <TodoList />
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Global Drawers and Modals */}
+      <QuickNotesPopover />
+      <CommandPalette onNavigateTab={(t) => setTab(t)} />
+      <KeyboardShortcutsModal />
+    </main>
+  );
+}

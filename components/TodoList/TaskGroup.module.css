@@ -1,0 +1,221 @@
+.group {
+  margin-bottom: var(--space-4);
+}
+
+.group:last-child {
+  margin-bottom: 0;
+}
+
+.groupHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-1);
+}
+
+.collapseBtn {
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: var(--color-text-tertiary);
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+}
+
+.collapseBtn:hover {
+  color: var(--color-text-primary);
+  background: var(--color-bg-tertiary);
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  color: var(--color-text-secondary);
+  background: var(--color-bg-tertiary);
+  white-space: nowrap;
+}
+
+.count {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-tertiary);
+}
+
+.headerSpacer {
+  flex: 1;
+}
+
+.headerAddBtn {
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  border-radius: var(--radius-sm);
+  opacity: 0;
+  transition: all var(--transition-fast);
+}
+
+.groupHeader:hover .headerAddBtn {
+  opacity: 1;
+}
+
+.headerAddBtn:hover {
+  background: var(--color-bg-tertiary);
+  color: var(--color-primary);
+}
+
+.tableWrap {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-secondary);
+  /* No overflow:hidden here -- a row's priority popover is an absolutely
+     positioned child and needs to escape this box's bounds. Rounded
+     corners are instead applied to the first/last direct children only. */
+}
+
+/* border-radius alone rounds an element's own background/border -- no
+   overflow:hidden needed (that would also clip a row's priority popover,
+   which must be free to escape past these edges). */
+.tableWrap > *:first-child {
+  border-top-left-radius: var(--radius-lg);
+  border-top-right-radius: var(--radius-lg);
+}
+
+.tableWrap > *:last-child {
+  border-bottom-left-radius: var(--radius-lg);
+  border-bottom-right-radius: var(--radius-lg);
+}
+
+.columnHeader {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 130px 110px 64px;
+  column-gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  font-size: 11px;
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  color: var(--color-text-tertiary);
+  background: var(--color-bg-tertiary);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.sortableHeader {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font: inherit;
+  text-transform: inherit;
+  letter-spacing: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: color var(--transition-fast);
+}
+
+.sortableHeader:hover {
+  color: var(--color-text-secondary);
+}
+
+.sortActive {
+  color: var(--color-primary);
+}
+
+.sortArrow {
+  font-size: 9px;
+}
+
+@media (max-width: 640px) {
+  .columnHeader {
+    grid-template-columns: minmax(0, 1fr) 40px;
+  }
+  .columnHeader span:nth-child(2),
+  .columnHeader span:nth-child(3),
+  .columnHeader button:nth-child(2),
+  .columnHeader button:nth-child(3) {
+    display: none;
+  }
+}
+
+.emptyGroup {
+  padding: var(--space-4);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-tertiary);
+  text-align: center;
+}
+
+.addRow {
+  display: block;
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-tertiary);
+  text-align: left;
+  transition: all var(--transition-fast);
+}
+
+.addRow:hover {
+  color: var(--color-primary);
+  background: var(--color-bg-tertiary);
+}
+
+.addRowForm {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-bg-tertiary);
+}
+
+.addInput {
+  flex: 1;
+  min-width: 0;
+  padding: 6px var(--space-2);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-md);
+}
+
+.addCancelBtn,
+.addSaveBtn {
+  padding: 6px var(--space-3);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  border-radius: var(--radius-md);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.addCancelBtn {
+  color: var(--color-text-secondary);
+  background: var(--color-bg-secondary);
+}
+
+.addCancelBtn:hover {
+  color: var(--color-text-primary);
+}
+
+.addSaveBtn {
+  color: white;
+  background: var(--color-primary);
+}
+
+.addSaveBtn:hover {
+  opacity: 0.9;
+}

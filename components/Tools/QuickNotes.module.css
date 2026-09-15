@@ -1,0 +1,371 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  height: 440px;
+  position: relative;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.container.embedded {
+  height: 100%;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  background: transparent;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-bg-primary);
+  gap: 8px;
+}
+
+.titleArea {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.title {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-tertiary);
+  white-space: nowrap;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.addBtn,
+.expandDrawerBtn {
+  font-size: 14px;
+  color: var(--color-primary);
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.addBtn:hover,
+.expandDrawerBtn:hover {
+  background: var(--color-primary);
+  color: #ffffff;
+  transform: scale(1.1);
+}
+
+.editorBody {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--color-bg-primary);
+}
+
+.noteMetaBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 12px;
+  background: var(--color-bg-secondary);
+  border-bottom: 1px solid var(--color-border);
+  gap: 8px;
+}
+
+.activeTitle {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 170px;
+  transition: background var(--transition-fast);
+}
+
+.activeTitle:hover {
+  background: var(--color-bg-tertiary);
+  color: var(--color-primary);
+}
+
+.titleInput {
+  flex: 1;
+  padding: 2px 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-sm);
+  outline: none;
+}
+
+.metaActions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.clearBtn {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--color-text-tertiary);
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  border: 1px solid var(--color-border);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.clearBtn:hover {
+  background: rgba(239, 68, 68, 0.15);
+  color: var(--color-error);
+  border-color: var(--color-error);
+}
+
+.deleteNoteBtn {
+  font-size: 11px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: var(--radius-sm);
+  opacity: 0.6;
+  transition: all var(--transition-fast);
+}
+
+.deleteNoteBtn:hover {
+  opacity: 1;
+  background: rgba(239, 68, 68, 0.15);
+}
+
+.textarea {
+  flex: 1;
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 13px;
+  color: var(--color-text-primary);
+  background: transparent;
+  border: none;
+  resize: none;
+  line-height: 1.5;
+  outline: none;
+}
+
+.emptyCard {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 20px;
+  color: var(--color-text-tertiary);
+  font-size: var(--font-size-sm);
+}
+
+.createFirstBtn {
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #ffffff;
+  background: var(--color-primary);
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: transform var(--transition-fast);
+}
+
+.createFirstBtn:hover {
+  transform: scale(1.05);
+}
+
+/* 3. Bottom Recent Notes List (Satır Satır) */
+.recentNotesSection {
+  background: var(--color-bg-secondary);
+  border-top: 1px solid var(--color-border);
+  max-height: 150px;
+  display: flex;
+  flex-direction: column;
+}
+
+.recentNotesHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 12px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-text-tertiary);
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-bg-tertiary);
+}
+
+.recentLimitBadge {
+  font-size: 9px;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: var(--color-bg-primary);
+  color: var(--color-text-secondary);
+}
+
+.recentNotesList {
+  overflow-y: auto;
+  flex: 1;
+  padding: 4px 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.noteRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-primary);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  gap: 8px;
+}
+
+.noteRow:hover {
+  background: var(--color-bg-tertiary);
+  border-color: var(--color-border);
+}
+
+.noteRowActive {
+  background: color-mix(in srgb, var(--color-primary) 12%, var(--color-bg-primary));
+  border-color: color-mix(in srgb, var(--color-primary) 35%, transparent);
+}
+
+.noteRowMain {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.noteRowTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.noteRowTitle {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.noteRowActive .noteRowTitle {
+  color: var(--color-primary);
+}
+
+.noteRowTime {
+  font-size: 9px;
+  color: var(--color-text-tertiary);
+  flex-shrink: 0;
+}
+
+.noteRowPreview {
+  font-size: 10px;
+  color: var(--color-text-tertiary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.deleteRowBtn {
+  font-size: 11px;
+  color: var(--color-text-tertiary);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  opacity: 0;
+  padding: 0 4px;
+  border-radius: 3px;
+  transition: all var(--transition-fast);
+}
+
+.noteRow:hover .deleteRowBtn {
+  opacity: 1;
+}
+
+.deleteRowBtn:hover {
+  color: var(--color-error);
+  background: rgba(239, 68, 68, 0.15);
+}
+
+/* Light Theme Overrides */
+:global([data-theme="light"]) .title {
+  color: #0f172a;
+}
+
+:global([data-theme="light"]) .header {
+  background: #f8fafc;
+}
+
+:global([data-theme="light"]) .recentNotesHeader {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+:global([data-theme="light"]) .recentNotesHeader span {
+  color: #0f172a;
+}
+
+:global([data-theme="light"]) .activeTitle {
+  color: #0f172a;
+}
+
+:global([data-theme="light"]) .noteRowTitle {
+  color: #0f172a;
+}
+
+:global([data-theme="light"]) .noteRowTime,
+:global([data-theme="light"]) .noteRowPreview {
+  color: #64748b;
+}
+
+:global([data-theme="light"]) .textarea {
+  color: #0f172a;
+}
+
+:global([data-theme="light"]) .textarea::placeholder {
+  color: #94a3b8;
+}
+

@@ -1,0 +1,206 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Todo {
+  id              String         @id @default(uuid())
+  title           String
+  description     String?
+  completed       Boolean        @default(false)
+  priority        String         @default("medium") // low, medium, high
+  projectId       String?
+  project         Project?       @relation(fields: [projectId], references: [id])
+  sectionId       String? // organizational bucket within a project (Ana Bolum / Alt Bolum)
+  section         Section?       @relation(fields: [sectionId], references: [id], onDelete: SetNull)
+  parentTodoId    String? // set when this Todo is a microtask/subtask of another Todo
+  parentTodo      Todo?          @relation("TodoSubtasks", fields: [parentTodoId], references: [id], onDelete: Cascade)
+  subtasks        Todo[]         @relation("TodoSubtasks")
+  tags            String[]
+  dueDate         DateTime?
+  deadline        DateTime?
+  status          String         @default("todo") // kanban column id
+  recurringTaskId String?
+  recurringTask   RecurringTask? @relation(fields: [recurringTaskId], references: [id])
+  // Numeric-goal tracking (e.g. "500 kelime", "3 podcast") as an alternative
+  // to the plain completed/incomplete checkbox — see currentCount/targetCount.
+  targetCount     Int?
+  currentCount    Int?
+  unit            String? // "kelime", "sayfa", "dakika", ...
+  estimateHours   Float? // optional effort estimate, used for weighted progress rollups
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  @@unique([recurringTaskId, dueDate])
+  @@index([sectionId])
+  @@index([parentTodoId])
+}
+
+// Organizational layer between a Project and its Todos — "Ana Bolum" / "Alt
+// Bolum" in the hierarchy Proje > Ana Bolum > Alt Bolum > Task > Mikro Task.
+// Self-referencing (parentId) so a Section can itself contain SubSections,
+// with no fixed depth limit. Deleting a Section cascades to its
+// sub-sections, but orphans (never deletes) the Todos that were in them —
+// see app/actions/section.ts.
+model Section {
+  id        String    @id @default(uuid())
+  name      String
+  color     String?
+  icon      String?
+  order     Int       @default(0)
+  projectId String
+  project   Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  parentId  String?
+  parent    Section?  @relation("SectionChildren", fields: [parentId], references: [id], onDelete: Cascade)
+  children  Section[] @relation("SectionChildren")
+  todos     Todo[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([projectId])
+  @@index([parentId])
+}
+
+model Project {
+  id             String          @id @default(uuid())
+  name           String
+  color          String
+  icon           String?
+  todos          Todo[]
+  sections       Section[]
+  recurringTasks RecurringTask[]
+  createdAt      DateTime        @default(now())
+}
+
+model KanbanColumn {
+  id    String @id @default(uuid())
+  name  String
+  color String
+  order Int
+}
+
+model Clock {
+  id       String @id @default(uuid())
+  city     String
+  timezone String
+  emoji    String
+  order    Int
+}
+
+model LinkGroup {
+  id    String      @id @default(uuid())
+  name  String
+  color String
+  icon  String?
+  links QuickLink[]
+  order Int
+}
+
+model QuickLink {
+  id      String    @id @default(uuid())
+  title   String
+  url     String
+  icon    String?
+  groupId String
+  group   LinkGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  order   Int
+}
+
+model Note {
+  id        String   @id @default(uuid())
+  title     String
+  content   String
+  color     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model TimeEntry {
+  id          String   @id @default(uuid())
+  projectId   String // No relation enforced for simplicity, or could add Relation
+  taskId      String?
+  description String?
+  duration    Int // in seconds
+  createdAt   DateTime @default(now())
+}
+
+model ViewPreferences {
+  id            String  @id @default("default") // Singleton row
+  taskView      String  @default("list")
+  linkView      String  @default("grid")
+  showCompleted Boolean @default(true)
+  groupBy       String  @default("none")
+}
+
+model RecurringTask {
+  id          String    @id @default(uuid())
+  title       String
+  description String?
+  priority    String    @default("medium") // low, medium, high
+  projectId   String?
+  project     Project?  @relation(fields: [projectId], references: [id])
+  tags        String[]
+  frequency   String    // "daily" | "weekly" | "monthly"
+  interval    Int       @default(1) // every N days / weeks / months
+  daysOfWeek  Int[]     @default([]) // 0=Sun .. 6=Sat, used when frequency = "weekly"
+  dayOfMonth  Int? // used when frequency = "monthly"
+  startDate   DateTime  @default(now())
+  endDate     DateTime?
+  active      Boolean   @default(true)
+  lastRunDate DateTime? // last date through which occurrences were generated
+  todos       Todo[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model GoogleDriveAuth {
+  id           String   @id @default("default") // Singleton row
+  accessToken  String
+  refreshToken String
+  expiryDate   DateTime
+  email        String?
+  updatedAt    DateTime @updatedAt
+}
+
+model AiConversation {
+  id           String      @id @default(uuid())
+  title        String
+  provider     String      // "anthropic" | "gemini" | "openai"
+  model        String      // "claude-3-7-sonnet", "gemini-3.6-flash", "gpt-4o"
+  systemPrompt String?
+  pinned       Boolean     @default(false)
+  messages     AiMessage[]
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  @@index([provider])
+}
+
+model AiMessage {
+  id             String         @id @default(uuid())
+  conversationId String
+  conversation   AiConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  role           String         // "user" | "assistant" | "system"
+  content        String
+  tokens         Int?
+  model          String?
+  createdAt      DateTime       @default(now())
+
+  @@index([conversationId])
+}
+
+model AiSettings {
+  id               String   @id @default("default")
+  anthropicApiKey  String?
+  geminiApiKey     String?
+  openaiApiKey     String?
+  defaultProvider  String   @default("gemini")
+  defaultModel     String   @default("gemini-3.6-flash")
+  voiceLanguage    String   @default("tr-TR") // tr-TR, de-DE, en-US
+  autoSpeak        Boolean  @default(false)
+  updatedAt        DateTime @updatedAt
+}
+
