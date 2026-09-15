@@ -156,6 +156,12 @@
   box-shadow: 0 0 12px rgba(245, 158, 11, 0.25);
 }
 
+.actionBtn.activeSystem {
+  background: rgba(56, 189, 248, 0.15);
+  border-color: rgba(56, 189, 248, 0.4);
+  color: #38bdf8;
+}
+
 .clockSection {
   width: 100%;
 }

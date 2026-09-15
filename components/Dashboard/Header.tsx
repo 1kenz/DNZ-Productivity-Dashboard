@@ -13,7 +13,7 @@ import { Language } from '@/types';
 import styles from './Header.module.css';
 
 export const Header: React.FC = () => {
-  const { theme, toggleTheme, focusLevel, toggleFocusMode, setIsCommandPaletteOpen, setIsShortcutsOpen, todos, projects } = useApp();
+  const { theme, themeMode, toggleTheme, focusLevel, toggleFocusMode, setIsCommandPaletteOpen, setIsShortcutsOpen, todos, projects } = useApp();
   const { isTimeTracking, trackingElapsedTime, trackingTaskId, trackingProjectId, stopTracking, formatTime } = useFocus();
   const { language, setLanguage, t } = useLanguage();
   const { setIsThemeModalOpen } = useThemeCustomizer();
@@ -111,14 +111,20 @@ export const Header: React.FC = () => {
             🎨
           </button>
 
-          {/* Theme Light / Dark */}
+          {/* Theme Mode Toggle (System -> Light -> Dark -> System) */}
           <button
-            className={styles.actionBtn}
+            className={`${styles.actionBtn} ${themeMode === 'system' ? styles.activeSystem : ''}`}
             onClick={toggleTheme}
-            aria-label="Toggle theme"
-            title={theme === 'light' ? t('themeDark') : t('themeLight')}
+            aria-label="Toggle theme mode"
+            title={`${t('themeMode')}: ${
+              themeMode === 'system'
+                ? `${t('themeSystem')} (${theme === 'dark' ? t('themeDark') : t('themeLight')})`
+                : themeMode === 'light'
+                ? t('themeLight')
+                : t('themeDark')
+            }`}
           >
-            {theme === 'light' ? '🌙' : '☀️'}
+            {themeMode === 'system' ? '💻' : themeMode === 'light' ? '☀️' : '🌙'}
           </button>
 
           {/* Shortcuts Modal Trigger */}

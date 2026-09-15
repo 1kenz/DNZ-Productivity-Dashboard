@@ -1,15 +1,16 @@
 'use client';
 
-import React from 'react';
+import React, { useRef } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { AppleNotesIcon } from '@/components/ui/AppleNotesIcon';
-import { QuickNotes } from './QuickNotes';
+import { QuickNotes, QuickNotesHandle } from './QuickNotes';
 import styles from './QuickNotesPopover.module.css';
 
 export const QuickNotesPopover: React.FC = () => {
   const { isQuickNotesOpen, setIsQuickNotesOpen } = useApp();
   const { t } = useLanguage();
+  const quickNotesRef = useRef<QuickNotesHandle>(null);
 
   if (!isQuickNotesOpen) return null;
 
@@ -22,18 +23,31 @@ export const QuickNotesPopover: React.FC = () => {
             <h2 className={styles.title}>{t('quickNotes.title')}</h2>
             <span className={styles.shortcut}>⌘J</span>
           </div>
-          <button
-            type="button"
-            className={styles.closeBtn}
-            onClick={() => setIsQuickNotesOpen(false)}
-            title={t('common.close')}
-          >
-            ✕
-          </button>
+
+          <div className={styles.headerRight}>
+            <button
+              type="button"
+              className={styles.newNoteBtn}
+              onClick={() => quickNotesRef.current?.createNewNote()}
+              title={t('quickNotes.newNote')}
+            >
+              <span className={styles.plusIcon}>+</span>
+              <span className={styles.newNoteText}>{t('newNote')}</span>
+            </button>
+
+            <button
+              type="button"
+              className={styles.closeBtn}
+              onClick={() => setIsQuickNotesOpen(false)}
+              title={t('common.close')}
+            >
+              ✕
+            </button>
+          </div>
         </div>
 
         <div className={styles.contentBody}>
-          <QuickNotes hideHeader={true} />
+          <QuickNotes ref={quickNotesRef} hideHeader={true} />
         </div>
       </div>
     </div>

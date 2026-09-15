@@ -15,6 +15,8 @@ import {
   QuickLink,
   DomainArea,
   FocusLevel,
+  ThemeMode,
+  Theme,
 } from '@/types';
 import * as todoActions from '@/app/actions/todo';
 import * as projectActions from '@/app/actions/project';
@@ -91,7 +93,9 @@ interface AppContextType {
   deleteNote: (id: string) => void;
 
   // Theme
-  theme: 'light' | 'dark';
+  theme: Theme;
+  themeMode: ThemeMode;
+  setThemeMode: (mode: ThemeMode) => void;
   toggleTheme: () => void;
 
   // View Preferences
@@ -161,7 +165,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     density: 'comfortable',
   });
 
-  const [theme, setTheme] = useState<'light' | 'dark'>('dark');
+  const [themeMode, setThemeModeState] = useState<ThemeMode>('system');
+  const [theme, setEffectiveTheme] = useState<Theme>('dark');
   const [focusLevel, setFocusLevel] = useState<FocusLevel>('off');
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const [selectedDomain, setSelectedDomain] = useState<DomainArea | null>(null);
@@ -243,8 +248,13 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
           }));
         }
 
-        const savedTheme = localStorage.getItem('productivity-theme') as 'light' | 'dark';
-        if (savedTheme) setTheme(savedTheme);
+        const savedThemeMode = localStorage.getItem('productivity-theme-mode') as ThemeMode;
+        const savedTheme = localStorage.getItem('productivity-theme') as Theme;
+        if (savedThemeMode && ['system', 'light', 'dark'].includes(savedThemeMode)) {
+          setThemeModeState(savedThemeMode);
+        } else if (savedTheme && ['light', 'dark'].includes(savedTheme)) {
+          setThemeModeState(savedTheme);
+        }
 
         const savedLevel = localStorage.getItem('productivity-focus-level') as FocusLevel;
         if (savedLevel && ['off', 'semi', 'deep'].includes(savedLevel)) {
@@ -591,10 +601,15 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     await settingsActions.updateViewPreferences(updates);
   };
 
+  const setThemeMode = (mode: ThemeMode) => {
+    setThemeModeState(mode);
+    localStorage.setItem('productivity-theme-mode', mode);
+  };
+
   const toggleTheme = () => {
-    const newTheme = theme === 'light' ? 'dark' : 'light';
-    setTheme(newTheme);
-    localStorage.setItem('productivity-theme', newTheme);
+    const nextMode: ThemeMode =
+      themeMode === 'system' ? 'light' : themeMode === 'light' ? 'dark' : 'system';
+    setThemeMode(nextMode);
   };
 
   const toggleFocusMode = () => {
@@ -616,8 +631,32 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   }, []);
 
   useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-  }, [theme]);
+    if (typeof window === 'undefined') return;
+
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+
+    const resolveTheme = (mode: ThemeMode): Theme => {
+      if (mode === 'system') {
+        return mediaQuery.matches ? 'dark' : 'light';
+      }
+      return mode;
+    };
+
+    const currentTheme = resolveTheme(themeMode);
+    setEffectiveTheme(currentTheme);
+    document.documentElement.setAttribute('data-theme', currentTheme);
+
+    const handleMediaChange = (e: MediaQueryListEvent) => {
+      if (themeMode === 'system') {
+        const sysTheme: Theme = e.matches ? 'dark' : 'light';
+        setEffectiveTheme(sysTheme);
+        document.documentElement.setAttribute('data-theme', sysTheme);
+      }
+    };
+
+    mediaQuery.addEventListener('change', handleMediaChange);
+    return () => mediaQuery.removeEventListener('change', handleMediaChange);
+  }, [themeMode]);
 
   return (
     <AppContext.Provider
@@ -662,6 +701,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         viewPreferences,
         updateViewPreferences,
         theme,
+        themeMode,
+        setThemeMode,
         toggleTheme,
         notes,
         addNote,

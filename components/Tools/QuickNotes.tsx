@@ -1,16 +1,20 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { AppleNotesIcon } from '@/components/ui/AppleNotesIcon';
 import styles from './QuickNotes.module.css';
 
+export interface QuickNotesHandle {
+  createNewNote: () => void;
+}
+
 interface QuickNotesProps {
   hideHeader?: boolean;
 }
 
-export const QuickNotes: React.FC<QuickNotesProps> = ({ hideHeader = false }) => {
+export const QuickNotes = forwardRef<QuickNotesHandle, QuickNotesProps>(({ hideHeader = false }, ref) => {
   const { notes, addNote, updateNote, deleteNote, setIsQuickNotesOpen } = useApp();
   const { t } = useLanguage();
 
@@ -47,6 +51,10 @@ export const QuickNotes: React.FC<QuickNotesProps> = ({ hideHeader = false }) =>
       }
     }, 30);
   };
+
+  useImperativeHandle(ref, () => ({
+    createNewNote: handleNewNote,
+  }));
 
   const handleContentChange = (content: string) => {
     if (selectedNote) {
@@ -242,4 +250,6 @@ export const QuickNotes: React.FC<QuickNotesProps> = ({ hideHeader = false }) =>
       )}
     </div>
   );
-};
+});
+
+QuickNotes.displayName = 'QuickNotes';

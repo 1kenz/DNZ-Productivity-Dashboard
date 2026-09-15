@@ -77,6 +77,39 @@
   gap: 8px;
 }
 
+.newNoteBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  background: rgba(234, 88, 12, 0.16);
+  border: 1px solid rgba(234, 88, 12, 0.4);
+  color: #fdba74;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.newNoteBtn:hover {
+  background: rgba(234, 88, 12, 0.28);
+  border-color: #ea580c;
+  color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(234, 88, 12, 0.25);
+}
+
+.plusIcon {
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.newNoteText {
+  font-size: 0.78rem;
+}
+
 .closeBtn {
   background: transparent;
   border: none;
@@ -120,6 +153,18 @@
 :global([data-theme="light"]) .shortcut {
   background: rgba(0, 0, 0, 0.06);
   color: #64748b;
+}
+
+:global([data-theme="light"]) .newNoteBtn {
+  background: #fff7ed;
+  border-color: #fdba74;
+  color: #c2410c;
+}
+
+:global([data-theme="light"]) .newNoteBtn:hover {
+  background: #ffedd5;
+  border-color: #ea580c;
+  color: #9a3412;
 }
 
 :global([data-theme="light"]) .closeBtn {

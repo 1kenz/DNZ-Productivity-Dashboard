@@ -4,6 +4,9 @@ export type Priority = 'low' | 'medium' | 'high' | 'urgent' | 'routine';
 
 export type Language = 'en' | 'tr' | 'de';
 
+export type ThemeMode = 'system' | 'light' | 'dark';
+export type Theme = 'light' | 'dark';
+
 export type GlassTheme = 'sonoma' | 'carbon' | 'obsidian' | 'cyber' | 'nordic';
 
 export type DomainArea =
@@ -352,7 +355,6 @@ export interface AppState {
   aiSettings: AiSettings;
 }
 
-export type Theme = 'light' | 'dark';
 export type FocusLevel = 'off' | 'semi' | 'deep';
 export type TaskView = 'list' | 'grid' | 'kanban';
 export type LinkView = 'list' | 'grid';
