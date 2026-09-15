@@ -1,8 +1,8 @@
 {
   "name": "productivity-dashboard-desktop",
-  "version": "2.5.0",
+  "version": "3.0.0",
   "private": true,
-  "description": "DNZ Productivity Dashboard — native macOS app (bundled PostgreSQL, no Docker needed to run it)",
+  "description": "DNZ Productivity Dashboard v3.0 — native macOS app (bundled PostgreSQL, no Docker needed to run it)",
   "main": "main.js",
   "scripts": {
     "start": "electron .",

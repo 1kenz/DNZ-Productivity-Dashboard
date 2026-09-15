@@ -1,8 +1,8 @@
 services:
   productivity-dashboard:
-    container_name: i-kenz-dashboard-v2
+    container_name: i-kenz-dashboard-v3
     build: .
-    image: localhost:5001/productivity-dashboard:v2.5-fixed
+    image: localhost:5001/productivity-dashboard:v3.0
     ports:
       - "9999:3000"
     env_file:
