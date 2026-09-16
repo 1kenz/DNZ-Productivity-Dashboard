@@ -10,6 +10,9 @@
   transition: all var(--transition-fast);
   text-decoration: none;
   color: inherit;
+  font: inherit;
+  cursor: pointer;
+  width: 100%;
 }
 
 .button:hover {

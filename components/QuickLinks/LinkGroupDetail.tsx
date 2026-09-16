@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { LinkGroup } from '@/types';
 import { useApp } from '@/contexts/AppContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { LinkButton } from './LinkButton';
+import { AppPicker } from './AppPicker';
 import { Button } from '@/components/ui/Button';
 import styles from './LinkGroupDetail.module.css';
 
@@ -23,6 +24,7 @@ export const LinkGroupDetail: React.FC<LinkGroupDetailProps> = ({ group, onBack 
   const [editLinkTitle, setEditLinkTitle] = useState('');
   const [editLinkUrl, setEditLinkUrl] = useState('');
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [appPickerFor, setAppPickerFor] = useState<'new' | 'edit' | null>(null);
 
   const sortedLinks = [...group.links].sort((a, b) => a.order - b.order);
 
@@ -87,6 +89,25 @@ export const LinkGroupDetail: React.FC<LinkGroupDetailProps> = ({ group, onBack 
     setDraggedIndex(null);
   };
 
+  // Esc acts like Cancel: cancel an in-progress edit first, then an
+  // in-progress "add link", and only then back out of the whole view.
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return;
+      if (appPickerFor) {
+        setAppPickerFor(null);
+      } else if (editingLinkId) {
+        handleCancelEditLink();
+      } else if (isAddingLink) {
+        setIsAddingLink(false);
+      } else {
+        onBack();
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [appPickerFor, editingLinkId, isAddingLink, onBack]);
+
   return (
     <div className={styles.overlay} onClick={onBack}>
       <div className={styles.container} style={{ borderTopColor: group.color }} onClick={(e) => e.stopPropagation()}>
@@ -114,15 +135,46 @@ export const LinkGroupDetail: React.FC<LinkGroupDetailProps> = ({ group, onBack 
                     placeholder={t('tasks.title')}
                     value={editLinkTitle}
                     onChange={(e) => setEditLinkTitle(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleSaveEditLink();
+                      }
+                    }}
                     className={styles.miniInput}
                     autoFocus
                   />
                   <input
-                    placeholder="https://..."
+                    placeholder={t('quickLinks.urlOrPathPlaceholder')}
                     value={editLinkUrl}
                     onChange={(e) => setEditLinkUrl(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleSaveEditLink();
+                      }
+                    }}
                     className={styles.miniInput}
                   />
+                  <div className={styles.appPickerAnchor}>
+                    <button
+                      type="button"
+                      className={styles.appPickerBtn}
+                      onClick={() => setAppPickerFor(appPickerFor === 'edit' ? null : 'edit')}
+                    >
+                      📱 {t('quickLinks.chooseApp')}
+                    </button>
+                    {appPickerFor === 'edit' && (
+                      <AppPicker
+                        onSelect={(app) => {
+                          setEditLinkTitle(app.name);
+                          setEditLinkUrl(app.path);
+                          setAppPickerFor(null);
+                        }}
+                        onClose={() => setAppPickerFor(null)}
+                      />
+                    )}
+                  </div>
                   <div className={styles.formActions}>
                     <Button size="sm" onClick={handleSaveEditLink}>
                       {t('common.save')}
@@ -178,14 +230,45 @@ export const LinkGroupDetail: React.FC<LinkGroupDetailProps> = ({ group, onBack 
                   placeholder={t('tasks.title')}
                   value={newLinkTitle}
                   onChange={(e) => setNewLinkTitle(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleAddLink();
+                    }
+                  }}
                   className={styles.miniInput}
                 />
                 <input
-                  placeholder="https://..."
+                  placeholder={t('quickLinks.urlOrPathPlaceholder')}
                   value={newLinkUrl}
                   onChange={(e) => setNewLinkUrl(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleAddLink();
+                    }
+                  }}
                   className={styles.miniInput}
                 />
+                <div className={styles.appPickerAnchor}>
+                  <button
+                    type="button"
+                    className={styles.appPickerBtn}
+                    onClick={() => setAppPickerFor(appPickerFor === 'new' ? null : 'new')}
+                  >
+                    📱 {t('quickLinks.chooseApp')}
+                  </button>
+                  {appPickerFor === 'new' && (
+                    <AppPicker
+                      onSelect={(app) => {
+                        setNewLinkTitle(app.name);
+                        setNewLinkUrl(app.path);
+                        setAppPickerFor(null);
+                      }}
+                      onClose={() => setAppPickerFor(null)}
+                    />
+                  )}
+                </div>
                 <div className={styles.formActions}>
                   <Button size="sm" onClick={handleAddLink}>
                     {t('common.add')}

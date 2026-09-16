@@ -5,6 +5,7 @@ import { useApp } from '@/contexts/AppContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { LinkGroup, QuickLink } from '@/types';
 import { Input } from '@/components/ui/Input';
+import { AppPicker } from './AppPicker';
 import { Button } from '@/components/ui/Button';
 import styles from './LinkGroupForm.module.css';
 
@@ -35,6 +36,7 @@ export const LinkGroupForm: React.FC<LinkGroupFormProps> = ({ existingGroup, onC
   const [links, setLinks] = useState<Omit<QuickLink, 'id' | 'groupId'>[]>(
     existingGroup?.links.map((l) => ({ title: l.title, url: l.url, icon: l.icon, order: l.order })) || []
   );
+  const [appPickerForIndex, setAppPickerForIndex] = useState<number | null>(null);
 
   const handleAddLink = () => {
     setLinks([...links, { title: '', url: '', order: links.length }]);
@@ -135,11 +137,31 @@ export const LinkGroupForm: React.FC<LinkGroupFormProps> = ({ existingGroup, onC
                 onChange={(e) => handleLinkChange(index, 'title', e.target.value)}
               />
               <Input
-                placeholder="https://..."
+                placeholder={t('quickLinks.urlOrPathPlaceholder')}
                 value={link.url}
                 onChange={(e) => handleLinkChange(index, 'url', e.target.value)}
-                type="url"
+                type="text"
               />
+              <div className={styles.appPickerAnchor}>
+                <button
+                  type="button"
+                  className={styles.appPickerBtn}
+                  onClick={() => setAppPickerForIndex(appPickerForIndex === index ? null : index)}
+                  title={t('quickLinks.chooseApp')}
+                >
+                  📱
+                </button>
+                {appPickerForIndex === index && (
+                  <AppPicker
+                    onSelect={(app) => {
+                      handleLinkChange(index, 'title', app.name);
+                      handleLinkChange(index, 'url', app.path);
+                      setAppPickerForIndex(null);
+                    }}
+                    onClose={() => setAppPickerForIndex(null)}
+                  />
+                )}
+              </div>
               <button
                 type="button"
                 className={styles.removeBtn}
