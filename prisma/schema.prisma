@@ -31,6 +31,7 @@ model Todo {
   currentCount    Int?
   unit            String? // "kelime", "sayfa", "dakika", ...
   estimateHours   Float? // optional effort estimate, used for weighted progress rollups
+  attachments     Attachment[]
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
 
@@ -110,12 +111,32 @@ model QuickLink {
 }
 
 model Note {
+  id          String       @id @default(uuid())
+  title       String
+  content     String
+  color       String?
+  attachments Attachment[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+// A local document or program (on the user's own machine) attached to a
+// Todo or a Note for quick access -- opened server-side via the OS "open"
+// command (see app/actions/system.ts), not navigated to as a URL. Exactly
+// one of todoId/noteId is set per row.
+model Attachment {
   id        String   @id @default(uuid())
-  title     String
-  content   String
-  color     String?
+  label     String
+  path      String
+  order     Int      @default(0)
+  todoId    String?
+  todo      Todo?    @relation(fields: [todoId], references: [id], onDelete: Cascade)
+  noteId    String?
+  note      Note?    @relation(fields: [noteId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+
+  @@index([todoId])
+  @@index([noteId])
 }
 
 model TimeEntry {

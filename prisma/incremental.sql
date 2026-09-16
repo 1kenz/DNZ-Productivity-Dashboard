@@ -56,3 +56,28 @@ DO $$ BEGIN
   ALTER TABLE "Todo" ADD CONSTRAINT "Todo_parentTodoId_fkey"
     FOREIGN KEY ("parentTodoId") REFERENCES "Todo"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+-- --- Attachment table: local files/programs linked to a Todo or a Note ---
+CREATE TABLE IF NOT EXISTS "Attachment" (
+    "id" TEXT NOT NULL,
+    "label" TEXT NOT NULL,
+    "path" TEXT NOT NULL,
+    "order" INTEGER NOT NULL DEFAULT 0,
+    "todoId" TEXT,
+    "noteId" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "Attachment_pkey" PRIMARY KEY ("id")
+);
+
+CREATE INDEX IF NOT EXISTS "Attachment_todoId_idx" ON "Attachment"("todoId");
+CREATE INDEX IF NOT EXISTS "Attachment_noteId_idx" ON "Attachment"("noteId");
+
+DO $$ BEGIN
+  ALTER TABLE "Attachment" ADD CONSTRAINT "Attachment_todoId_fkey"
+    FOREIGN KEY ("todoId") REFERENCES "Todo"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+DO $$ BEGIN
+  ALTER TABLE "Attachment" ADD CONSTRAINT "Attachment_noteId_fkey"
+    FOREIGN KEY ("noteId") REFERENCES "Note"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;

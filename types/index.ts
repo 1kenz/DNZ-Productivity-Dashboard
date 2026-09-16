@@ -105,8 +105,21 @@ export interface Todo {
   unit?: string; // "kelime", "sayfa", "dakika", ...
   estimateHours?: number; // optional effort estimate for weighted progress rollups
   domain?: DomainArea; // Optional responsibility domain
+  attachments?: Attachment[]; // local documents/programs for quick access
   createdAt: Date;
   updatedAt: Date;
+}
+
+// A local document or program (on the user's own computer) attached to a
+// Todo or a Note, opened via the OS "open" command rather than navigated
+// to as a URL. Exactly one of todoId/noteId is set.
+export interface Attachment {
+  id: string;
+  label: string;
+  path: string;
+  order: number;
+  todoId?: string | null;
+  noteId?: string | null;
 }
 
 export interface Section {
@@ -198,6 +211,7 @@ export interface Note {
   title: string;
   content: string;
   color?: string;
+  attachments?: Attachment[]; // local documents/programs for quick access
   createdAt: Date;
   updatedAt: Date;
 }

@@ -6,6 +6,9 @@ import { revalidatePath } from 'next/cache';
 
 export async function getNotes() {
   return await prisma.note.findMany({
+    include: {
+      attachments: { orderBy: { order: 'asc' } },
+    },
     orderBy: { createdAt: 'desc' },
   });
 }
