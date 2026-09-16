@@ -26,19 +26,19 @@ interface AppPickerProps {
   onClose: () => void;
 }
 
-type Tab = 'apps' | 'web';
+type Tab = 'apps' | 'file' | 'web';
 
-const POPOVER_WIDTH = 280;
-const POPOVER_ESTIMATED_HEIGHT = 360;
+const POPOVER_WIDTH = 300;
+const POPOVER_ESTIMATED_HEIGHT = 380;
 
 // Floating popover offering three ways to point a Quick Link/attachment at
-// something: an installed macOS app, a common web app (Google Drive,
-// Gmail, Quizlet, ...), or an arbitrary local file via a native "Choose
-// File" dialog. Rendered through a portal into document.body and
-// positioned with `position: fixed` computed from the anchor's own
-// bounding box, so it always floats above the page instead of being
-// clipped by a scrolling modal (Modal.module.css sets `.modal { overflow-y:
-// auto }`, which would otherwise cut the popover off).
+// something: an installed macOS app, an arbitrary local file via a native
+// "Choose File" dialog, or a common web app (Google Drive, Gmail, Quizlet,
+// ...). Rendered through a portal into document.body and positioned with
+// `position: fixed` computed from the anchor's own bounding box, so it
+// always floats above the page instead of being clipped by a scrolling
+// modal (Modal.module.css sets `.modal { overflow-y: auto }`, which would
+// otherwise cut the popover off).
 export const AppPicker: React.FC<AppPickerProps> = ({ anchorEl, onSelect, onClose }) => {
   const { t } = useLanguage();
   const [tab, setTab] = useState<Tab>('apps');
@@ -52,6 +52,7 @@ export const AppPicker: React.FC<AppPickerProps> = ({ anchorEl, onSelect, onClos
   const [fileError, setFileError] = useState<string | null>(null);
   const [position, setPosition] = useState<{ top: number; left: number } | null>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const searchRef = useRef<HTMLInputElement>(null);
   const electronAvailable = isElectronApp();
 
   useEffect(() => {
@@ -123,6 +124,17 @@ export const AppPicker: React.FC<AppPickerProps> = ({ anchorEl, onSelect, onClos
     };
   }, [onClose, anchorEl]);
 
+  // Switching tabs keeps focus on the search field (when that tab has one)
+  // and clears a stale search term from the previous tab's results.
+  const handleTabChange = (next: Tab) => {
+    setTab(next);
+    setSearch('');
+    setFileError(null);
+    if (next !== 'file') {
+      requestAnimationFrame(() => searchRef.current?.focus());
+    }
+  };
+
   const handleChooseFile = async () => {
     setFileError(null);
     if (!electronAvailable) {
@@ -178,43 +190,55 @@ export const AppPicker: React.FC<AppPickerProps> = ({ anchorEl, onSelect, onClos
         <button
           type="button"
           className={`${styles.tabBtn} ${tab === 'apps' ? styles.tabActive : ''}`}
-          onClick={() => setTab('apps')}
+          onClick={() => handleTabChange('apps')}
         >
-          📱 {t('quickLinks.appsTab')}
+          <span className={styles.tabIcon}>📱</span> {t('quickLinks.appsTab')}
+        </button>
+        <button
+          type="button"
+          className={`${styles.tabBtn} ${tab === 'file' ? styles.tabActive : ''}`}
+          onClick={() => handleTabChange('file')}
+        >
+          <span className={styles.tabIcon}>📁</span> {t('quickLinks.fileTab')}
         </button>
         <button
           type="button"
           className={`${styles.tabBtn} ${tab === 'web' ? styles.tabActive : ''}`}
-          onClick={() => setTab('web')}
+          onClick={() => handleTabChange('web')}
         >
-          🌐 {t('quickLinks.webTab')}
+          <span className={styles.tabIcon}>🌐</span> {t('quickLinks.webTab')}
         </button>
       </div>
 
-      <input
-        type="text"
-        className={styles.search}
-        placeholder={tab === 'apps' ? t('quickLinks.searchApps') : t('quickLinks.searchWebApps')}
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        onKeyDown={handleSearchEnter}
-        autoFocus
-      />
-
-      {tab === 'apps' ? (
+      {tab === 'apps' && (
         <>
-          <button type="button" className={styles.chooseFileBtn} onClick={handleChooseFile}>
-            📁 {t('quickLinks.chooseFile')}
-          </button>
-          {fileError && <p className={styles.errorText}>{fileError}</p>}
+          <div className={styles.searchWrap}>
+            <span className={styles.searchIcon}>⌕</span>
+            <input
+              ref={searchRef}
+              type="text"
+              className={styles.search}
+              placeholder={t('quickLinks.searchApps')}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              onKeyDown={handleSearchEnter}
+              autoFocus
+            />
+          </div>
 
           <div className={styles.list}>
             {appsError ? (
-              <p className={styles.empty}>{t('quickLinks.noAppsFound')}</p>
+              <div className={styles.empty}>
+                <span className={styles.emptyIcon}>⚠️</span>
+                {t('quickLinks.noAppsFound')}
+              </div>
             ) : apps === null ? (
-              <p className={styles.empty}>{t('quickLinks.loadingApps')}</p>
+              <div className={styles.empty}>{t('quickLinks.loadingApps')}</div>
             ) : filteredApps.length === 0 ? (
-              <p className={styles.empty}>{t('quickLinks.noAppsFound')}</p>
+              <div className={styles.empty}>
+                <span className={styles.emptyIcon}>🔍</span>
+                {t('quickLinks.noAppsFound')}
+              </div>
             ) : (
               filteredApps.map((app) => (
                 <button
@@ -231,11 +255,47 @@ export const AppPicker: React.FC<AppPickerProps> = ({ anchorEl, onSelect, onClos
             )}
           </div>
         </>
-      ) : (
+      )}
+
+      {tab === 'file' && (
+        <div className={styles.filePanel}>
+          <span className={styles.filePanelIcon}>📁</span>
+          <p className={styles.filePanelTitle}>{t('quickLinks.fileTabTitle')}</p>
+          <p className={styles.filePanelHint}>{t('quickLinks.fileTabHint')}</p>
+          <button
+            type="button"
+            className={styles.filePanelBtn}
+            onClick={handleChooseFile}
+            disabled={!electronAvailable}
+          >
+            {t('quickLinks.chooseFile')}
+          </button>
+          {fileError && <p className={styles.errorText}>{fileError}</p>}
+        </div>
+      )}
+
+      {tab === 'web' && (
         <>
+          <div className={styles.searchWrap}>
+            <span className={styles.searchIcon}>⌕</span>
+            <input
+              ref={searchRef}
+              type="text"
+              className={styles.search}
+              placeholder={t('quickLinks.searchWebApps')}
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              onKeyDown={handleSearchEnter}
+              autoFocus
+            />
+          </div>
+
           <div className={styles.list}>
             {filteredWebApps.length === 0 ? (
-              <p className={styles.empty}>{t('quickLinks.noAppsFound')}</p>
+              <div className={styles.empty}>
+                <span className={styles.emptyIcon}>🔍</span>
+                {t('quickLinks.noWebAppsFound')}
+              </div>
             ) : (
               filteredWebApps.map((app) => (
                 <button
@@ -281,14 +341,27 @@ export const AppPicker: React.FC<AppPickerProps> = ({ anchorEl, onSelect, onClos
                   }
                 }}
               />
-              <button type="button" className={styles.chooseFileBtn} onClick={handleAddWebApp}>
-                + {t('common.add')}
-              </button>
+              <div className={styles.addWebAppActions}>
+                <button type="button" className={styles.primaryBtn} onClick={handleAddWebApp}>
+                  {t('common.add')}
+                </button>
+                <button
+                  type="button"
+                  className={styles.ghostBtn}
+                  onClick={() => {
+                    setIsAddingWebApp(false);
+                    setWebAppName('');
+                    setWebAppUrl('');
+                  }}
+                >
+                  {t('quickLinks.cancel')}
+                </button>
+              </div>
             </div>
           ) : (
             <button
               type="button"
-              className={styles.chooseFileBtn}
+              className={styles.addWebAppToggle}
               onClick={() => setIsAddingWebApp(true)}
             >
               + {t('quickLinks.addCustomWebApp')}
