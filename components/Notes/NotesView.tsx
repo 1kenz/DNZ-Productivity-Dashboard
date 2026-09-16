@@ -5,10 +5,11 @@ import { useApp } from '@/contexts/AppContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Button } from '@/components/ui/Button';
 import { AppleNotesIcon } from '@/components/ui/AppleNotesIcon';
+import { AppPicker } from '@/components/QuickLinks/AppPicker';
 import styles from './NotesView.module.css';
 
 export const NotesView: React.FC = () => {
-  const { notes, addNote, updateNote, deleteNote } = useApp();
+  const { notes, addNote, updateNote, deleteNote, addAttachment, deleteAttachment, openLocalPath } = useApp();
   const { t } = useLanguage();
 
   const [selectedNoteId, setSelectedNoteId] = useState<string | null>(notes[0]?.id || null);
@@ -16,6 +17,13 @@ export const NotesView: React.FC = () => {
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [titleDraft, setTitleDraft] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Attachments: local documents/programs (on the user's own computer)
+  // linked to the selected note for quick access.
+  const [isAddingAttachment, setIsAddingAttachment] = useState(false);
+  const [newAttachmentLabel, setNewAttachmentLabel] = useState('');
+  const [newAttachmentPath, setNewAttachmentPath] = useState('');
+  const [showAttachmentAppPicker, setShowAttachmentAppPicker] = useState(false);
 
   // Always resolve the active note: selectedNoteId match or fallback to the first available note
   const selectedNote = notes.find((n) => n.id === selectedNoteId) || (notes.length > 0 ? notes[0] : null);
@@ -87,6 +95,33 @@ export const NotesView: React.FC = () => {
 
   const countWords = (text: string) => {
     return text.trim() ? text.trim().split(/\s+/).length : 0;
+  };
+
+  const handleAddAttachment = () => {
+    const label = newAttachmentLabel.trim();
+    const path = newAttachmentPath.trim();
+    if (!label || !path || !selectedNote) return;
+    addAttachment({ label, path, noteId: selectedNote.id });
+    setNewAttachmentLabel('');
+    setNewAttachmentPath('');
+    setIsAddingAttachment(false);
+  };
+
+  const handleCancelAddAttachment = () => {
+    setNewAttachmentLabel('');
+    setNewAttachmentPath('');
+    setIsAddingAttachment(false);
+    setShowAttachmentAppPicker(false);
+  };
+
+  const handleAttachmentKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleAddAttachment();
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      handleCancelAddAttachment();
+    }
   };
 
   return (
@@ -204,6 +239,81 @@ export const NotesView: React.FC = () => {
                   {t('common.clear')}
                 </button>
               </div>
+            </div>
+
+            <div className={styles.attachmentsBar}>
+              <span className={styles.attachmentsBarLabel}>📎 {t('attachments.title')}</span>
+              {(selectedNote.attachments || []).map((a) => (
+                <div key={a.id} className={styles.attachmentChip} title={a.path}>
+                  <button type="button" className={styles.attachmentChipOpen} onClick={() => openLocalPath(a.path)}>
+                    {a.label}
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.attachmentChipRemove}
+                    onClick={() => deleteAttachment(a.id, { noteId: selectedNote.id })}
+                    title={t('common.delete') || 'Remove attachment'}
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+              {isAddingAttachment ? (
+                <div className={styles.attachmentAddInline}>
+                  <input
+                    type="text"
+                    className={styles.attachmentAddInput}
+                    placeholder={t('attachments.labelPlaceholder')}
+                    value={newAttachmentLabel}
+                    onChange={(e) => setNewAttachmentLabel(e.target.value)}
+                    onKeyDown={handleAttachmentKeyDown}
+                    autoFocus
+                  />
+                  <input
+                    type="text"
+                    className={styles.attachmentAddInput}
+                    placeholder={t('attachments.pathPlaceholder')}
+                    value={newAttachmentPath}
+                    onChange={(e) => setNewAttachmentPath(e.target.value)}
+                    onKeyDown={handleAttachmentKeyDown}
+                  />
+                  <div className={styles.appPickerAnchor}>
+                    <button
+                      type="button"
+                      className={styles.addAttachmentBtn}
+                      onClick={() => setShowAttachmentAppPicker((prev) => !prev)}
+                      title={t('quickLinks.chooseApp')}
+                    >
+                      📱
+                    </button>
+                    {showAttachmentAppPicker && (
+                      <AppPicker
+                        onSelect={(app) => {
+                          setNewAttachmentLabel(app.name);
+                          setNewAttachmentPath(app.path);
+                          setShowAttachmentAppPicker(false);
+                        }}
+                        onClose={() => setShowAttachmentAppPicker(false)}
+                      />
+                    )}
+                  </div>
+                  <button type="button" className={styles.attachmentChipOpen} onClick={handleAddAttachment}>
+                    {t('common.add')}
+                  </button>
+                  <button type="button" className={styles.attachmentChipRemove} onClick={handleCancelAddAttachment}>
+                    ✕
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  className={styles.addAttachmentBtn}
+                  onClick={() => setIsAddingAttachment(true)}
+                  title={t('common.add')}
+                >
+                  + 📎
+                </button>
+              )}
             </div>
 
             <textarea
