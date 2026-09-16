@@ -316,7 +316,7 @@ export const TaskRow: React.FC<TaskRowProps> = ({
               color: statusColor,
               background: `color-mix(in srgb, ${statusColor} 15%, transparent)`,
             }}
-            title={t('tasks.status') || 'Status'}
+            title={statusColumn?.name || t('tasks.status') || 'Status'}
             onClick={() => setIsStatusOpen((o) => !o)}
           >
             <span className={styles.statusDot} style={{ backgroundColor: statusColor }} />
@@ -370,7 +370,7 @@ export const TaskRow: React.FC<TaskRowProps> = ({
                   }
                 : undefined
             }
-            title={t('tasks.project') || 'Project'}
+            title={project ? project.name : (t('tasks.noProject') || 'No project')}
             onClick={() => setIsProjectOpen((o) => !o)}
           >
             {project ? (
@@ -416,7 +416,7 @@ export const TaskRow: React.FC<TaskRowProps> = ({
               type="button"
               className={`${styles.dateChip} ${isOverdue ? styles.overdue : ''}`}
               onClick={() => setIsDateEditing((o) => !o)}
-              title={t('tasks.deadline')}
+              title={new Date(todo.deadline as Date).toLocaleDateString()}
             >
               {isOverdue ? '⚠️' : '📅'} {new Date(todo.deadline).toLocaleDateString()}
             </button>
@@ -461,7 +461,7 @@ export const TaskRow: React.FC<TaskRowProps> = ({
               color: priorityMeta.color,
               background: `color-mix(in srgb, ${priorityMeta.color} 15%, transparent)`,
             }}
-            title={t('tasks.priority')}
+            title={priorityMeta.label}
             onClick={() => setIsPriorityOpen((o) => !o)}
           >
             <span
