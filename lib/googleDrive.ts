@@ -172,3 +172,15 @@ export async function downloadBackupFromDrive(accessToken: string, fileId: strin
   if (!res.ok) throw new Error(`Drive download failed: ${await res.text()}`);
   return res.json();
 }
+
+export async function deleteBackupFromDrive(accessToken: string, fileId: string) {
+  const res = await fetch(`${DRIVE_API}/files/${fileId}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+  // Drive returns 204 No Content on success; a 404 means it's already gone, which
+  // is fine for a delete operation.
+  if (!res.ok && res.status !== 404) {
+    throw new Error(`Drive delete failed: ${await res.text()}`);
+  }
+}

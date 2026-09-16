@@ -73,6 +73,13 @@
   gap: var(--space-3);
 }
 
+.driveItemActions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+
 .driveItemInfo {
   display: flex;
   flex-direction: column;

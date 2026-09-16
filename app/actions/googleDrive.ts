@@ -8,6 +8,7 @@ import {
   uploadBackupToDrive,
   listBackupsInDrive,
   downloadBackupFromDrive,
+  deleteBackupFromDrive,
 } from '@/lib/googleDrive';
 import { exportAllData, restoreBackup } from '@/app/actions/backup';
 import { BackupPayload } from '@/types';
@@ -58,5 +59,15 @@ export async function restoreFromDrive(fileId: string) {
   } catch (err) {
     console.error('[googleDrive] restoreFromDrive failed:', err);
     throw new Error(`Restore from Drive failed: ${err instanceof Error ? err.message : String(err)}`);
+  }
+}
+
+export async function deleteDriveBackup(fileId: string) {
+  try {
+    const accessToken = await getValidAccessToken();
+    await deleteBackupFromDrive(accessToken, fileId);
+  } catch (err) {
+    console.error('[googleDrive] deleteDriveBackup failed:', err);
+    throw new Error(`Could not delete Drive backup: ${err instanceof Error ? err.message : String(err)}`);
   }
 }

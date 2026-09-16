@@ -18,6 +18,7 @@ export const GoogleDriveSync: React.FC = () => {
   const [backups, setBackups] = useState<DriveFile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isBusy, setIsBusy] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   const load = async () => {
@@ -98,6 +99,27 @@ export const GoogleDriveSync: React.FC = () => {
     }
   };
 
+  const handleDelete = async (file: DriveFile) => {
+    const confirmed = window.confirm(`Delete "${file.name}" from Google Drive? This cannot be undone.`);
+    if (!confirmed) return;
+
+    setDeletingId(file.id);
+    setMessage(null);
+    try {
+      await driveActions.deleteDriveBackup(file.id);
+      setBackups((prev) => prev.filter((f) => f.id !== file.id));
+      setMessage({ type: 'success', text: `Deleted "${file.name}" from Drive.` });
+    } catch (e) {
+      console.error(e);
+      setMessage({
+        type: 'error',
+        text: e instanceof Error ? e.message : 'Delete failed. Check the console for details.',
+      });
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
   const handleDisconnect = async () => {
     if (!window.confirm('Disconnect Google Drive? Existing backups in Drive are not deleted.')) return;
     setIsBusy(true);
@@ -164,9 +186,25 @@ export const GoogleDriveSync: React.FC = () => {
                       {new Date(file.createdTime).toLocaleString()}
                     </span>
                   </div>
-                  <Button variant="ghost" size="sm" onClick={() => handleRestore(file)} disabled={isBusy}>
-                    Restore
-                  </Button>
+                  <div className={styles.driveItemActions}>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleRestore(file)}
+                      disabled={isBusy || deletingId === file.id}
+                    >
+                      Restore
+                    </Button>
+                    <Button
+                      variant="danger"
+                      size="sm"
+                      onClick={() => handleDelete(file)}
+                      isLoading={deletingId === file.id}
+                      disabled={isBusy && deletingId !== file.id}
+                    >
+                      Delete
+                    </Button>
+                  </div>
                 </div>
               ))}
             </div>
