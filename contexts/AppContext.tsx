@@ -84,7 +84,9 @@ interface AppContextType {
   updateLinkGroup: (id: string, updates: Partial<LinkGroup>) => void;
   deleteLinkGroup: (id: string) => void;
   addLink: (link: Omit<QuickLink, 'id'>) => void;
+  updateLink: (id: string, updates: Partial<QuickLink>) => void;
   deleteLink: (id: string) => void;
+  reorderLinks: (groupId: string, links: QuickLink[]) => void;
 
   // Notes
   notes: Note[];
@@ -588,11 +590,29 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setLinkGroups(groups as unknown as LinkGroup[]);
   };
 
+  const updateLink = async (id: string, updates: Partial<QuickLink>) => {
+    setLinkGroups((prev) =>
+      prev.map((g) => ({
+        ...g,
+        links: g.links.map((l) => (l.id === id ? { ...l, ...updates } : l)),
+      }))
+    );
+    await linkActions.updateLink(id, updates);
+  };
+
   const deleteLink = async (id: string) => {
     setLinkGroups((prev) =>
       prev.map((g) => ({ ...g, links: g.links.filter((l) => l.id !== id) }))
     );
     await linkActions.deleteLink(id);
+  };
+
+  const reorderLinks = async (groupId: string, links: QuickLink[]) => {
+    const reordered = links.map((link, index) => ({ ...link, order: index }));
+    setLinkGroups((prev) =>
+      prev.map((g) => (g.id === groupId ? { ...g, links: reordered } : g))
+    );
+    await linkActions.reorderLinks(reordered);
   };
 
   // Preferences / Theme
@@ -697,7 +717,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         updateLinkGroup,
         deleteLinkGroup,
         addLink,
+        updateLink,
         deleteLink,
+        reorderLinks,
         viewPreferences,
         updateViewPreferences,
         theme,

@@ -88,9 +88,45 @@ export async function createLink(data: any) {
   }
 }
 
+export async function updateLink(id: string, updates: any) {
+  try {
+    const data: any = {};
+    if (updates.title !== undefined) data.title = String(updates.title).trim();
+    if (updates.url !== undefined) data.url = String(updates.url).trim();
+    if (updates.icon !== undefined) data.icon = (updates.icon && String(updates.icon).trim()) || null;
+    if (updates.order !== undefined) data.order = Number(updates.order) || 0;
+
+    const link = await prisma.quickLink.update({
+      where: { id },
+      data,
+    });
+    revalidatePath('/');
+    return link;
+  } catch (err) {
+    console.error('[link.ts] updateLink error:', err);
+    throw err;
+  }
+}
+
 export async function deleteLink(id: string) {
     await prisma.quickLink.delete({
         where: { id }
     });
     revalidatePath('/');
+}
+
+export async function reorderLinks(links: { id: string }[]) {
+  try {
+    const transaction = links.map((link, index) =>
+      prisma.quickLink.update({
+        where: { id: link.id },
+        data: { order: index },
+      })
+    );
+    await prisma.$transaction(transaction);
+    revalidatePath('/');
+  } catch (err) {
+    console.error('[link.ts] reorderLinks error:', err);
+    throw err;
+  }
 }

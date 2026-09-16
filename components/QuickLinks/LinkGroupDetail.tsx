@@ -14,28 +14,77 @@ interface LinkGroupDetailProps {
 }
 
 export const LinkGroupDetail: React.FC<LinkGroupDetailProps> = ({ group, onBack }) => {
-  const { updateLinkGroup } = useApp();
+  const { addLink, updateLink, deleteLink, reorderLinks } = useApp();
   const { t } = useLanguage();
   const [isAddingLink, setIsAddingLink] = useState(false);
   const [newLinkTitle, setNewLinkTitle] = useState('');
   const [newLinkUrl, setNewLinkUrl] = useState('');
+  const [editingLinkId, setEditingLinkId] = useState<string | null>(null);
+  const [editLinkTitle, setEditLinkTitle] = useState('');
+  const [editLinkUrl, setEditLinkUrl] = useState('');
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+
+  const sortedLinks = [...group.links].sort((a, b) => a.order - b.order);
 
   const handleAddLink = () => {
     if (newLinkTitle.trim() && newLinkUrl.trim()) {
-      const newLink = {
-        id: crypto.randomUUID(),
+      addLink({
         title: newLinkTitle.trim(),
         url: newLinkUrl.trim(),
         groupId: group.id,
         order: group.links.length,
-      };
-      updateLinkGroup(group.id, {
-        links: [...group.links, newLink],
       });
       setNewLinkTitle('');
       setNewLinkUrl('');
       setIsAddingLink(false);
     }
+  };
+
+  const handleStartEditLink = (linkId: string, title: string, url: string) => {
+    setEditingLinkId(linkId);
+    setEditLinkTitle(title);
+    setEditLinkUrl(url);
+  };
+
+  const handleCancelEditLink = () => {
+    setEditingLinkId(null);
+    setEditLinkTitle('');
+    setEditLinkUrl('');
+  };
+
+  const handleSaveEditLink = () => {
+    if (!editingLinkId || !editLinkTitle.trim() || !editLinkUrl.trim()) return;
+    updateLink(editingLinkId, {
+      title: editLinkTitle.trim(),
+      url: editLinkUrl.trim(),
+    });
+    handleCancelEditLink();
+  };
+
+  const handleDeleteLink = (linkId: string, linkTitle: string) => {
+    if (confirm(`${t('common.delete')} "${linkTitle}"?`)) {
+      deleteLink(linkId);
+    }
+  };
+
+  const handleDragStart = (index: number) => {
+    setDraggedIndex(index);
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    if (draggedIndex === null || draggedIndex === index) return;
+
+    const reordered = [...sortedLinks];
+    const item = reordered.splice(draggedIndex, 1)[0];
+    reordered.splice(index, 0, item);
+
+    reorderLinks(group.id, reordered);
+    setDraggedIndex(index);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedIndex(null);
   };
 
   return (
@@ -57,16 +106,70 @@ export const LinkGroupDetail: React.FC<LinkGroupDetailProps> = ({ group, onBack 
         </div>
 
         <div className={styles.linksGrid}>
-          {group.links
-            .sort((a, b) => a.order - b.order)
-            .map((link) => (
-              <div key={link.id} className={styles.linkCard}>
+          {sortedLinks.map((link, index) =>
+            editingLinkId === link.id ? (
+              <div key={link.id} className={`${styles.linkCard} ${styles.addCard}`}>
+                <div className={styles.inlineForm}>
+                  <input
+                    placeholder={t('tasks.title')}
+                    value={editLinkTitle}
+                    onChange={(e) => setEditLinkTitle(e.target.value)}
+                    className={styles.miniInput}
+                    autoFocus
+                  />
+                  <input
+                    placeholder="https://..."
+                    value={editLinkUrl}
+                    onChange={(e) => setEditLinkUrl(e.target.value)}
+                    className={styles.miniInput}
+                  />
+                  <div className={styles.formActions}>
+                    <Button size="sm" onClick={handleSaveEditLink}>
+                      {t('common.save')}
+                    </Button>
+                    <Button size="sm" variant="ghost" onClick={handleCancelEditLink}>
+                      {t('common.cancel')}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div
+                key={link.id}
+                className={`${styles.linkCard} ${draggedIndex === index ? styles.dragging : ''}`}
+                draggable
+                onDragStart={() => handleDragStart(index)}
+                onDragOver={(e) => handleDragOver(e, index)}
+                onDragEnd={handleDragEnd}
+              >
+                <div className={styles.dragHandle} title={t('common.dragToReorder')}>
+                  ⠿
+                </div>
                 <LinkButton link={link} groupColor={group.color} />
                 <div className={styles.linkMeta}>
                   <p className={styles.linkUrl}>{link.url}</p>
+                  <div className={styles.linkActions}>
+                    <button
+                      className={styles.actionBtn}
+                      onClick={() => handleStartEditLink(link.id, link.title, link.url)}
+                      title={t('common.edit')}
+                      type="button"
+                    >
+                      ✏️
+                    </button>
+                    <button
+                      className={`${styles.actionBtn} ${styles.deleteBtn}`}
+                      onClick={() => handleDeleteLink(link.id, link.title)}
+                      title={t('common.delete')}
+                      type="button"
+                    >
+                      🗑️
+                    </button>
+                  </div>
                 </div>
               </div>
-            ))}
+            )
+          )}
 
           <div className={`${styles.linkCard} ${styles.addCard}`}>
             {isAddingLink ? (
