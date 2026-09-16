@@ -14,7 +14,7 @@ export interface TaskGroupDefaults {
   priority?: Priority;
 }
 
-export type TaskSortField = 'date' | 'priority' | 'alphabetical';
+export type TaskSortField = 'date' | 'priority' | 'alphabetical' | 'project';
 
 interface TaskGroupProps {
   groupKey: string;
@@ -144,7 +144,16 @@ export const TaskGroup: React.FC<TaskGroupProps> = ({
                     <span className={styles.sortArrow}>{sortDir === 'asc' ? '▲' : '▼'}</span>
                   )}
                 </button>
-                <span>Project</span>
+                <button
+                  type="button"
+                  className={`${styles.sortableHeader} ${sortField === 'project' ? styles.sortActive : ''}`}
+                  onClick={() => onSortChange('project')}
+                >
+                  Project
+                  {sortField === 'project' && (
+                    <span className={styles.sortArrow}>{sortDir === 'asc' ? '▲' : '▼'}</span>
+                  )}
+                </button>
                 <button
                   type="button"
                   className={`${styles.sortableHeader} ${sortField === 'date' ? styles.sortActive : ''}`}
