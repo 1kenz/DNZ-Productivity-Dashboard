@@ -53,6 +53,22 @@ export async function updateLinkGroup(id: string, updates: any) {
   }
 }
 
+export async function reorderLinkGroups(groups: { id: string }[]) {
+  try {
+    const transaction = groups.map((group, index) =>
+      prisma.linkGroup.update({
+        where: { id: group.id },
+        data: { order: index },
+      })
+    );
+    await prisma.$transaction(transaction);
+    revalidatePath('/');
+  } catch (err) {
+    console.error('[link.ts] reorderLinkGroups error:', err);
+    throw err;
+  }
+}
+
 export async function deleteLinkGroup(id: string) {
   try {
     await prisma.linkGroup.delete({

@@ -13,6 +13,7 @@ import {
   TimeEntry,
   Note,
   QuickLink,
+  Attachment,
   DomainArea,
   FocusLevel,
   ThemeMode,
@@ -26,6 +27,8 @@ import * as kanbanActions from '@/app/actions/kanban';
 import * as clockActions from '@/app/actions/clock';
 import * as linkActions from '@/app/actions/link';
 import * as noteActions from '@/app/actions/note';
+import * as attachmentActions from '@/app/actions/attachment';
+import * as systemActions from '@/app/actions/system';
 import * as timeActions from '@/app/actions/time';
 import * as settingsActions from '@/app/actions/settings';
 import { FocusProvider } from './FocusContext';
@@ -83,6 +86,7 @@ interface AppContextType {
   addLinkGroup: (group: Omit<LinkGroup, 'id' | 'links'>) => void;
   updateLinkGroup: (id: string, updates: Partial<LinkGroup>) => void;
   deleteLinkGroup: (id: string) => void;
+  reorderLinkGroups: (groups: LinkGroup[]) => void;
   addLink: (link: Omit<QuickLink, 'id'>) => void;
   updateLink: (id: string, updates: Partial<QuickLink>) => void;
   deleteLink: (id: string) => void;
@@ -93,6 +97,12 @@ interface AppContextType {
   addNote: (note: Omit<Note, 'id' | 'createdAt' | 'updatedAt'>) => string;
   updateNote: (id: string, updates: Partial<Note>) => void;
   deleteNote: (id: string) => void;
+
+  // Attachments (local documents/programs on the user's own computer,
+  // attached to a Todo or a Note; opened via the OS rather than a URL)
+  addAttachment: (data: { label: string; path: string; todoId?: string; noteId?: string }) => void;
+  deleteAttachment: (id: string, target: { todoId?: string; noteId?: string }) => void;
+  openLocalPath: (path: string) => Promise<{ success: boolean; error?: string }>;
 
   // Theme
   theme: Theme;
@@ -546,6 +556,82 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     await noteActions.deleteNote(id);
   };
 
+  // Attachments (shared between Todos and Notes)
+  const addAttachment = async (data: { label: string; path: string; todoId?: string; noteId?: string }) => {
+    const tempId = 'temp-' + Date.now();
+    const optimistic: Attachment = {
+      id: tempId,
+      label: data.label,
+      path: data.path,
+      order: 0,
+      todoId: data.todoId,
+      noteId: data.noteId,
+    };
+
+    if (data.todoId) {
+      setTodos((prev) =>
+        prev.map((t) => (t.id === data.todoId ? { ...t, attachments: [...(t.attachments || []), optimistic] } : t))
+      );
+    } else if (data.noteId) {
+      setNotes((prev) =>
+        prev.map((n) => (n.id === data.noteId ? { ...n, attachments: [...(n.attachments || []), optimistic] } : n))
+      );
+    }
+
+    try {
+      const created = (await attachmentActions.createAttachment(data)) as unknown as Attachment;
+      if (data.todoId) {
+        setTodos((prev) =>
+          prev.map((t) =>
+            t.id === data.todoId
+              ? { ...t, attachments: (t.attachments || []).map((a) => (a.id === tempId ? created : a)) }
+              : t
+          )
+        );
+      } else if (data.noteId) {
+        setNotes((prev) =>
+          prev.map((n) =>
+            n.id === data.noteId
+              ? { ...n, attachments: (n.attachments || []).map((a) => (a.id === tempId ? created : a)) }
+              : n
+          )
+        );
+      }
+    } catch (e) {
+      console.error(e);
+      if (data.todoId) {
+        setTodos((prev) =>
+          prev.map((t) => (t.id === data.todoId ? { ...t, attachments: (t.attachments || []).filter((a) => a.id !== tempId) } : t))
+        );
+      } else if (data.noteId) {
+        setNotes((prev) =>
+          prev.map((n) => (n.id === data.noteId ? { ...n, attachments: (n.attachments || []).filter((a) => a.id !== tempId) } : n))
+        );
+      }
+    }
+  };
+
+  const deleteAttachment = async (id: string, target: { todoId?: string; noteId?: string }) => {
+    if (target.todoId) {
+      setTodos((prev) =>
+        prev.map((t) => (t.id === target.todoId ? { ...t, attachments: (t.attachments || []).filter((a) => a.id !== id) } : t))
+      );
+    } else if (target.noteId) {
+      setNotes((prev) =>
+        prev.map((n) => (n.id === target.noteId ? { ...n, attachments: (n.attachments || []).filter((a) => a.id !== id) } : n))
+      );
+    }
+    await attachmentActions.deleteAttachment(id);
+  };
+
+  const openLocalPath = async (path: string) => {
+    const result = await systemActions.openLocalPath(path);
+    if (!result.success) {
+      alert(result.error || 'Could not open the file or program.');
+    }
+    return result;
+  };
+
   // Link Groups
   const addLinkGroup = async (group: Omit<LinkGroup, 'id' | 'links'>) => {
     const tempId = crypto.randomUUID();
@@ -573,6 +659,12 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const deleteLinkGroup = async (id: string) => {
     setLinkGroups((prev) => prev.filter((g) => g.id !== id));
     await linkActions.deleteLinkGroup(id);
+  };
+
+  const reorderLinkGroups = async (groups: LinkGroup[]) => {
+    const reordered = groups.map((g, index) => ({ ...g, order: index }));
+    setLinkGroups(reordered);
+    await linkActions.reorderLinkGroups(reordered);
   };
 
   const addLink = async (link: Omit<QuickLink, 'id'>) => {
@@ -716,6 +808,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         addLinkGroup,
         updateLinkGroup,
         deleteLinkGroup,
+        reorderLinkGroups,
         addLink,
         updateLink,
         deleteLink,
@@ -730,6 +823,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         addNote,
         updateNote,
         deleteNote,
+        addAttachment,
+        deleteAttachment,
+        openLocalPath,
         focusMode,
         focusLevel,
         setFocusLevel,
