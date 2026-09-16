@@ -3,7 +3,7 @@
 import React from 'react';
 import { QuickLink } from '@/types';
 import { useApp } from '@/contexts/AppContext';
-import { isLocalPath } from '@/lib/localPath';
+import { getLinkKind } from '@/lib/localPath';
 import styles from './LinkButton.module.css';
 
 interface LinkButtonProps {
@@ -23,15 +23,17 @@ export const LinkButton: React.FC<LinkButtonProps> = ({ link, groupColor }) => {
     }
   };
 
-  const local = isLocalPath(link.url);
+  const kind = getLinkKind(link.url);
+  const local = kind !== 'web';
   const faviconUrl = local ? null : getFaviconUrl(link.url);
+  const kindIcon = kind === 'app' ? '📱' : kind === 'file' ? '📄' : '🔗';
 
   const icon = link.icon ? (
     <span className={styles.customIcon}>{link.icon}</span>
   ) : faviconUrl ? (
     <img src={faviconUrl} alt="" className={styles.favicon} />
   ) : (
-    <span className={styles.defaultIcon}>{local ? '📄' : '🔗'}</span>
+    <span className={styles.defaultIcon}>{kindIcon}</span>
   );
 
   // A local document/program on the user's own computer -- open it via the

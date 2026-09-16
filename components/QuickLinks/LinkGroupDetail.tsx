@@ -5,6 +5,7 @@ import { LinkGroup } from '@/types';
 import { useApp } from '@/contexts/AppContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { LinkButton } from './LinkButton';
+import { getLinkKind, getLinkDisplayText } from '@/lib/localPath';
 import { AppPicker } from './AppPicker';
 import { fileDropHandlers, fileNameFromPath } from '@/lib/electron';
 import { Button } from '@/components/ui/Button';
@@ -219,7 +220,12 @@ export const LinkGroupDetail: React.FC<LinkGroupDetailProps> = ({ group, onBack 
                 </div>
                 <LinkButton link={link} groupColor={group.color} />
                 <div className={styles.linkMeta}>
-                  <p className={styles.linkUrl}>{link.url}</p>
+                  <p className={styles.linkUrl} title={link.url}>
+                    <span className={styles.linkKindIcon}>
+                      {getLinkKind(link.url) === 'app' ? '📱' : getLinkKind(link.url) === 'file' ? '📄' : '🌐'}
+                    </span>
+                    {getLinkDisplayText(link.url)}
+                  </p>
                   <div className={styles.linkActions}>
                     <button
                       className={styles.actionBtn}

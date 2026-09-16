@@ -189,6 +189,9 @@
 }
 
 .linkUrl {
+  display: flex;
+  align-items: center;
+  gap: 5px;
   font-size: var(--font-size-xs);
   color: var(--color-text-tertiary);
   white-space: nowrap;
@@ -196,6 +199,12 @@
   text-overflow: ellipsis;
   flex: 1;
   min-width: 0;
+}
+
+.linkKindIcon {
+  flex-shrink: 0;
+  font-size: 11px;
+  opacity: 0.85;
 }
 
 .linkActions {
