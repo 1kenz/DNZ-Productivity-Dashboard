@@ -290,6 +290,7 @@ export const DICTIONARIES = {
     'attachments.pathPlaceholder': '/Users/you/Documents/file.pdf',
     'attachments.open': 'Open',
     'attachments.empty': 'No attachments yet',
+    'attachments.deleteConfirm': 'Remove this attachment?',
     'quickLinks.urlOrPathPlaceholder': 'https://... or /Users/you/file',
     'quickLinks.chooseApp': 'Choose an app...',
     'quickLinks.searchApps': 'Search apps...',
@@ -360,6 +361,7 @@ export const DICTIONARIES = {
 
     'timeTracking.durationMinutes': 'Duration (Minutes)',
     'timeTracking.sortBy': 'Click to sort',
+    'timeTracking.deleteConfirm': 'Delete this time entry?',
 
     'ai.stopListening': 'Stop Dictation (Finish Speaking)',
 
@@ -748,6 +750,7 @@ export const DICTIONARIES = {
     'attachments.pathPlaceholder': '/Users/sen/Belgeler/dosya.pdf',
     'attachments.open': 'Aç',
     'attachments.empty': 'Henüz ek yok',
+    'attachments.deleteConfirm': 'Bu eki kaldırmak istediğinize emin misiniz?',
     'quickLinks.urlOrPathPlaceholder': 'https://... veya /Users/sen/dosya',
     'quickLinks.chooseApp': 'Uygulama seç...',
     'quickLinks.searchApps': 'Uygulama ara...',
@@ -818,6 +821,7 @@ export const DICTIONARIES = {
 
     'timeTracking.durationMinutes': 'Süre (Dakika)',
     'timeTracking.sortBy': 'Sıralamak için tıkla',
+    'timeTracking.deleteConfirm': 'Bu zaman kaydını silmek istediğinize emin misiniz?',
 
     'ai.stopListening': 'Dinlemeyi Durdur (Konuşmayı Bitir)',
 
@@ -1203,6 +1207,7 @@ export const DICTIONARIES = {
     'attachments.pathPlaceholder': '/Users/du/Dokumente/datei.pdf',
     'attachments.open': 'Öffnen',
     'attachments.empty': 'Noch keine Anhänge',
+    'attachments.deleteConfirm': 'Diesen Anhang entfernen?',
     'quickLinks.urlOrPathPlaceholder': 'https://... oder /Users/du/datei',
     'quickLinks.chooseApp': 'App auswählen...',
     'quickLinks.searchApps': 'Apps suchen...',
@@ -1273,6 +1278,7 @@ export const DICTIONARIES = {
 
     'timeTracking.durationMinutes': 'Dauer (Minuten)',
     'timeTracking.sortBy': 'Klicken zum Sortieren',
+    'timeTracking.deleteConfirm': 'Diesen Zeiteintrag löschen?',
 
     'ai.stopListening': 'Diktat beenden',
 

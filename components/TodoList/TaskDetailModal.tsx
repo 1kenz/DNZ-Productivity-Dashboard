@@ -445,7 +445,11 @@ export const TaskDetailDrawer: React.FC<TaskDetailDrawerProps> = ({ todo, isOpen
                   <button
                     type="button"
                     className={styles.checklistDeleteBtn}
-                    onClick={() => deleteAttachment(a.id, { todoId: todo.id })}
+                    onClick={() => {
+                      if (window.confirm(t('attachments.deleteConfirm') || 'Remove this attachment?')) {
+                        deleteAttachment(a.id, { todoId: todo.id });
+                      }
+                    }}
                     title={t('common.delete') || 'Delete attachment'}
                   >
                     ×

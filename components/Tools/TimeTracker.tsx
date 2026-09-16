@@ -400,7 +400,11 @@ export const TimeTracker: React.FC<TimeTrackerProps> = ({ onOpenFullView }) => {
                     </button>
                     <button
                       className={styles.deleteBtn}
-                      onClick={() => deleteTimeEntry(entry.id)}
+                      onClick={() => {
+                        if (window.confirm(t('timeTracking.deleteConfirm') || 'Delete this time entry?')) {
+                          deleteTimeEntry(entry.id);
+                        }
+                      }}
                       title={t('common.delete')}
                     >
                       ×

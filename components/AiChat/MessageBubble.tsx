@@ -62,7 +62,9 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
 
   const handleDelete = (e?: React.MouseEvent) => {
     e?.stopPropagation();
-    if (onDelete) {
+    if (!onDelete) return;
+    const confirmMsg = t('ai.deleteMessageConfirm') || 'Bu mesajı silmek istediğinize emin misiniz?';
+    if (window.confirm(confirmMsg)) {
       onDelete(message.id);
     }
   };

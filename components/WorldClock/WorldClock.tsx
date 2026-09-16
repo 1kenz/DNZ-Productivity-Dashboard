@@ -201,7 +201,11 @@ export const WorldClock: React.FC<WorldClockProps> = ({ onlyLocal = false }) => 
               {!onlyLocal && (
                 <button
                   className={styles.deleteBtn}
-                  onClick={() => deleteClock(tz.id)}
+                  onClick={() => {
+                    if (window.confirm(`Remove "${tz.city}" clock?`)) {
+                      deleteClock(tz.id);
+                    }
+                  }}
                   title="Remove Clock"
                 >
                   ×

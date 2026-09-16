@@ -252,7 +252,11 @@ export const NotesView: React.FC = () => {
                   <button
                     type="button"
                     className={styles.attachmentChipRemove}
-                    onClick={() => deleteAttachment(a.id, { noteId: selectedNote.id })}
+                    onClick={() => {
+                      if (window.confirm(t('attachments.deleteConfirm') || 'Remove this attachment?')) {
+                        deleteAttachment(a.id, { noteId: selectedNote.id });
+                      }
+                    }}
                     title={t('common.delete') || 'Remove attachment'}
                   >
                     ×

@@ -368,7 +368,7 @@ export const TimeTrackingView: React.FC = () => {
                         type="button"
                         className={styles.deleteBtn}
                         onClick={() => {
-                          if (confirm(`${t('common.delete')} time entry?`)) {
+                          if (window.confirm(t('timeTracking.deleteConfirm') || 'Delete this time entry?')) {
                             deleteTimeEntry(entry.id);
                           }
                         }}
