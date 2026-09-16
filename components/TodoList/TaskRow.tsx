@@ -36,6 +36,8 @@ export const TaskRow: React.FC<TaskRowProps> = ({
   const [isDateEditing, setIsDateEditing] = useState(false);
   const [isPriorityOpen, setIsPriorityOpen] = useState(false);
   const priorityRef = useRef<HTMLDivElement>(null);
+  const [isStatusOpen, setIsStatusOpen] = useState(false);
+  const statusRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!isPriorityOpen) return;
@@ -55,8 +57,27 @@ export const TaskRow: React.FC<TaskRowProps> = ({
     };
   }, [isPriorityOpen]);
 
+  useEffect(() => {
+    if (!isStatusOpen) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (statusRef.current && !statusRef.current.contains(e.target as Node)) {
+        setIsStatusOpen(false);
+      }
+    };
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setIsStatusOpen(false);
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleEscape);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [isStatusOpen]);
+
   const project = projects.find((p) => p.id === todo.projectId);
   const statusColumn = kanbanColumns.find((c) => c.id === todo.status);
+  const sortedStatusColumns = [...kanbanColumns].sort((a, b) => a.order - b.order);
   const directChildCount = hasChildren
     ? todos.filter((t) => t.parentTodoId === todo.id).length
     : 0;
@@ -103,6 +124,11 @@ export const TaskRow: React.FC<TaskRowProps> = ({
   const handlePickPriority = (p: Todo['priority']) => {
     updateTodo(todo.id, { priority: p });
     setIsPriorityOpen(false);
+  };
+
+  const handlePickStatus = (statusId: string) => {
+    updateTodo(todo.id, { status: statusId });
+    setIsStatusOpen(false);
   };
 
   const handleIncrementCount = (e: React.MouseEvent) => {
@@ -344,6 +370,43 @@ export const TaskRow: React.FC<TaskRowProps> = ({
                   </button>
                 );
               })}
+            </div>
+          )}
+        </div>
+
+        <div className={styles.statusCell} ref={statusRef}>
+          <button
+            type="button"
+            className={styles.statusChip}
+            style={{
+              color: statusColor,
+              background: `color-mix(in srgb, ${statusColor} 15%, transparent)`,
+            }}
+            title={t('tasks.status') || 'Status'}
+            onClick={() => setIsStatusOpen((o) => !o)}
+          >
+            <span className={styles.statusDot} style={{ backgroundColor: statusColor }} />
+            {statusColumn?.name || '—'}
+          </button>
+
+          {isStatusOpen && (
+            <div className={styles.statusMenu}>
+              {sortedStatusColumns.map((col) => (
+                <button
+                  key={col.id}
+                  type="button"
+                  className={`${styles.statusMenuItem} ${
+                    col.id === todo.status ? styles.statusMenuItemActive : ''
+                  }`}
+                  onClick={() => handlePickStatus(col.id)}
+                >
+                  <span className={styles.statusMenuDot} style={{ backgroundColor: col.color }} />
+                  <span className={styles.statusMenuLabel}>{col.name}</span>
+                  {col.id === todo.status && (
+                    <span className={styles.statusMenuCheck}>✓</span>
+                  )}
+                </button>
+              ))}
             </div>
           )}
         </div>

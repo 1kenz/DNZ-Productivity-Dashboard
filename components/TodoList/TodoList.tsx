@@ -16,7 +16,7 @@ import { PRIORITY_ORDER, PRIORITY_RANK, PRIORITY_META } from '@/lib/priority';
 import styles from './TodoList.module.css';
 
 type FilterType = 'all' | 'active' | 'completed';
-type SortType = 'date' | 'priority' | 'alphabetical' | 'project';
+type SortType = 'date' | 'priority' | 'alphabetical' | 'project' | 'status';
 type GroupByType = ViewPreferences['groupBy'];
 
 interface TodoGroup {
@@ -82,6 +82,10 @@ export const TodoList: React.FC = () => {
       if (aName && !bName) cmp = -1; // tasks with a project come before unassigned ones
       else if (!aName && bName) cmp = 1;
       else cmp = aName.localeCompare(bName);
+    } else if (sort === 'status') {
+      const aOrder = kanbanColumns.find((c) => c.id === a.status)?.order ?? Number.MAX_SAFE_INTEGER;
+      const bOrder = kanbanColumns.find((c) => c.id === b.status)?.order ?? Number.MAX_SAFE_INTEGER;
+      cmp = aOrder - bOrder;
     } else {
       const aHasDeadline = Boolean(a.deadline);
       const bHasDeadline = Boolean(b.deadline);

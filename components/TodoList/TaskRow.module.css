@@ -1,6 +1,6 @@
 .row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 120px 130px 110px 64px;
+  grid-template-columns: minmax(0, 1fr) 120px 130px 110px 120px 64px;
   align-items: center;
   column-gap: var(--space-3);
   padding: 0 var(--space-3);
@@ -250,6 +250,13 @@
   min-width: 0;
 }
 
+.statusCell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
 .dateChip {
   font-size: 12px;
   color: var(--color-text-secondary);
@@ -404,6 +411,90 @@
   flex-shrink: 0;
 }
 
+.statusChip {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: var(--font-weight-semibold);
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  cursor: pointer;
+  transition: filter var(--transition-fast);
+}
+
+.statusChip:hover {
+  filter: brightness(1.15);
+}
+
+.statusDot {
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+}
+
+.statusMenu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 30;
+  min-width: 170px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: var(--space-1);
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+}
+
+.statusMenuItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  padding: 6px var(--space-2);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  text-align: left;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+}
+
+.statusMenuItem:hover {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+}
+
+.statusMenuItemActive {
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-medium);
+}
+
+.statusMenuDot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+  flex-shrink: 0;
+}
+
+.statusMenuLabel {
+  flex: 1;
+  min-width: 0;
+}
+
+.statusMenuCheck {
+  font-size: 11px;
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+
 .actionsCell {
   display: flex;
   align-items: center;
@@ -447,6 +538,9 @@
     display: none;
   }
   .priorityCell {
+    display: none;
+  }
+  .statusCell {
     display: none;
   }
   .dateCell {
