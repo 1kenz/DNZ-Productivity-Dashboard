@@ -50,7 +50,27 @@
   gap: 6px;
 }
 
-.addBtn,
+.addBtn {
+  width: 20px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  font-size: 13px;
+  color: var(--color-primary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.addBtn:hover {
+  background: var(--color-primary-light);
+  border-color: var(--color-primary);
+  transform: scale(1.05);
+}
+
 .expandDrawerBtn {
   font-size: 14px;
   color: var(--color-primary);
@@ -66,7 +86,6 @@
   transition: all var(--transition-fast);
 }
 
-.addBtn:hover,
 .expandDrawerBtn:hover {
   background: var(--color-primary);
   color: #ffffff;

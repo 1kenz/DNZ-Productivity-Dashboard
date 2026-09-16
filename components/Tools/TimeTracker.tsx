@@ -21,7 +21,11 @@ interface FlatTodoOption {
   depth: number;
 }
 
-export const TimeTracker: React.FC = () => {
+interface TimeTrackerProps {
+  onOpenFullView?: () => void;
+}
+
+export const TimeTracker: React.FC<TimeTrackerProps> = ({ onOpenFullView }) => {
   const { projects, todos, timeEntries, addTimeEntry, updateTimeEntry, deleteTimeEntry } = useApp();
   const { isTimeTracking, trackingElapsedTime, trackingProjectId, trackingTaskId, startTracking, stopTracking, formatTime } = useFocus();
   const { t } = useLanguage();
@@ -170,7 +174,28 @@ export const TimeTracker: React.FC = () => {
     <div className={styles.container} id="time-tracker-section">
       <div className={styles.header}>
         <h3 className={styles.title}>{t('tools.timeTracker')}</h3>
-        {isTimeTracking && <span className={styles.liveIndicator}>LIVE</span>}
+        <div className={styles.headerActions}>
+          {isTimeTracking && <span className={styles.liveIndicator}>LIVE</span>}
+          <button
+            type="button"
+            className={styles.addBtn}
+            onClick={openManualForm}
+            disabled={isTimeTracking}
+            title={t('tools.addTimeManually') || 'Add time manually'}
+          >
+            +
+          </button>
+          {onOpenFullView && (
+            <button
+              type="button"
+              className={styles.expandDrawerBtn}
+              onClick={onOpenFullView}
+              title={t('tools.viewAllEntries') || 'View all time entries'}
+            >
+              ↗
+            </button>
+          )}
+        </div>
       </div>
 
       <div className={styles.trackerCard}>
@@ -240,7 +265,18 @@ export const TimeTracker: React.FC = () => {
         </button>
 
         {showManualForm && (
-          <div className={styles.manualForm}>
+          <div
+            className={styles.manualForm}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                handleAddManual();
+              } else if (e.key === 'Escape') {
+                e.preventDefault();
+                setShowManualForm(false);
+              }
+            }}
+          >
             <select
               className={styles.projectSelect}
               value={manualProjectId}
@@ -291,7 +327,18 @@ export const TimeTracker: React.FC = () => {
           {timeEntries.slice(0, 5).map((entry) => (
             <div key={entry.id} className={styles.entryItem}>
               {editingId === entry.id ? (
-                <div className={styles.editBlock}>
+                <div
+                  className={styles.editBlock}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      saveEdit(entry.id);
+                    } else if (e.key === 'Escape') {
+                      e.preventDefault();
+                      cancelEdit();
+                    }
+                  }}
+                >
                   <input
                     type="date"
                     className={styles.editDateInput}
