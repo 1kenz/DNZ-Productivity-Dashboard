@@ -30,7 +30,7 @@ export const TodoForm: React.FC<TodoFormProps> = ({ onClose }) => {
   // Numeric Goal
   const [isNumericGoal, setIsNumericGoal] = useState(false);
   const [targetCount, setTargetCount] = useState<number | ''>('');
-  const [unit, setUnit] = useState('kelime');
+  const [unit, setUnit] = useState(t('tasks.unitDefault'));
 
   // Recurring task fields
   const [isRecurring, setIsRecurring] = useState(false);
@@ -57,7 +57,7 @@ export const TodoForm: React.FC<TodoFormProps> = ({ onClose }) => {
     setDeadline('');
     setIsNumericGoal(false);
     setTargetCount('');
-    setUnit('kelime');
+    setUnit(t('tasks.unitDefault'));
     setIsRecurring(false);
     setFrequency('weekly');
     setInterval_(1);
@@ -108,8 +108,15 @@ export const TodoForm: React.FC<TodoFormProps> = ({ onClose }) => {
     onClose();
   };
 
+  const handleFormKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      onClose();
+    }
+  };
+
   return (
-    <form onSubmit={handleSubmit} className={styles.form}>
+    <form onSubmit={handleSubmit} className={styles.form} onKeyDown={handleFormKeyDown}>
       <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8 }}>
         <div style={{ flex: 1 }}>
           <Input
@@ -236,7 +243,7 @@ export const TodoForm: React.FC<TodoFormProps> = ({ onClose }) => {
             <input
               type="text"
               className={styles.select}
-              placeholder="words, pages, tasks..."
+              placeholder={t('tasks.unitPlaceholder')}
               value={unit}
               onChange={(e) => setUnit(e.target.value)}
             />
