@@ -197,6 +197,7 @@ export const TaskDetailDrawer: React.FC<TaskDetailDrawerProps> = ({ todo, isOpen
                 <option value="">No Section</option>
                 {sections
                   .filter((s) => s.projectId === projectId)
+                  .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }))
                   .map((s) => (
                     <option key={s.id} value={s.id}>
                       {s.icon ? `${s.icon} ` : ''}{s.name}

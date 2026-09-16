@@ -204,6 +204,7 @@ export const TodoForm: React.FC<TodoFormProps> = ({ onClose }) => {
             <option value="">{t('tasks.noSection') || 'No Section'}</option>
             {sections
               .filter((s) => s.projectId === projectId)
+              .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }))
               .map((s) => (
                 <option key={s.id} value={s.id}>
                   {s.icon ? `${s.icon} ` : ''}

@@ -33,7 +33,9 @@ export const SectionManager: React.FC<SectionManagerProps> = ({ projectId }) => 
   const [isPanelOpen, setIsPanelOpen] = useState(false);
 
   const projectSections = sections.filter((s) => s.projectId === projectId);
-  const topLevel = projectSections.filter((s) => !s.parentId).sort((a, b) => a.order - b.order);
+  const topLevel = projectSections
+    .filter((s) => !s.parentId)
+    .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
 
   const openAddModal = (parentId: string | null = null) => {
     setEditingSection(null);
@@ -87,7 +89,9 @@ export const SectionManager: React.FC<SectionManagerProps> = ({ projectId }) => 
   };
 
   const renderSection = (section: Section, depth: number): React.ReactNode => {
-    const children = projectSections.filter((s) => s.parentId === section.id).sort((a, b) => a.order - b.order);
+    const children = projectSections
+      .filter((s) => s.parentId === section.id)
+      .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
     const progress = getSectionProgress(section.id, todos, sections);
     const isCollapsed = collapsed.has(section.id);
 
