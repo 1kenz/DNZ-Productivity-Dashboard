@@ -144,6 +144,7 @@ export const TaskGroup: React.FC<TaskGroupProps> = ({
                     <span className={styles.sortArrow}>{sortDir === 'asc' ? '▲' : '▼'}</span>
                   )}
                 </button>
+                <span>Project</span>
                 <button
                   type="button"
                   className={`${styles.sortableHeader} ${sortField === 'date' ? styles.sortActive : ''}`}
@@ -168,6 +169,7 @@ export const TaskGroup: React.FC<TaskGroupProps> = ({
             ) : (
               <>
                 <span>Name</span>
+                <span>Project</span>
                 <span>Due date</span>
                 <span>Priority</span>
               </>

@@ -1,6 +1,6 @@
 .row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 130px 110px 64px;
+  grid-template-columns: minmax(0, 1fr) 120px 130px 110px 64px;
   align-items: center;
   column-gap: var(--space-3);
   padding: 0 var(--space-3);
@@ -229,6 +229,14 @@
   flex-shrink: 0;
 }
 
+.domainCell {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  overflow: hidden;
+}
+
 .dateCell {
   display: flex;
   align-items: center;
@@ -434,6 +442,9 @@
 @media (max-width: 640px) {
   .row {
     grid-template-columns: minmax(0, 1fr) 40px;
+  }
+  .domainCell {
+    display: none;
   }
   .priorityCell {
     display: none;

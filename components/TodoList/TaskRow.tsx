@@ -178,25 +178,6 @@ export const TaskRow: React.FC<TaskRowProps> = ({
             </button>
           )}
 
-          {domainMeta && (
-            <span
-              className={styles.projectTag}
-              style={{
-                color: domainMeta.color,
-                background: `color-mix(in srgb, ${domainMeta.color} 12%, transparent)`,
-              }}
-              title={`Alan: ${domainMeta.label}`}
-            >
-              {domainMeta.icon}
-            </span>
-          )}
-
-          {project && (
-            <span className={styles.projectTag} style={{ color: project.color }}>
-              {project.icon} {project.name}
-            </span>
-          )}
-
           {todo.description && (
             <span className={styles.descIcon} title="Açıklama içeriyor">
               ≡
@@ -255,6 +236,26 @@ export const TaskRow: React.FC<TaskRowProps> = ({
             >
               <span className={styles.playIcon}>▶</span>
             </button>
+          )}
+        </div>
+
+        <div className={styles.domainCell}>
+          {domainMeta && (
+            <span
+              className={styles.projectTag}
+              style={{
+                color: domainMeta.color,
+                background: `color-mix(in srgb, ${domainMeta.color} 12%, transparent)`,
+              }}
+              title={`Alan: ${domainMeta.label}`}
+            >
+              {domainMeta.icon}
+            </span>
+          )}
+          {project && (
+            <span className={styles.projectTag} style={{ color: project.color }}>
+              {project.icon} {project.name}
+            </span>
           )}
         </div>
 
