@@ -52,6 +52,20 @@
   gap: var(--space-4);
 }
 
+.groupWrapper {
+  cursor: grab;
+  transition: opacity var(--transition-base), transform var(--transition-base);
+}
+
+.groupWrapper:active {
+  cursor: grabbing;
+}
+
+.groupWrapper.dragging {
+  opacity: 0.4;
+  transform: scale(0.97);
+}
+
 .list {
   display: flex;
   flex-direction: column;

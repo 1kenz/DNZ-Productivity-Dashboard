@@ -11,10 +11,13 @@ import { Modal } from '@/components/ui/Modal';
 import styles from './LinkGroupGrid.module.css';
 
 export const LinkGroupGrid: React.FC = () => {
-  const { linkGroups } = useApp();
+  const { linkGroups, reorderLinkGroups } = useApp();
   const { t } = useLanguage();
   const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+
+  const sortedGroups = [...linkGroups].sort((a, b) => a.order - b.order);
 
   const selectedGroup = linkGroups.find((g) => g.id === selectedGroupId);
 
@@ -26,6 +29,26 @@ export const LinkGroupGrid: React.FC = () => {
       />
     );
   }
+
+  const handleDragStart = (index: number) => {
+    setDraggedIndex(index);
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    if (draggedIndex === null || draggedIndex === index) return;
+
+    const reordered = [...sortedGroups];
+    const item = reordered.splice(draggedIndex, 1)[0];
+    reordered.splice(index, 0, item);
+
+    reorderLinkGroups(reordered);
+    setDraggedIndex(index);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedIndex(null);
+  };
 
   return (
     <div className={styles.section}>
@@ -44,12 +67,20 @@ export const LinkGroupGrid: React.FC = () => {
       </div>
 
       <div className={styles.grid}>
-        {linkGroups.map((group) => (
-          <LinkGroup
+        {sortedGroups.map((group, index) => (
+          <div
             key={group.id}
-            group={group}
-            onSelect={() => setSelectedGroupId(group.id)}
-          />
+            className={`${styles.groupWrapper} ${draggedIndex === index ? styles.dragging : ''}`}
+            draggable
+            onDragStart={() => handleDragStart(index)}
+            onDragOver={(e) => handleDragOver(e, index)}
+            onDragEnd={handleDragEnd}
+          >
+            <LinkGroup
+              group={group}
+              onSelect={() => setSelectedGroupId(group.id)}
+            />
+          </div>
         ))}
       </div>
 
