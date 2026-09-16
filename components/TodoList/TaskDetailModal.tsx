@@ -7,6 +7,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { Modal } from '@/components/ui/Modal';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
+import { AppPicker } from '@/components/QuickLinks/AppPicker';
 import { getTodoProgress } from '@/lib/progress';
 import { PRIORITY_ORDER, PRIORITY_META } from '@/lib/priority';
 import styles from './TaskDetailModal.module.css';
@@ -18,7 +19,7 @@ interface TaskDetailDrawerProps {
 }
 
 export const TaskDetailDrawer: React.FC<TaskDetailDrawerProps> = ({ todo, isOpen, onClose }) => {
-  const { updateTodo, addTodo, deleteTodo, toggleTodo, projects, sections, kanbanColumns, todos } = useApp();
+  const { updateTodo, addTodo, deleteTodo, toggleTodo, projects, sections, kanbanColumns, todos, addAttachment, deleteAttachment, openLocalPath } = useApp();
   const { t } = useLanguage();
 
   const [openParentId, setOpenParentId] = useState<string | null>(null);
@@ -84,9 +85,11 @@ export const TaskDetailDrawer: React.FC<TaskDetailDrawerProps> = ({ todo, isOpen
     if (!tVal) return;
     addTodo({
       title: tVal,
-      priority: 'medium',
+      priority: todo.priority,
       projectId: todo.projectId,
       sectionId: todo.sectionId,
+      domain: todo.domain,
+      tags: todo.tags ? [...todo.tags] : undefined,
       parentTodoId: todo.id,
       status: kanbanColumns[0]?.id || 'todo',
       completed: false,
@@ -97,12 +100,39 @@ export const TaskDetailDrawer: React.FC<TaskDetailDrawerProps> = ({ todo, isOpen
   const handleSubtaskKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       e.preventDefault();
+      // Stop this from also bubbling up to the modal's own Enter-to-save
+      // handler -- Enter here should only add the subtask.
+      e.stopPropagation();
       handleAddSubtask();
     }
   };
 
+  // Attachments: local documents/programs (on the user's own computer)
+  // linked to this task for quick access, opened via the OS "open" command.
+  const [newAttachmentLabel, setNewAttachmentLabel] = useState('');
+  const [newAttachmentPath, setNewAttachmentPath] = useState('');
+  const [showAttachmentAppPicker, setShowAttachmentAppPicker] = useState(false);
+  const attachments = todos.find((t) => t.id === todo.id)?.attachments || [];
+
+  const handleAddAttachment = () => {
+    const label = newAttachmentLabel.trim();
+    const path = newAttachmentPath.trim();
+    if (!label || !path) return;
+    addAttachment({ label, path, todoId: todo.id });
+    setNewAttachmentLabel('');
+    setNewAttachmentPath('');
+  };
+
+  const handleAttachmentKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      e.stopPropagation();
+      handleAddAttachment();
+    }
+  };
+
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={t('tasks.details') || 'Task Details'} size="lg">
+    <Modal isOpen={isOpen} onClose={onClose} onConfirm={handleSave} title={t('tasks.details') || 'Task Details'} size="lg">
       <div className={styles.container}>
         {parentTodo && (
           <button
@@ -218,13 +248,13 @@ export const TaskDetailDrawer: React.FC<TaskDetailDrawerProps> = ({ todo, isOpen
 
         {!isParentOfSubtasks && (
           <div className={styles.section}>
-            <label className={styles.label}>Numeric Goal (optional)</label>
+            <label className={styles.label}>{t('tasks.numericGoalTitle')}</label>
             <p className={styles.hint}>
-              Track progress by count instead of a plain checkbox — e.g. "500 kelime".
+              {t('tasks.numericGoalHint')}
             </p>
             <div className={styles.goalRow}>
               <div className={styles.goalField}>
-                <span className={styles.goalFieldLabel}>Current</span>
+                <span className={styles.goalFieldLabel}>{t('tasks.current')}</span>
                 <input
                   type="number"
                   min="0"
@@ -236,7 +266,7 @@ export const TaskDetailDrawer: React.FC<TaskDetailDrawerProps> = ({ todo, isOpen
               </div>
               <span className={styles.goalSep}>/</span>
               <div className={styles.goalField}>
-                <span className={styles.goalFieldLabel}>Target</span>
+                <span className={styles.goalFieldLabel}>{t('tasks.target')}</span>
                 <input
                   type="number"
                   min="1"
@@ -247,11 +277,11 @@ export const TaskDetailDrawer: React.FC<TaskDetailDrawerProps> = ({ todo, isOpen
                 />
               </div>
               <div className={styles.goalField}>
-                <span className={styles.goalFieldLabel}>Unit</span>
+                <span className={styles.goalFieldLabel}>{t('tasks.unitLabel')}</span>
                 <input
                   type="text"
                   className={styles.goalInput}
-                  placeholder="kelime / sayfa"
+                  placeholder={t('tasks.unitPlaceholder')}
                   value={unit}
                   onChange={(e) => setUnit(e.target.value)}
                 />
@@ -388,20 +418,100 @@ export const TaskDetailDrawer: React.FC<TaskDetailDrawerProps> = ({ todo, isOpen
           </div>
         </div>
 
+        <div className={styles.subtaskSection}>
+          <div className={styles.subtaskHeader}>
+            <span className={styles.label}>📎 {t('attachments.title')}</span>
+          </div>
+          <p className={styles.hint}>{t('attachments.hint')}</p>
+
+          {attachments.length > 0 && (
+            <div className={styles.subtaskList}>
+              {attachments.map((a) => (
+                <div key={a.id} className={styles.subtaskItem}>
+                  <div className={styles.attachmentInfo}>
+                    <span className={styles.attachmentLabel}>{a.label}</span>
+                    <span className={styles.attachmentPath}>{a.path}</span>
+                  </div>
+                  <button
+                    type="button"
+                    className={styles.checklistDeleteBtn}
+                    onClick={() => openLocalPath(a.path)}
+                    title={t('attachments.open')}
+                  >
+                    📂
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.checklistDeleteBtn}
+                    onClick={() => deleteAttachment(a.id, { todoId: todo.id })}
+                    title={t('common.delete') || 'Delete attachment'}
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div className={styles.subtaskAddRow}>
+            <input
+              type="text"
+              className={styles.input}
+              placeholder={t('attachments.labelPlaceholder')}
+              value={newAttachmentLabel}
+              onChange={(e) => setNewAttachmentLabel(e.target.value)}
+              onKeyDown={handleAttachmentKeyDown}
+            />
+            <input
+              type="text"
+              className={styles.input}
+              placeholder={t('attachments.pathPlaceholder')}
+              value={newAttachmentPath}
+              onChange={(e) => setNewAttachmentPath(e.target.value)}
+              onKeyDown={handleAttachmentKeyDown}
+            />
+            <div className={styles.appPickerAnchor}>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => setShowAttachmentAppPicker((prev) => !prev)}
+                title={t('quickLinks.chooseApp')}
+              >
+                📱
+              </Button>
+              {showAttachmentAppPicker && (
+                <AppPicker
+                  onSelect={(app) => {
+                    setNewAttachmentLabel(app.name);
+                    setNewAttachmentPath(app.path);
+                    setShowAttachmentAppPicker(false);
+                  }}
+                  onClose={() => setShowAttachmentAppPicker(false)}
+                />
+              )}
+            </div>
+            <Button type="button" variant="secondary" onClick={handleAddAttachment}>
+              + {t('common.add')}
+            </Button>
+          </div>
+        </div>
+
         <div className={styles.drawerFooter}>
           <span className={styles.timestamp}>
             Created: {new Date(todo.createdAt).toLocaleString()}
           </span>
           <div className={styles.actions}>
-            <Button variant="danger" onClick={handleDeleteTask}>
+            <Button variant="danger" size="sm" onClick={handleDeleteTask}>
               {t('common.delete') || 'Delete'}
             </Button>
-            <Button variant="ghost" onClick={onClose}>
-              {t('common.cancel')}
-            </Button>
-            <Button variant="primary" onClick={handleSave}>
-              {t('common.save')}
-            </Button>
+            <div className={styles.primaryActions}>
+              <Button variant="ghost" size="sm" onClick={onClose}>
+                {t('common.cancel')}
+              </Button>
+              <Button variant="primary" size="sm" onClick={handleSave}>
+                {t('common.save')}
+              </Button>
+            </div>
           </div>
         </div>
       </div>
