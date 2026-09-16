@@ -6,6 +6,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { Button } from '@/components/ui/Button';
 import { AppleNotesIcon } from '@/components/ui/AppleNotesIcon';
 import { AppPicker } from '@/components/QuickLinks/AppPicker';
+import { fileDropHandlers, fileNameFromPath } from '@/lib/electron';
 import styles from './NotesView.module.css';
 
 export const NotesView: React.FC = () => {
@@ -23,7 +24,7 @@ export const NotesView: React.FC = () => {
   const [isAddingAttachment, setIsAddingAttachment] = useState(false);
   const [newAttachmentLabel, setNewAttachmentLabel] = useState('');
   const [newAttachmentPath, setNewAttachmentPath] = useState('');
-  const [showAttachmentAppPicker, setShowAttachmentAppPicker] = useState(false);
+  const [attachmentPickerAnchor, setAttachmentPickerAnchor] = useState<HTMLElement | null>(null);
 
   // Always resolve the active note: selectedNoteId match or fallback to the first available note
   const selectedNote = notes.find((n) => n.id === selectedNoteId) || (notes.length > 0 ? notes[0] : null);
@@ -111,7 +112,7 @@ export const NotesView: React.FC = () => {
     setNewAttachmentLabel('');
     setNewAttachmentPath('');
     setIsAddingAttachment(false);
-    setShowAttachmentAppPicker(false);
+    setAttachmentPickerAnchor(null);
   };
 
   const handleAttachmentKeyDown = (e: React.KeyboardEvent) => {
@@ -276,24 +277,29 @@ export const NotesView: React.FC = () => {
                     value={newAttachmentPath}
                     onChange={(e) => setNewAttachmentPath(e.target.value)}
                     onKeyDown={handleAttachmentKeyDown}
+                    {...fileDropHandlers((path) => {
+                      setNewAttachmentPath(path);
+                      if (!newAttachmentLabel.trim()) setNewAttachmentLabel(fileNameFromPath(path));
+                    })}
                   />
                   <div className={styles.appPickerAnchor}>
                     <button
                       type="button"
                       className={styles.addAttachmentBtn}
-                      onClick={() => setShowAttachmentAppPicker((prev) => !prev)}
+                      onClick={(e) => setAttachmentPickerAnchor((prev) => (prev ? null : e.currentTarget))}
                       title={t('quickLinks.chooseApp')}
                     >
                       📱
                     </button>
-                    {showAttachmentAppPicker && (
+                    {attachmentPickerAnchor && (
                       <AppPicker
+                        anchorEl={attachmentPickerAnchor}
                         onSelect={(app) => {
                           setNewAttachmentLabel(app.name);
                           setNewAttachmentPath(app.path);
-                          setShowAttachmentAppPicker(false);
+                          setAttachmentPickerAnchor(null);
                         }}
-                        onClose={() => setShowAttachmentAppPicker(false)}
+                        onClose={() => setAttachmentPickerAnchor(null)}
                       />
                     )}
                   </div>

@@ -8,6 +8,7 @@ import { Modal } from '@/components/ui/Modal';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { AppPicker } from '@/components/QuickLinks/AppPicker';
+import { fileDropHandlers, fileNameFromPath } from '@/lib/electron';
 import { getTodoProgress } from '@/lib/progress';
 import { PRIORITY_ORDER, PRIORITY_META } from '@/lib/priority';
 import styles from './TaskDetailModal.module.css';
@@ -111,7 +112,7 @@ export const TaskDetailDrawer: React.FC<TaskDetailDrawerProps> = ({ todo, isOpen
   // linked to this task for quick access, opened via the OS "open" command.
   const [newAttachmentLabel, setNewAttachmentLabel] = useState('');
   const [newAttachmentPath, setNewAttachmentPath] = useState('');
-  const [showAttachmentAppPicker, setShowAttachmentAppPicker] = useState(false);
+  const [attachmentPickerAnchor, setAttachmentPickerAnchor] = useState<HTMLElement | null>(null);
   const attachments = todos.find((t) => t.id === todo.id)?.attachments || [];
 
   const handleAddAttachment = () => {
@@ -469,24 +470,29 @@ export const TaskDetailDrawer: React.FC<TaskDetailDrawerProps> = ({ todo, isOpen
               value={newAttachmentPath}
               onChange={(e) => setNewAttachmentPath(e.target.value)}
               onKeyDown={handleAttachmentKeyDown}
+              {...fileDropHandlers((path) => {
+                setNewAttachmentPath(path);
+                if (!newAttachmentLabel.trim()) setNewAttachmentLabel(fileNameFromPath(path));
+              })}
             />
             <div className={styles.appPickerAnchor}>
               <Button
                 type="button"
                 variant="secondary"
-                onClick={() => setShowAttachmentAppPicker((prev) => !prev)}
+                onClick={(e) => setAttachmentPickerAnchor((prev) => (prev ? null : e.currentTarget))}
                 title={t('quickLinks.chooseApp')}
               >
                 📱
               </Button>
-              {showAttachmentAppPicker && (
+              {attachmentPickerAnchor && (
                 <AppPicker
+                  anchorEl={attachmentPickerAnchor}
                   onSelect={(app) => {
                     setNewAttachmentLabel(app.name);
                     setNewAttachmentPath(app.path);
-                    setShowAttachmentAppPicker(false);
+                    setAttachmentPickerAnchor(null);
                   }}
-                  onClose={() => setShowAttachmentAppPicker(false)}
+                  onClose={() => setAttachmentPickerAnchor(null)}
                 />
               )}
             </div>

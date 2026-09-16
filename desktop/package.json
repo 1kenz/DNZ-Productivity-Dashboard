@@ -21,6 +21,7 @@
     "productName": "DNZ Productivity Dashboard",
     "files": [
       "main.js",
+      "preload.js",
       "package.json",
       ".env"
     ],

@@ -6,6 +6,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { LinkGroup, QuickLink } from '@/types';
 import { Input } from '@/components/ui/Input';
 import { AppPicker } from './AppPicker';
+import { fileDropHandlers, fileNameFromPath } from '@/lib/electron';
 import { Button } from '@/components/ui/Button';
 import styles from './LinkGroupForm.module.css';
 
@@ -37,6 +38,7 @@ export const LinkGroupForm: React.FC<LinkGroupFormProps> = ({ existingGroup, onC
     existingGroup?.links.map((l) => ({ title: l.title, url: l.url, icon: l.icon, order: l.order })) || []
   );
   const [appPickerForIndex, setAppPickerForIndex] = useState<number | null>(null);
+  const [appPickerAnchorEl, setAppPickerAnchorEl] = useState<HTMLElement | null>(null);
 
   const handleAddLink = () => {
     setLinks([...links, { title: '', url: '', order: links.length }]);
@@ -141,24 +143,41 @@ export const LinkGroupForm: React.FC<LinkGroupFormProps> = ({ existingGroup, onC
                 value={link.url}
                 onChange={(e) => handleLinkChange(index, 'url', e.target.value)}
                 type="text"
+                {...fileDropHandlers((path) => {
+                  handleLinkChange(index, 'url', path);
+                  if (!link.title.trim()) handleLinkChange(index, 'title', fileNameFromPath(path));
+                })}
               />
               <div className={styles.appPickerAnchor}>
                 <button
                   type="button"
                   className={styles.appPickerBtn}
-                  onClick={() => setAppPickerForIndex(appPickerForIndex === index ? null : index)}
+                  onClick={(e) => {
+                    if (appPickerForIndex === index) {
+                      setAppPickerForIndex(null);
+                      setAppPickerAnchorEl(null);
+                    } else {
+                      setAppPickerForIndex(index);
+                      setAppPickerAnchorEl(e.currentTarget);
+                    }
+                  }}
                   title={t('quickLinks.chooseApp')}
                 >
                   📱
                 </button>
                 {appPickerForIndex === index && (
                   <AppPicker
+                    anchorEl={appPickerAnchorEl}
                     onSelect={(app) => {
                       handleLinkChange(index, 'title', app.name);
                       handleLinkChange(index, 'url', app.path);
                       setAppPickerForIndex(null);
+                      setAppPickerAnchorEl(null);
                     }}
-                    onClose={() => setAppPickerForIndex(null)}
+                    onClose={() => {
+                      setAppPickerForIndex(null);
+                      setAppPickerAnchorEl(null);
+                    }}
                   />
                 )}
               </div>

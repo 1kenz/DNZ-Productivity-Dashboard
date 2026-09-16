@@ -6,6 +6,7 @@ import { useApp } from '@/contexts/AppContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { LinkButton } from './LinkButton';
 import { AppPicker } from './AppPicker';
+import { fileDropHandlers, fileNameFromPath } from '@/lib/electron';
 import { Button } from '@/components/ui/Button';
 import styles from './LinkGroupDetail.module.css';
 
@@ -25,6 +26,7 @@ export const LinkGroupDetail: React.FC<LinkGroupDetailProps> = ({ group, onBack 
   const [editLinkUrl, setEditLinkUrl] = useState('');
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [appPickerFor, setAppPickerFor] = useState<'new' | 'edit' | null>(null);
+  const [appPickerAnchorEl, setAppPickerAnchorEl] = useState<HTMLElement | null>(null);
 
   const sortedLinks = [...group.links].sort((a, b) => a.order - b.order);
 
@@ -96,6 +98,7 @@ export const LinkGroupDetail: React.FC<LinkGroupDetailProps> = ({ group, onBack 
       if (e.key !== 'Escape') return;
       if (appPickerFor) {
         setAppPickerFor(null);
+        setAppPickerAnchorEl(null);
       } else if (editingLinkId) {
         handleCancelEditLink();
       } else if (isAddingLink) {
@@ -155,23 +158,40 @@ export const LinkGroupDetail: React.FC<LinkGroupDetailProps> = ({ group, onBack 
                       }
                     }}
                     className={styles.miniInput}
+                    {...fileDropHandlers((path) => {
+                      setEditLinkUrl(path);
+                      if (!editLinkTitle.trim()) setEditLinkTitle(fileNameFromPath(path));
+                    })}
                   />
                   <div className={styles.appPickerAnchor}>
                     <button
                       type="button"
                       className={styles.appPickerBtn}
-                      onClick={() => setAppPickerFor(appPickerFor === 'edit' ? null : 'edit')}
+                      onClick={(e) => {
+                        if (appPickerFor === 'edit') {
+                          setAppPickerFor(null);
+                          setAppPickerAnchorEl(null);
+                        } else {
+                          setAppPickerFor('edit');
+                          setAppPickerAnchorEl(e.currentTarget);
+                        }
+                      }}
                     >
                       📱 {t('quickLinks.chooseApp')}
                     </button>
                     {appPickerFor === 'edit' && (
                       <AppPicker
+                        anchorEl={appPickerAnchorEl}
                         onSelect={(app) => {
                           setEditLinkTitle(app.name);
                           setEditLinkUrl(app.path);
                           setAppPickerFor(null);
+                          setAppPickerAnchorEl(null);
                         }}
-                        onClose={() => setAppPickerFor(null)}
+                        onClose={() => {
+                          setAppPickerFor(null);
+                          setAppPickerAnchorEl(null);
+                        }}
                       />
                     )}
                   </div>
@@ -249,23 +269,40 @@ export const LinkGroupDetail: React.FC<LinkGroupDetailProps> = ({ group, onBack 
                     }
                   }}
                   className={styles.miniInput}
+                  {...fileDropHandlers((path) => {
+                    setNewLinkUrl(path);
+                    if (!newLinkTitle.trim()) setNewLinkTitle(fileNameFromPath(path));
+                  })}
                 />
                 <div className={styles.appPickerAnchor}>
                   <button
                     type="button"
                     className={styles.appPickerBtn}
-                    onClick={() => setAppPickerFor(appPickerFor === 'new' ? null : 'new')}
+                    onClick={(e) => {
+                      if (appPickerFor === 'new') {
+                        setAppPickerFor(null);
+                        setAppPickerAnchorEl(null);
+                      } else {
+                        setAppPickerFor('new');
+                        setAppPickerAnchorEl(e.currentTarget);
+                      }
+                    }}
                   >
                     📱 {t('quickLinks.chooseApp')}
                   </button>
                   {appPickerFor === 'new' && (
                     <AppPicker
+                      anchorEl={appPickerAnchorEl}
                       onSelect={(app) => {
                         setNewLinkTitle(app.name);
                         setNewLinkUrl(app.path);
                         setAppPickerFor(null);
+                        setAppPickerAnchorEl(null);
                       }}
-                      onClose={() => setAppPickerFor(null)}
+                      onClose={() => {
+                        setAppPickerFor(null);
+                        setAppPickerAnchorEl(null);
+                      }}
                     />
                   )}
                 </div>

@@ -1,4 +1,4 @@
-const { app, BrowserWindow, shell, dialog, session } = require('electron');
+const { app, BrowserWindow, shell, dialog, session, ipcMain } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const http = require('http');
@@ -260,6 +260,7 @@ function createWindow() {
     icon: fs.existsSync(ICON_PATH) ? ICON_PATH : undefined,
     webPreferences: {
       contextIsolation: true,
+      preload: path.join(__dirname, 'preload.js'),
     },
   });
   session.defaultSession.clearCache().finally(() => {
@@ -301,6 +302,19 @@ app.whenReady().then(async () => {
 
 app.on('activate', () => {
   if (BrowserWindow.getAllWindows().length === 0) createWindow();
+});
+
+// Native "choose a local file/document to attach" dialog, used by the
+// attachments/quick-links "AppPicker" popover in the renderer (see
+// components/QuickLinks/AppPicker.tsx + desktop/preload.js). Registered at
+// module scope (not inside createWindow) since it only needs to exist once
+// for the lifetime of the app.
+ipcMain.handle('dialog:pick-file', async () => {
+  const result = await dialog.showOpenDialog(mainWindow, {
+    properties: ['openFile'],
+  });
+  if (result.canceled || !result.filePaths.length) return null;
+  return result.filePaths[0];
 });
 
 app.on('window-all-closed', () => {
