@@ -100,7 +100,7 @@
 
 .columnHeader {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 120px 130px 110px 120px 64px;
+  grid-template-columns: minmax(0, 1fr) 120px 120px 130px 110px 64px;
   column-gap: var(--space-3);
   padding: var(--space-2) var(--space-3);
   font-size: 11px;

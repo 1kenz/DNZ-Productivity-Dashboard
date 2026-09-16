@@ -38,6 +38,9 @@ export const TaskRow: React.FC<TaskRowProps> = ({
   const priorityRef = useRef<HTMLDivElement>(null);
   const [isStatusOpen, setIsStatusOpen] = useState(false);
   const statusRef = useRef<HTMLDivElement>(null);
+  const [isProjectOpen, setIsProjectOpen] = useState(false);
+  const projectRef = useRef<HTMLDivElement>(null);
+  const dateRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!isPriorityOpen) return;
@@ -74,6 +77,42 @@ export const TaskRow: React.FC<TaskRowProps> = ({
       document.removeEventListener('keydown', handleEscape);
     };
   }, [isStatusOpen]);
+
+  useEffect(() => {
+    if (!isProjectOpen) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (projectRef.current && !projectRef.current.contains(e.target as Node)) {
+        setIsProjectOpen(false);
+      }
+    };
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setIsProjectOpen(false);
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleEscape);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [isProjectOpen]);
+
+  useEffect(() => {
+    if (!isDateEditing) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (dateRef.current && !dateRef.current.contains(e.target as Node)) {
+        setIsDateEditing(false);
+      }
+    };
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setIsDateEditing(false);
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleEscape);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [isDateEditing]);
 
   const project = projects.find((p) => p.id === todo.projectId);
   const statusColumn = kanbanColumns.find((c) => c.id === todo.status);
@@ -115,8 +154,7 @@ export const TaskRow: React.FC<TaskRowProps> = ({
     setIsDateEditing(false);
   };
 
-  const handleClearDate = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleClearDate = () => {
     updateTodo(todo.id, { deadline: undefined });
     setIsDateEditing(false);
   };
@@ -129,6 +167,11 @@ export const TaskRow: React.FC<TaskRowProps> = ({
   const handlePickStatus = (statusId: string) => {
     updateTodo(todo.id, { status: statusId });
     setIsStatusOpen(false);
+  };
+
+  const handlePickProject = (projectId: string | undefined) => {
+    updateTodo(todo.id, { projectId });
+    setIsProjectOpen(false);
   };
 
   const handleIncrementCount = (e: React.MouseEvent) => {
@@ -265,10 +308,47 @@ export const TaskRow: React.FC<TaskRowProps> = ({
           )}
         </div>
 
-        <div className={styles.domainCell}>
+        <div className={styles.statusCell} ref={statusRef}>
+          <button
+            type="button"
+            className={styles.statusChip}
+            style={{
+              color: statusColor,
+              background: `color-mix(in srgb, ${statusColor} 15%, transparent)`,
+            }}
+            title={t('tasks.status') || 'Status'}
+            onClick={() => setIsStatusOpen((o) => !o)}
+          >
+            <span className={styles.statusDot} style={{ backgroundColor: statusColor }} />
+            {statusColumn?.name || '—'}
+          </button>
+
+          {isStatusOpen && (
+            <div className={styles.statusMenu}>
+              {sortedStatusColumns.map((col) => (
+                <button
+                  key={col.id}
+                  type="button"
+                  className={`${styles.statusMenuItem} ${
+                    col.id === todo.status ? styles.statusMenuItemActive : ''
+                  }`}
+                  onClick={() => handlePickStatus(col.id)}
+                >
+                  <span className={styles.statusMenuDot} style={{ backgroundColor: col.color }} />
+                  <span className={styles.statusMenuLabel}>{col.name}</span>
+                  {col.id === todo.status && (
+                    <span className={styles.statusMenuCheck}>✓</span>
+                  )}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className={styles.domainCell} ref={projectRef}>
           {domainMeta && (
             <span
-              className={styles.projectTag}
+              className={styles.domainTag}
               style={{
                 color: domainMeta.color,
                 background: `color-mix(in srgb, ${domainMeta.color} 12%, transparent)`,
@@ -278,40 +358,64 @@ export const TaskRow: React.FC<TaskRowProps> = ({
               {domainMeta.icon}
             </span>
           )}
-          {project && (
-            <span className={styles.projectTag} style={{ color: project.color }}>
-              {project.icon} {project.name}
-            </span>
+
+          <button
+            type="button"
+            className={styles.projectChip}
+            style={
+              project
+                ? {
+                    color: project.color,
+                    background: `color-mix(in srgb, ${project.color} 15%, transparent)`,
+                  }
+                : undefined
+            }
+            title={t('tasks.project') || 'Project'}
+            onClick={() => setIsProjectOpen((o) => !o)}
+          >
+            {project ? (
+              <>{project.icon} {project.name}</>
+            ) : (
+              <span className={styles.projectEmpty}>—</span>
+            )}
+          </button>
+
+          {isProjectOpen && (
+            <div className={styles.projectMenu}>
+              <button
+                type="button"
+                className={`${styles.projectMenuItem} ${!todo.projectId ? styles.projectMenuItemActive : ''}`}
+                onClick={() => handlePickProject(undefined)}
+              >
+                <span className={styles.projectMenuLabel}>{t('tasks.noProject')}</span>
+                {!todo.projectId && <span className={styles.projectMenuCheck}>✓</span>}
+              </button>
+              {projects.map((p) => (
+                <button
+                  key={p.id}
+                  type="button"
+                  className={`${styles.projectMenuItem} ${
+                    p.id === todo.projectId ? styles.projectMenuItemActive : ''
+                  }`}
+                  onClick={() => handlePickProject(p.id)}
+                >
+                  <span className={styles.projectMenuDot} style={{ backgroundColor: p.color }} />
+                  <span className={styles.projectMenuLabel}>{p.icon} {p.name}</span>
+                  {p.id === todo.projectId && (
+                    <span className={styles.projectMenuCheck}>✓</span>
+                  )}
+                </button>
+              ))}
+            </div>
           )}
         </div>
 
-        <div className={styles.dateCell}>
-          {isDateEditing ? (
-            <span className={styles.dateEditWrap}>
-              <input
-                type="date"
-                className={styles.dateInput}
-                defaultValue={todo.deadline ? toDateInputValue(todo.deadline) : ''}
-                onChange={handleDateChange}
-                onBlur={() => setIsDateEditing(false)}
-                autoFocus
-              />
-              {todo.deadline && (
-                <button
-                  type="button"
-                  className={styles.dateClearBtn}
-                  onMouseDown={handleClearDate}
-                  title={t('common.clear') || 'Clear'}
-                >
-                  ✕
-                </button>
-              )}
-            </span>
-          ) : todo.deadline ? (
+        <div className={styles.dateCell} ref={dateRef}>
+          {todo.deadline ? (
             <button
               type="button"
               className={`${styles.dateChip} ${isOverdue ? styles.overdue : ''}`}
-              onClick={() => setIsDateEditing(true)}
+              onClick={() => setIsDateEditing((o) => !o)}
               title={t('tasks.deadline')}
             >
               {isOverdue ? '⚠️' : '📅'} {new Date(todo.deadline).toLocaleDateString()}
@@ -320,11 +424,32 @@ export const TaskRow: React.FC<TaskRowProps> = ({
             <button
               type="button"
               className={styles.dateEmpty}
-              onClick={() => setIsDateEditing(true)}
+              onClick={() => setIsDateEditing((o) => !o)}
               title={t('tasks.deadline')}
             >
               📅
             </button>
+          )}
+
+          {isDateEditing && (
+            <div className={styles.dateMenu}>
+              <input
+                type="date"
+                className={styles.dateInput}
+                defaultValue={todo.deadline ? toDateInputValue(todo.deadline) : ''}
+                onChange={handleDateChange}
+                autoFocus
+              />
+              {todo.deadline && (
+                <button
+                  type="button"
+                  className={styles.dateMenuClearBtn}
+                  onClick={handleClearDate}
+                >
+                  {t('common.clear') || 'Clear'}
+                </button>
+              )}
+            </div>
           )}
         </div>
 
@@ -370,43 +495,6 @@ export const TaskRow: React.FC<TaskRowProps> = ({
                   </button>
                 );
               })}
-            </div>
-          )}
-        </div>
-
-        <div className={styles.statusCell} ref={statusRef}>
-          <button
-            type="button"
-            className={styles.statusChip}
-            style={{
-              color: statusColor,
-              background: `color-mix(in srgb, ${statusColor} 15%, transparent)`,
-            }}
-            title={t('tasks.status') || 'Status'}
-            onClick={() => setIsStatusOpen((o) => !o)}
-          >
-            <span className={styles.statusDot} style={{ backgroundColor: statusColor }} />
-            {statusColumn?.name || '—'}
-          </button>
-
-          {isStatusOpen && (
-            <div className={styles.statusMenu}>
-              {sortedStatusColumns.map((col) => (
-                <button
-                  key={col.id}
-                  type="button"
-                  className={`${styles.statusMenuItem} ${
-                    col.id === todo.status ? styles.statusMenuItemActive : ''
-                  }`}
-                  onClick={() => handlePickStatus(col.id)}
-                >
-                  <span className={styles.statusMenuDot} style={{ backgroundColor: col.color }} />
-                  <span className={styles.statusMenuLabel}>{col.name}</span>
-                  {col.id === todo.status && (
-                    <span className={styles.statusMenuCheck}>✓</span>
-                  )}
-                </button>
-              ))}
             </div>
           )}
         </div>
