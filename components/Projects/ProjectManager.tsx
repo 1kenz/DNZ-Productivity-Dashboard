@@ -245,6 +245,7 @@ export const ProjectManager: React.FC = () => {
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
+        onConfirm={handleSave}
         title={editingProject ? (t('projects.editProject') || 'Edit Project') : (t('projects.addProject') || 'New Project')}
         size="sm"
       >

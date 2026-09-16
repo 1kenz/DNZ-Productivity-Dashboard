@@ -30,6 +30,7 @@ export const SectionManager: React.FC<SectionManagerProps> = ({ projectId }) => 
   const [color, setColor] = useState(PRESET_COLORS[0]);
   const [icon, setIcon] = useState(ICONS[0]);
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
+  const [isPanelOpen, setIsPanelOpen] = useState(false);
 
   const projectSections = sections.filter((s) => s.projectId === projectId);
   const topLevel = projectSections.filter((s) => !s.parentId).sort((a, b) => a.order - b.order);
@@ -131,25 +132,48 @@ export const SectionManager: React.FC<SectionManagerProps> = ({ projectId }) => 
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <h3 className={styles.title}>{t('sections.title')}</h3>
-        <button type="button" className={styles.addBtn} onClick={() => openAddModal(null)} title={t('sections.addSection')}>
+        <button
+          type="button"
+          className={styles.panelToggle}
+          onClick={() => setIsPanelOpen((prev) => !prev)}
+          title={isPanelOpen ? 'Collapse' : 'Expand'}
+        >
+          <span className={styles.collapseBtn}>{isPanelOpen ? '▼' : '▶'}</span>
+          <h3 className={styles.title}>{t('sections.title')}</h3>
+          {projectSections.length > 0 && (
+            <span className={styles.sectionCountBadge}>{projectSections.length}</span>
+          )}
+        </button>
+        <button
+          type="button"
+          className={styles.addBtn}
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsPanelOpen(true);
+            openAddModal(null);
+          }}
+          title={t('sections.addSection')}
+        >
           {t('sections.addSection')}
         </button>
       </div>
 
-      {topLevel.length === 0 ? (
-        <p className={styles.empty}>
-          {t('sections.noSections')}
-        </p>
-      ) : (
-        <div className={styles.sectionTree}>
-          {topLevel.map((s) => renderSection(s, 0))}
-        </div>
+      {isPanelOpen && (
+        topLevel.length === 0 ? (
+          <p className={styles.empty}>
+            {t('sections.noSections')}
+          </p>
+        ) : (
+          <div className={styles.sectionTree}>
+            {topLevel.map((s) => renderSection(s, 0))}
+          </div>
+        )
       )}
 
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
+        onConfirm={handleSave}
         title={editingSection ? t('common.edit') : parentForNew ? t('sections.addSubSection') : t('sections.addSection')}
         size="sm"
       >

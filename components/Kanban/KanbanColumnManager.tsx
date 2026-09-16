@@ -109,6 +109,7 @@ export const KanbanColumnManager: React.FC = () => {
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
+        onConfirm={handleSave}
         title={editingColumn ? t('kanban.editColumn') : t('kanban.newColumn')}
         size="sm"
       >

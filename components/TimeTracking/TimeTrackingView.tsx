@@ -348,7 +348,7 @@ export const TimeTrackingView: React.FC = () => {
                         onClick={() => handleSelectDomainProject(project?.id)}
                         title={project ? `${project.name} projesini filtrele` : t('domains.title')}
                         style={{
-                          color: domainMeta?.color || '#d4d4d8',
+                          color: domainMeta?.color || 'var(--color-text-secondary)',
                           borderColor: domainMeta ? `color-mix(in srgb, ${domainMeta.color} 30%, transparent)` : undefined,
                         }}
                       >
@@ -389,6 +389,7 @@ export const TimeTrackingView: React.FC = () => {
       <Modal
         isOpen={isManualModalOpen}
         onClose={() => setIsManualModalOpen(false)}
+        onConfirm={handleManualSave}
         title={t('tools.addTimeManually')}
         size="sm"
       >
