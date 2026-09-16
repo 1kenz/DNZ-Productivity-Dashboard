@@ -11,7 +11,11 @@ import { Button } from '@/components/ui/Button';
 import { Modal } from '@/components/ui/Modal';
 import styles from './RecurringTaskManager.module.css';
 
-export const RecurringTaskManager: React.FC = () => {
+interface RecurringTaskManagerProps {
+  onOpenFullView?: () => void;
+}
+
+export const RecurringTaskManager: React.FC<RecurringTaskManagerProps> = ({ onOpenFullView }) => {
   const { recurringTasks, projects, addRecurringTask, updateRecurringTask, deleteRecurringTask } = useApp();
   const { t } = useLanguage();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -104,9 +108,21 @@ export const RecurringTaskManager: React.FC = () => {
     <div className={styles.container}>
       <div className={styles.header}>
         <h3 className={styles.title}>{t('recurring.title')}</h3>
-        <button className={styles.addBtn} onClick={() => handleOpenModal()} title={t('recurring.add')}>
-          +
-        </button>
+        <div className={styles.headerActions}>
+          <button className={styles.addBtn} onClick={() => handleOpenModal()} title={t('recurring.add')}>
+            +
+          </button>
+          {onOpenFullView && (
+            <button
+              type="button"
+              className={styles.expandDrawerBtn}
+              onClick={onOpenFullView}
+              title={t('recurring.viewAll') || 'View all recurring tasks'}
+            >
+              ↗
+            </button>
+          )}
+        </div>
       </div>
 
       {recurringTasks.length > 0 && (
@@ -176,6 +192,7 @@ export const RecurringTaskManager: React.FC = () => {
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
+        onConfirm={handleSave}
         title={editing ? t('recurring.edit') : t('recurring.new')}
         size="md"
       >

@@ -1,13 +1,13 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Header } from '@/components/Dashboard/Header';
 import { TodoList } from '@/components/TodoList';
 import { LinkGroupGrid } from '@/components/QuickLinks/LinkGroupGrid';
 import { ProjectManager } from '@/components/Projects';
-import { RecurringTaskManager } from '@/components/Recurring';
+import { RecurringTaskManager, RecurringTasksView } from '@/components/Recurring';
 import { Pomodoro, QuickNotes, TimeTracker, QuickNotesPopover, CommandPalette } from '@/components/Tools';
 import { StatsCard } from '@/components/Dashboard/StatsCard';
 import { AnalyticsView } from '@/components/Analytics';
@@ -18,18 +18,26 @@ import { AppleNotesIcon } from '@/components/ui/AppleNotesIcon';
 import {
   DashboardTabIcon,
   TimeTrackerTabIcon,
+  RecurringTabIcon,
   AnalyticsTabIcon,
   AiAssistantTabIcon,
 } from '@/components/ui/TabIcons';
 import { KeyboardShortcutsModal } from '@/components/ui/KeyboardShortcutsModal';
 import styles from './page.module.css';
 
-type MainTab = 'dashboard' | 'time-tracker' | 'notes' | 'analytics' | 'ai';
+type MainTab = 'dashboard' | 'time-tracker' | 'notes' | 'recurring-tasks' | 'analytics' | 'ai';
 
 export default function Home() {
   const { focusMode } = useApp();
   const { t } = useLanguage();
   const [tab, setTab] = useState<MainTab>('dashboard');
+
+  // Whenever the visible section changes (tab switch or focus mode toggle),
+  // jump back to the top of the page instead of keeping whatever scroll
+  // position the previous view was left at.
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+  }, [tab, focusMode]);
 
   return (
     <main className={styles.main}>
@@ -64,6 +72,14 @@ export default function Home() {
             </button>
             <button
               type="button"
+              className={`${styles.tabBtn} ${tab === 'recurring-tasks' ? styles.tabActive : ''}`}
+              onClick={() => setTab('recurring-tasks')}
+            >
+              <RecurringTabIcon size={16} />
+              <span>{t('recurringTab')}</span>
+            </button>
+            <button
+              type="button"
               className={`${styles.tabBtn} ${tab === 'analytics' ? styles.tabActive : ''}`}
               onClick={() => setTab('analytics')}
             >
@@ -89,11 +105,13 @@ export default function Home() {
           <TimeTrackingView />
         ) : tab === 'notes' && !focusMode ? (
           <NotesView />
+        ) : tab === 'recurring-tasks' && !focusMode ? (
+          <RecurringTasksView />
         ) : focusMode ? (
           <div className={styles.dashboardGrid}>
             <div className={styles.sidebar}>
               <ProjectManager />
-              <RecurringTaskManager />
+              <RecurringTaskManager onOpenFullView={() => setTab('recurring-tasks')} />
             </div>
 
             <div className={styles.content}>
@@ -107,10 +125,10 @@ export default function Home() {
             <div className={styles.sidebar}>
               <StatsCard />
               <ProjectManager />
-              <RecurringTaskManager />
+              <RecurringTaskManager onOpenFullView={() => setTab('recurring-tasks')} />
               <QuickNotes />
               <Pomodoro />
-              <TimeTracker />
+              <TimeTracker onOpenFullView={() => setTab('time-tracker')} />
             </div>
 
             <div className={styles.content}>

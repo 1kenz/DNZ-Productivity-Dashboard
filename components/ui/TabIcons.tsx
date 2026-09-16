@@ -55,6 +55,45 @@ export const TimeTrackerTabIcon: React.FC<IconProps> = ({ size = 16, className }
   </svg>
 );
 
+export const RecurringTabIcon: React.FC<IconProps> = ({ size = 16, className }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    style={{ flexShrink: 0 }}
+  >
+    <path
+      d="M4 12a8 8 0 0 1 13.66-5.66L20 8.5"
+      stroke="url(#recurGrad)"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path d="M20 4.5V8.5H16" stroke="url(#recurGrad)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    <path
+      d="M20 12a8 8 0 0 1-13.66 5.66L4 15.5"
+      stroke="url(#recurGrad2)"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path d="M4 19.5V15.5H8" stroke="url(#recurGrad2)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    <defs>
+      <linearGradient id="recurGrad" x1="4" y1="4" x2="20" y2="12" gradientUnits="userSpaceOnUse">
+        <stop stopColor="#EC4899" />
+        <stop offset="1" stopColor="#F43F5E" />
+      </linearGradient>
+      <linearGradient id="recurGrad2" x1="20" y1="12" x2="4" y2="20" gradientUnits="userSpaceOnUse">
+        <stop stopColor="#F43F5E" />
+        <stop offset="1" stopColor="#EC4899" />
+      </linearGradient>
+    </defs>
+  </svg>
+);
+
 export const AnalyticsTabIcon: React.FC<IconProps> = ({ size = 16, className }) => (
   <svg
     width={size}
