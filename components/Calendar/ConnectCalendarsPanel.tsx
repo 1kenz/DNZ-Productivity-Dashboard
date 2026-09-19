@@ -125,14 +125,10 @@ export const ConnectCalendarsPanel: React.FC<Props> = ({ status, calendars, onCh
                 className={styles.colorSwatch}
               />
               <span className={styles.calendarName}>{cal.name}</span>
-              <span className={styles.calendarProvider}>{cal.provider === 'google' ? 'Google' : 'Apple'}</span>
+              <span className={styles.calendarProvider}>{cal.provider === 'google' ? 'Google' : cal.provider === 'apple' ? 'Apple' : 'Local'}</span>
             </label>
           ))}
         </div>
-      )}
-
-      {calendars.length === 0 && !status?.google.connected && !status?.apple.connected && (
-        <p className={styles.hint}>{t('calendar.noCalendarsConnected')}</p>
       )}
     </div>
   );

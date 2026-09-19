@@ -5,9 +5,24 @@ import { revalidatePath } from 'next/cache';
 import { isGoogleDriveConfigured, getValidAccessToken } from '@/lib/googleDrive';
 import { listGoogleCalendars, getGoogleEvents, createGoogleEvent, NewEventInput } from '@/lib/googleCalendar';
 import { createAppleClient, listAppleCalendars, getAppleEvents, createAppleEvent } from '@/lib/appleCalendar';
-import { CalendarInfo, ConnectedCalendarAccountsStatus, UnifiedCalendarEvent } from '@/types';
+import { CalendarInfo, CalendarProvider, ConnectedCalendarAccountsStatus, UnifiedCalendarEvent } from '@/types';
 
 const APPLE_ACCOUNT_ID = 'default';
+
+// The built-in fallback calendar -- always present in listAllCalendars()
+// so a person can add an event before connecting Google/Apple at all (or
+// even if they never do). Stored as an ordinary CalendarPreference row
+// like any provider calendar, so its visibility/color are editable the
+// same way, and its actual events live in the LocalCalendarEvent table.
+const LOCAL_CALENDAR_ID = 'local';
+const LOCAL_CALENDAR_DEFAULTS: CalendarInfo = {
+  provider: 'local',
+  id: LOCAL_CALENDAR_ID,
+  name: 'My Calendar',
+  color: '#8b5cf6',
+  visible: true,
+  writable: true,
+};
 
 // AppleCalendarAccount / CalendarPreference are intersected in via `as any`
 // here (same pattern as ViewPreferences.lastDueDateModalShownAt in
@@ -24,6 +39,16 @@ interface CalendarPreferenceRow {
   color: string;
   visible: boolean;
   writable: boolean;
+}
+
+interface LocalCalendarEventRow {
+  id: string;
+  title: string;
+  description: string | null;
+  location: string | null;
+  start: Date;
+  end: Date;
+  allDay: boolean;
 }
 
 export async function getConnectedCalendarAccountsStatus(): Promise<ConnectedCalendarAccountsStatus> {
@@ -104,7 +129,11 @@ export async function listAllCalendars(): Promise<CalendarInfo[]> {
     console.error('[calendar] listAllCalendars: Apple fetch failed:', err);
   }
 
-  if (results.length === 0) return results;
+  // Appended last (not first) so a connected Google/Apple calendar keeps
+  // priority as EventModal's default selection -- "My Calendar" is only
+  // ever the fallback, never a surprise default once something real is
+  // connected.
+  results.push({ ...LOCAL_CALENDAR_DEFAULTS });
 
   const prefs: CalendarPreferenceRow[] = await db.calendarPreference.findMany({
     where: { OR: results.map((c) => ({ provider: c.provider, calendarId: c.id })) },
@@ -140,7 +169,7 @@ export async function listAllCalendars(): Promise<CalendarInfo[]> {
 }
 
 export async function updateCalendarPreference(
-  provider: 'google' | 'apple',
+  provider: CalendarProvider,
   calendarId: string,
   updates: { visible?: boolean; color?: string }
 ) {
@@ -159,6 +188,32 @@ export async function getEventsInRange(startISO: string, endISO: string): Promis
   const start = new Date(startISO);
   const end = new Date(endISO);
   const events: UnifiedCalendarEvent[] = [];
+
+  const localCal = visible.find((c) => c.provider === 'local');
+  if (localCal) {
+    const rows = await db.localCalendarEvent.findMany({
+      where: { start: { lte: end }, end: { gte: start } },
+      orderBy: { start: 'asc' },
+    });
+    events.push(
+      ...rows.map(
+        (row: LocalCalendarEventRow): UnifiedCalendarEvent => ({
+          id: row.id,
+          provider: 'local',
+          calendarId: LOCAL_CALENDAR_ID,
+          calendarName: localCal.name,
+          calendarColor: localCal.color,
+          title: row.title,
+          description: row.description || undefined,
+          location: row.location || undefined,
+          start: row.start.toISOString(),
+          end: row.end.toISOString(),
+          allDay: row.allDay,
+          writable: true,
+        })
+      )
+    );
+  }
 
   const googleCals = visible.filter((c) => c.provider === 'google');
   if (googleCals.length > 0) {
@@ -192,10 +247,38 @@ export async function getEventsInRange(startISO: string, endISO: string): Promis
 }
 
 export async function createCalendarEvent(
-  provider: 'google' | 'apple',
+  provider: CalendarProvider,
   calendarId: string,
   event: NewEventInput
 ): Promise<UnifiedCalendarEvent> {
+  if (provider === 'local') {
+    const row = await db.localCalendarEvent.create({
+      data: {
+        title: event.title,
+        description: event.description || null,
+        location: event.location || null,
+        start: new Date(event.start),
+        end: new Date(event.end),
+        allDay: event.allDay,
+      },
+    });
+    revalidatePath('/');
+    return {
+      id: row.id,
+      provider: 'local',
+      calendarId: LOCAL_CALENDAR_ID,
+      calendarName: LOCAL_CALENDAR_DEFAULTS.name,
+      calendarColor: LOCAL_CALENDAR_DEFAULTS.color,
+      title: row.title,
+      description: row.description || undefined,
+      location: row.location || undefined,
+      start: row.start.toISOString(),
+      end: row.end.toISOString(),
+      allDay: row.allDay,
+      writable: true,
+    };
+  }
+
   if (provider === 'google') {
     const accessToken = await getValidAccessToken();
     return createGoogleEvent(accessToken, calendarId, event);

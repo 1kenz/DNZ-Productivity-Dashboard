@@ -239,7 +239,7 @@ export interface ViewPreferences {
 
 // Calendar sync types (Google Calendar API + Apple/iCloud CalDAV) --
 // see lib/googleCalendar.ts, lib/appleCalendar.ts, app/actions/calendar.ts.
-export type CalendarProvider = 'google' | 'apple';
+export type CalendarProvider = 'google' | 'apple' | 'local';
 export type CalendarViewMode = 'day' | 'week' | 'month';
 
 /** One individual calendar within a connected provider account (e.g. a

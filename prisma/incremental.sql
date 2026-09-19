@@ -81,3 +81,50 @@ DO $$ BEGIN
   ALTER TABLE "Attachment" ADD CONSTRAINT "Attachment_noteId_fkey"
     FOREIGN KEY ("noteId") REFERENCES "Note"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+-- --- AppleCalendarAccount / CalendarPreference: schema.prisma has had
+-- these since the Calendar Sync feature (commit 4f8cac1), but they were
+-- never added here -- an existing desktop-app database never got them,
+-- so any calendar query would fail with "relation does not exist". Added
+-- now (idempotent, matches the init.sql baseline) alongside the new
+-- LocalCalendarEvent table below.
+CREATE TABLE IF NOT EXISTS "AppleCalendarAccount" (
+    "id" TEXT NOT NULL,
+    "appleId" TEXT NOT NULL,
+    "appPassword" TEXT NOT NULL,
+    "displayName" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    CONSTRAINT "AppleCalendarAccount_pkey" PRIMARY KEY ("id")
+);
+
+CREATE TABLE IF NOT EXISTS "CalendarPreference" (
+    "id" TEXT NOT NULL,
+    "provider" TEXT NOT NULL,
+    "calendarId" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "color" TEXT NOT NULL DEFAULT '#4285F4',
+    "visible" BOOLEAN NOT NULL DEFAULT true,
+    "writable" BOOLEAN NOT NULL DEFAULT true,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    CONSTRAINT "CalendarPreference_pkey" PRIMARY KEY ("id")
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS "CalendarPreference_provider_calendarId_key" ON "CalendarPreference"("provider", "calendarId");
+
+-- --- LocalCalendarEvent: the built-in "My Calendar" fallback, always
+-- available even when no Google/Apple account is connected ---
+CREATE TABLE IF NOT EXISTS "LocalCalendarEvent" (
+    "id" TEXT NOT NULL,
+    "title" TEXT NOT NULL,
+    "description" TEXT,
+    "location" TEXT,
+    "start" TIMESTAMP(3) NOT NULL,
+    "end" TIMESTAMP(3) NOT NULL,
+    "allDay" BOOLEAN NOT NULL DEFAULT false,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    CONSTRAINT "LocalCalendarEvent_pkey" PRIMARY KEY ("id")
+);
+
+CREATE INDEX IF NOT EXISTS "LocalCalendarEvent_start_idx" ON "LocalCalendarEvent"("start");

@@ -260,3 +260,22 @@ model CalendarPreference {
   @@unique([provider, calendarId])
 }
 
+// A calendar event stored directly in this app's own DB instead of a
+// connected Google/Apple account -- the built-in, always-available
+// fallback calendar (provider 'local' in CalendarProvider) so a person can
+// still add an event before connecting anything (see
+// app/actions/calendar.ts's LOCAL_CALENDAR_ID).
+model LocalCalendarEvent {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  location    String?
+  start       DateTime
+  end         DateTime
+  allDay      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([start])
+}
+

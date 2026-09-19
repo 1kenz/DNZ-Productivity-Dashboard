@@ -5,7 +5,7 @@ import { Modal } from '@/components/ui/Modal';
 import { Button } from '@/components/ui/Button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import * as calendarActions from '@/app/actions/calendar';
-import { CalendarInfo } from '@/types';
+import { CalendarInfo, CalendarProvider } from '@/types';
 import styles from './EventModal.module.css';
 
 interface Props {
@@ -40,7 +40,7 @@ export const EventModal: React.FC<Props> = ({ isOpen, onClose, onCreated, calend
 
   const handleSave = async () => {
     if (!title.trim() || !calendarKey) return;
-    const [provider, calendarId] = calendarKey.split(/:(.+)/) as ['google' | 'apple', string];
+    const [provider, calendarId] = calendarKey.split(/:(.+)/) as [CalendarProvider, string];
     setIsSaving(true);
     setError(null);
     try {
@@ -82,7 +82,7 @@ export const EventModal: React.FC<Props> = ({ isOpen, onClose, onCreated, calend
           >
             {writableCalendars.map((cal) => (
               <option key={`${cal.provider}:${cal.id}`} value={`${cal.provider}:${cal.id}`}>
-                {cal.name} ({cal.provider === 'google' ? 'Google' : 'Apple'})
+                {cal.name} ({cal.provider === 'google' ? 'Google' : cal.provider === 'apple' ? 'Apple' : 'Local'})
               </option>
             ))}
           </select>
