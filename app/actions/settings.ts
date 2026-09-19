@@ -40,13 +40,19 @@ export async function getViewPreferences() {
   }
 }
 
-// `lastDueDateModalShownAt` and `calendarView` are intersected in explicitly
-// because the generated @prisma/client types only pick them up after
-// `npx prisma generate` re-runs against the updated schema (see
-// prisma/schema.prisma) -- this keeps the file compiling correctly both
-// before and after that regeneration happens.
+// `lastDueDateModalShownAt` and `calendarView` are re-declared here (via
+// Omit + an explicit, more permissive type) rather than relying on
+// Partial<ViewPreferences> alone, for two reasons: (1) callers may pass a
+// JSON-serialized date string for lastDueDateModalShownAt (e.g. straight off
+// a fetch response), which is narrower than Prisma's own `Date | null` --
+// intersecting the two directly (as an earlier version of this file did)
+// collapses to `Date | null` and rejects the string case entirely; (2) this
+// also keeps the file compiling before `npx prisma generate` has picked up
+// schema changes yet. Omit removes Prisma's stricter versions of these two
+// fields before re-adding the permissive ones, so there's nothing left to
+// collide with.
 export async function updateViewPreferences(
-  updates: Partial<ViewPreferences> & {
+  updates: Partial<Omit<ViewPreferences, 'lastDueDateModalShownAt' | 'calendarView'>> & {
     lastDueDateModalShownAt?: Date | string | null;
     calendarView?: 'day' | 'week' | 'month';
   }
