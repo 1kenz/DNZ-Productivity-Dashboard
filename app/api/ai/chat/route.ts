@@ -2,6 +2,34 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getAiSettings, addAiMessage } from '@/app/actions/ai';
 
+interface AiSource {
+  title?: string;
+  url: string;
+}
+
+/**
+ * Appends a short "Kaynaklar" (Sources) list to a reply when the model
+ * actually used its web search tool -- shared by all three providers so a
+ * researched answer always looks the same regardless of which one answered.
+ * Returns `text` unchanged when there are no sources to show.
+ */
+function appendSourcesFooter(text: string, sources: AiSource[]): string {
+  if (!sources || sources.length === 0) return text;
+
+  const seen = new Set<string>();
+  const lines = sources
+    .filter((s) => {
+      if (!s.url || seen.has(s.url)) return false;
+      seen.add(s.url);
+      return true;
+    })
+    .slice(0, 8)
+    .map((s) => `- [${s.title || s.url}](${s.url})`);
+
+  if (lines.length === 0) return text;
+  return `${text}\n\n---\n**Kaynaklar:**\n${lines.join('\n')}`;
+}
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
@@ -46,13 +74,22 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // Call Provider
+    // Whether this call is a live-voice turn -- see LiveVoiceModal.tsx /
+    // AiChatView.tsx's voice system prompts, both of which include this
+    // marker. Voice replies are meant to be read aloud, so we skip
+    // appending a markdown "Kaynaklar" (Sources) list to them.
+    const isVoiceTurn = Boolean(systemPrompt?.includes('sesli'));
+
+    // Call Provider -- all three now search the web via each provider's own
+    // native tool-use mechanism, so answers can reflect current information
+    // instead of only the model's training data. Sources (when the model
+    // actually used the tool) are appended as a short Markdown list.
     if (provider === 'gemini') {
-      const requested = model || 'gemini-3.6-flash';
+      const requested = model || 'gemini-3.8-flash';
       const isPro = requested.includes('pro');
       const baseCandidates = isPro
-        ? [requested, 'gemini-3.1-pro-preview', 'gemini-pro-latest', 'gemini-3.6-flash', 'gemini-3.5-flash-lite']
-        : [requested, 'gemini-3.5-flash-lite', 'gemini-flash-lite-latest', 'gemini-3.6-flash', 'gemini-3.5-flash', 'gemini-3.1-flash-lite'];
+        ? [requested, 'gemini-3.1-pro-preview', 'gemini-pro-latest', 'gemini-3.8-flash', 'gemini-3.5-flash-lite']
+        : [requested, 'gemini-3.5-flash-lite', 'gemini-flash-lite-latest', 'gemini-3.8-flash', 'gemini-3.5-flash', 'gemini-3.1-flash-lite'];
       const candidates = Array.from(new Set(baseCandidates));
 
       const contents = messages.map((m: any) => ({
@@ -62,6 +99,9 @@ export async function POST(req: NextRequest) {
 
       const payload: any = {
         contents,
+        // Grounding with Google Search -- lets Gemini issue real web
+        // searches and cite them instead of answering from memory alone.
+        tools: [{ google_search: {} }],
         generationConfig: {
           temperature: 0.6,
           maxOutputTokens: systemPrompt?.includes('sesli') ? 350 : 2048,
@@ -74,40 +114,7 @@ export async function POST(req: NextRequest) {
         };
       }
 
-      const lastUserMessage = messages[messages.length - 1]?.content || '';
-
-      // 1. Google Interactions API caller (Google's latest recommended API)
-      const callInteractionsApi = async (mName: string): Promise<string> => {
-        const res = await fetch('https://generativelanguage.googleapis.com/v1beta/interactions', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'x-goog-api-key': apiKey,
-          },
-          body: JSON.stringify({
-            model: mName,
-            input: lastUserMessage,
-            system_instruction: systemPrompt || undefined,
-          }),
-        });
-
-        if (!res.ok) {
-          const err = await res.json().catch(() => ({}));
-          throw new Error(err?.error?.message || `Interactions ${mName} error: ${res.status}`);
-        }
-
-        const data = await res.json();
-        const text =
-          data?.output_text ||
-          data?.steps?.[data.steps?.length - 1]?.model_output?.text ||
-          data?.steps?.[data.steps?.length - 1]?.text ||
-          data?.output?.[0]?.text;
-        if (!text) throw new Error(`Empty response from interactions ${mName}`);
-        return text;
-      };
-
-      // 2. Google generateContent caller
-      const callGenerateContent = async (mName: string): Promise<string> => {
+      const callGenerateContent = async (mName: string): Promise<{ text: string; sources: AiSource[] }> => {
         const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${mName}:generateContent`;
         const res = await fetch(geminiUrl, {
           method: 'POST',
@@ -124,25 +131,42 @@ export async function POST(req: NextRequest) {
         }
 
         const data = await res.json();
-        const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+        const candidate = data?.candidates?.[0];
+        const text = (candidate?.content?.parts || [])
+          .map((p: any) => p?.text)
+          .filter(Boolean)
+          .join('');
         if (!text) throw new Error(`Empty response from ${mName}`);
-        return text;
+
+        const chunks = candidate?.groundingMetadata?.groundingChunks || [];
+        const sources: AiSource[] = chunks
+          .map((c: any) => ({ title: c?.web?.title, url: c?.web?.uri }))
+          .filter((s: AiSource) => Boolean(s.url));
+
+        return { text, sources };
       };
 
-      try {
-        const tasks = [
-          ...candidates.map((m) => callInteractionsApi(m)),
-          ...candidates.map((m) => callGenerateContent(m)),
-        ];
-        // Parallel race: Fastest response from Interactions or GenerateContent wins instantly
-        replyText = await Promise.any(tasks);
-      } catch (aggregateErr: any) {
-        const errList = aggregateErr?.errors?.map((e: any) => e?.message).join(' | ') || aggregateErr?.message || 'Bilinmeyen hata';
-        console.error('All Gemini API attempts failed:', errList);
-        replyText = `⚠️ **Gemini Yanıt Veremedi:** ${errList}`;
+      // Try each candidate model in order (falls back if one name is
+      // invalid/unavailable) rather than racing them -- with search
+      // grounding on, we want the response we actually asked for, not
+      // just whichever model happened to answer first.
+      let lastErr: any = null;
+      for (const candidate of candidates) {
+        try {
+          const { text, sources } = await callGenerateContent(candidate);
+          replyText = isVoiceTurn ? text : appendSourcesFooter(text, sources);
+          lastErr = null;
+          break;
+        } catch (err) {
+          lastErr = err;
+        }
+      }
+      if (lastErr) {
+        console.error('All Gemini API attempts failed:', lastErr?.message || lastErr);
+        replyText = `⚠️ **Gemini Yanıt Veremedi:** ${lastErr?.message || 'Bilinmeyen hata'}`;
       }
     } else if (provider === 'openai') {
-      const openAiModel = model || 'gpt-4o';
+      const openAiModel = model || 'gpt-6-astra';
       const openAiMessages = [];
 
       if (systemPrompt) {
@@ -166,6 +190,9 @@ export async function POST(req: NextRequest) {
           model: openAiModel,
           messages: openAiMessages,
           temperature: 0.7,
+          // Lets the model issue real web searches via OpenAI's own
+          // search-augmented Chat Completions tool.
+          web_search_options: {},
         }),
       });
 
@@ -175,9 +202,16 @@ export async function POST(req: NextRequest) {
       }
 
       const data = await res.json();
-      replyText = data?.choices?.[0]?.message?.content || 'OpenAI yanıt veremedi.';
+      const message = data?.choices?.[0]?.message;
+      const rawText = message?.content || 'OpenAI yanıt veremedi.';
+      const annotations: any[] = message?.annotations || [];
+      const sources: AiSource[] = annotations
+        .filter((a) => a?.type === 'url_citation' && a?.url_citation?.url)
+        .map((a) => ({ title: a.url_citation.title, url: a.url_citation.url }));
+
+      replyText = isVoiceTurn ? rawText : appendSourcesFooter(rawText, sources);
     } else if (provider === 'anthropic') {
-      const claudeModel = model || 'claude-3-7-sonnet';
+      const claudeModel = model || 'claude-opus-5';
       const claudeMessages = messages
         .filter((m: any) => m.role !== 'system')
         .map((m: any) => ({
@@ -189,6 +223,9 @@ export async function POST(req: NextRequest) {
         model: claudeModel,
         max_tokens: 2048,
         messages: claudeMessages,
+        // Server-side web search tool -- Claude decides on its own whether
+        // a given question actually needs a search.
+        tools: [{ type: 'web_search_20250305', name: 'web_search', max_uses: 5 }],
       };
 
       if (systemPrompt) {
@@ -211,7 +248,25 @@ export async function POST(req: NextRequest) {
       }
 
       const data = await res.json();
-      replyText = data?.content?.[0]?.text || 'Claude yanıt veremedi.';
+      // With web_search enabled, `content` interleaves text blocks with
+      // server_tool_use / web_search_tool_result blocks -- concatenate
+      // just the text blocks, and collect each one's citations.
+      const blocks: any[] = data?.content || [];
+      const textBlocks = blocks.filter((b) => b?.type === 'text');
+      const rawText = textBlocks.map((b) => b.text).join('\n\n') || 'Claude yanıt veremedi.';
+
+      const seenUrls = new Set<string>();
+      const sources: AiSource[] = [];
+      for (const block of textBlocks) {
+        for (const citation of block.citations || []) {
+          if (citation?.url && !seenUrls.has(citation.url)) {
+            seenUrls.add(citation.url);
+            sources.push({ title: citation.title, url: citation.url });
+          }
+        }
+      }
+
+      replyText = isVoiceTurn ? rawText : appendSourcesFooter(rawText, sources);
     }
 
     // If conversationId is supplied, save to database

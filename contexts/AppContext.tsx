@@ -178,6 +178,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     groupBy: 'none',
     density: 'comfortable',
     lastDueDateModalShownAt: null,
+    calendarView: 'week',
   });
 
   const [themeMode, setThemeModeState] = useState<ThemeMode>('system');
@@ -262,6 +263,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
             showCompleted: fetchedPrefs.showCompleted ?? true,
             groupBy: (fetchedPrefs.groupBy as any) || 'none',
             lastDueDateModalShownAt: (fetchedPrefs as any).lastDueDateModalShownAt ?? null,
+            calendarView: (fetchedPrefs as any).calendarView || 'week',
           }));
         }
 

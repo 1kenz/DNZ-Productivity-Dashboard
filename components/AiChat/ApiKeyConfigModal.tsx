@@ -140,7 +140,7 @@ export const ApiKeyConfigModal: React.FC<ApiKeyConfigModalProps> = ({
           geminiApiKey: geminiVal || null,
           openaiApiKey: openaiVal || null,
           defaultProvider,
-          defaultModel: defaultProvider === 'anthropic' ? 'claude-3-7-sonnet' : defaultProvider === 'openai' ? 'gpt-4o' : 'gemini-3.6-flash',
+          defaultModel: defaultProvider === 'anthropic' ? 'claude-opus-5' : defaultProvider === 'openai' ? 'gpt-6-astra' : 'gemini-3.8-flash',
           voiceLanguage,
           autoSpeak,
           updatedAt: new Date(),

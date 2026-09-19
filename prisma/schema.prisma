@@ -157,6 +157,8 @@ model ViewPreferences {
   // Last calendar day the Due Dates modal auto-opened on app launch -- lets
   // us show it once per day instead of on every reload. See lib/dueDates.ts.
   lastDueDateModalShownAt  DateTime?
+  // Default zoom level for the Calendar tab -- see components/Calendar/CalendarView.tsx.
+  calendarView             String    @default("week")
 }
 
 model RecurringTask {
@@ -222,9 +224,39 @@ model AiSettings {
   geminiApiKey     String?
   openaiApiKey     String?
   defaultProvider  String   @default("gemini")
-  defaultModel     String   @default("gemini-3.6-flash")
+  defaultModel     String   @default("gemini-3.8-flash")
   voiceLanguage    String   @default("tr-TR") // tr-TR, de-DE, en-US
   autoSpeak        Boolean  @default(false)
   updatedAt        DateTime @updatedAt
+}
+
+// Apple/iCloud CalDAV credentials -- singleton row, mirrors GoogleDriveAuth's
+// pattern. Stores an app-specific password (never the real Apple ID
+// password) generated at appleid.apple.com, used for Basic auth against
+// caldav.icloud.com. See lib/appleCalendar.ts.
+model AppleCalendarAccount {
+  id          String   @id @default("default")
+  appleId     String
+  appPassword String
+  displayName String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// Per-calendar visibility/color, one row per (provider, calendarId) pair --
+// covers every individual calendar inside a connected Google or Apple
+// account (primary, work, birthdays, shared calendars, ...), refreshed
+// whenever app/actions/calendar.ts lists calendars from that provider.
+model CalendarPreference {
+  id         String   @id @default(uuid())
+  provider   String // 'google' | 'apple'
+  calendarId String // the provider's own calendar id / CalDAV collection URL
+  name       String
+  color      String   @default("#4285F4")
+  visible    Boolean  @default(true)
+  writable   Boolean  @default(true)
+  updatedAt  DateTime @updatedAt
+
+  @@unique([provider, calendarId])
 }
 

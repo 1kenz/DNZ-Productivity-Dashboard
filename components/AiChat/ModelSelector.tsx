@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { AI_MODELS, AiModelOption } from '@/types';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useAiModels } from '@/hooks/useAiModels';
 import styles from './ModelSelector.module.css';
 
 interface ModelSelectorProps {
@@ -17,9 +18,16 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
   const { t, language } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  // Live model list (see hooks/useAiModels.ts) so new provider models show
+  // up here without an app update; AI_MODELS is only the last-resort
+  // fallback for an id from an older conversation that's since aged out.
+  const { models } = useAiModels();
 
   const currentModel =
-    AI_MODELS.find((m) => m.id === selectedModelId) || AI_MODELS[0];
+    models.find((m) => m.id === selectedModelId) ||
+    AI_MODELS.find((m) => m.id === selectedModelId) ||
+    models[0] ||
+    AI_MODELS[0];
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -62,7 +70,7 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
       {isOpen && (
         <div className={styles.dropdown}>
           <div className={styles.dropdownHeader}>{headerText}</div>
-          {AI_MODELS.map((model) => (
+          {models.map((model) => (
             <button
               key={model.id}
               type="button"

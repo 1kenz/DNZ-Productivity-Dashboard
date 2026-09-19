@@ -14,6 +14,7 @@ import { AnalyticsView } from '@/components/Analytics';
 import { AiChatView } from '@/components/AiChat';
 import { TimeTrackingView } from '@/components/TimeTracking/TimeTrackingView';
 import { NotesView } from '@/components/Notes/NotesView';
+import { CalendarView } from '@/components/Calendar';
 import { AppleNotesIcon } from '@/components/ui/AppleNotesIcon';
 import {
   DashboardTabIcon,
@@ -21,12 +22,13 @@ import {
   RecurringTabIcon,
   AnalyticsTabIcon,
   AiAssistantTabIcon,
+  CalendarTabIcon,
 } from '@/components/ui/TabIcons';
 import { KeyboardShortcutsModal } from '@/components/ui/KeyboardShortcutsModal';
 import { DueDatesController } from '@/components/TodoList';
 import styles from './page.module.css';
 
-type MainTab = 'dashboard' | 'time-tracker' | 'notes' | 'recurring-tasks' | 'analytics' | 'ai';
+type MainTab = 'dashboard' | 'time-tracker' | 'notes' | 'calendar' | 'recurring-tasks' | 'analytics' | 'ai';
 
 export default function Home() {
   const { focusMode } = useApp();
@@ -73,6 +75,14 @@ export default function Home() {
             </button>
             <button
               type="button"
+              className={`${styles.tabBtn} ${tab === 'calendar' ? styles.tabActive : ''}`}
+              onClick={() => setTab('calendar')}
+            >
+              <CalendarTabIcon size={16} />
+              <span>{t('calendarTab')}</span>
+            </button>
+            <button
+              type="button"
               className={`${styles.tabBtn} ${tab === 'recurring-tasks' ? styles.tabActive : ''}`}
               onClick={() => setTab('recurring-tasks')}
             >
@@ -106,6 +116,8 @@ export default function Home() {
           <TimeTrackingView />
         ) : tab === 'notes' && !focusMode ? (
           <NotesView />
+        ) : tab === 'calendar' && !focusMode ? (
+          <CalendarView />
         ) : tab === 'recurring-tasks' && !focusMode ? (
           <RecurringTasksView />
         ) : focusMode ? (

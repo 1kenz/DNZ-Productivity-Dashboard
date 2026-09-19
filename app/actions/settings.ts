@@ -40,12 +40,16 @@ export async function getViewPreferences() {
   }
 }
 
-// `lastDueDateModalShownAt` is intersected in explicitly because the generated
-// @prisma/client types only pick it up after `npx prisma generate` re-runs against
-// the updated schema (see prisma/schema.prisma) -- this keeps the file compiling
-// correctly both before and after that regeneration happens.
+// `lastDueDateModalShownAt` and `calendarView` are intersected in explicitly
+// because the generated @prisma/client types only pick them up after
+// `npx prisma generate` re-runs against the updated schema (see
+// prisma/schema.prisma) -- this keeps the file compiling correctly both
+// before and after that regeneration happens.
 export async function updateViewPreferences(
-  updates: Partial<ViewPreferences> & { lastDueDateModalShownAt?: Date | string | null }
+  updates: Partial<ViewPreferences> & {
+    lastDueDateModalShownAt?: Date | string | null;
+    calendarView?: 'day' | 'week' | 'month';
+  }
 ) {
   try {
     const safeUpdates: Record<string, any> = {};
@@ -56,7 +60,13 @@ export async function updateViewPreferences(
     if (updates.lastDueDateModalShownAt !== undefined) {
       safeUpdates.lastDueDateModalShownAt = updates.lastDueDateModalShownAt;
     }
+    if (updates.calendarView !== undefined) {
+      safeUpdates.calendarView = updates.calendarView;
+    }
 
+    // `create` is cast to `any` for the same reason as `db` in
+    // app/actions/calendar.ts: `calendarView` isn't in the generated
+    // @prisma/client create-input type until `npx prisma generate` re-runs.
     const prefs = await prisma.viewPreferences.upsert({
       where: { id: PREFS_ID },
       update: safeUpdates,
@@ -66,7 +76,8 @@ export async function updateViewPreferences(
         linkView: updates.linkView ?? 'grid',
         showCompleted: updates.showCompleted ?? true,
         groupBy: updates.groupBy ?? 'none',
-      },
+        calendarView: updates.calendarView ?? 'week',
+      } as any,
     });
     revalidatePath('/');
     return prefs;

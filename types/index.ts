@@ -233,6 +233,48 @@ export interface ViewPreferences {
   density?: 'compact' | 'comfortable';
   // Last calendar day the Due Dates modal auto-opened -- see lib/dueDates.ts.
   lastDueDateModalShownAt?: Date | string | null;
+  // Default zoom level for the Calendar tab -- see components/Calendar/CalendarView.tsx.
+  calendarView?: 'day' | 'week' | 'month';
+}
+
+// Calendar sync types (Google Calendar API + Apple/iCloud CalDAV) --
+// see lib/googleCalendar.ts, lib/appleCalendar.ts, app/actions/calendar.ts.
+export type CalendarProvider = 'google' | 'apple';
+export type CalendarViewMode = 'day' | 'week' | 'month';
+
+/** One individual calendar within a connected provider account (e.g. a
+ * Google account's Primary/Work/Birthdays calendars, or an Apple CalDAV
+ * collection), merged with this app's stored visibility/color preference. */
+export interface CalendarInfo {
+  provider: CalendarProvider;
+  id: string; // provider's own calendar id / CalDAV collection URL
+  name: string;
+  color: string;
+  visible: boolean;
+  writable: boolean;
+  primary?: boolean;
+}
+
+/** A single event, normalized from either Google Calendar or an Apple
+ * CalDAV VEVENT, for display in the unified Calendar tab. */
+export interface UnifiedCalendarEvent {
+  id: string;
+  provider: CalendarProvider;
+  calendarId: string;
+  calendarName: string;
+  calendarColor: string;
+  title: string;
+  description?: string;
+  location?: string;
+  start: string; // ISO 8601
+  end: string; // ISO 8601
+  allDay: boolean;
+  writable: boolean;
+}
+
+export interface ConnectedCalendarAccountsStatus {
+  google: { configured: boolean; connected: boolean; email?: string };
+  apple: { configured: boolean; connected: boolean; appleId?: string };
 }
 
 // AI Chat & Voice Assistant Types
@@ -247,30 +289,33 @@ export interface AiModelOption {
   description: string;
 }
 
+// Every model below supports live web search via its provider's own
+// tool-use mechanism (Grounding with Google Search / OpenAI web_search_options
+// / Anthropic's web_search tool) -- see app/api/ai/chat/route.ts.
 export const AI_MODELS: AiModelOption[] = [
   {
-    id: 'claude-3-7-sonnet',
-    name: 'Claude 3.7 Sonnet',
+    id: 'claude-opus-5',
+    name: 'Claude Opus 5',
     provider: 'anthropic',
     icon: '🧠',
     badge: 'Pro Reasoning',
-    description: 'En derin kod analizi, siber güvenlik araştırması ve mimari çözümler.',
+    description: 'En derin kod analizi, siber güvenlik araştırması ve mimari çözümler. Web araması ile güncel bilgiye erişir.',
   },
   {
-    id: 'claude-3-5-sonnet',
-    name: 'Claude 3.5 Sonnet',
+    id: 'claude-sonnet-5',
+    name: 'Claude Sonnet 5',
     provider: 'anthropic',
     icon: '⚡',
     badge: 'Fast & Smart',
-    description: 'Hızlı kodlama ve metin üretimi.',
+    description: 'Hızlı kodlama ve metin üretimi. Web araması ile güncel bilgiye erişir.',
   },
   {
-    id: 'gemini-3.6-flash',
-    name: 'Gemini 3.6 Flash',
+    id: 'gemini-3.8-flash',
+    name: 'Gemini 3.8 Flash',
     provider: 'gemini',
     icon: '✨',
     badge: 'Recommended Flagship',
-    description: 'En yeni nesil Interactions API & çok amaçlı asistan, canlı sesli sohbet ve anlık kodlama.',
+    description: 'Google Arama ile desteklenen çok amaçlı asistan, canlı sesli sohbet ve anlık kodlama.',
   },
   {
     id: 'gemini-3.5-flash-lite',
@@ -281,28 +326,28 @@ export const AI_MODELS: AiModelOption[] = [
     description: 'Işık hızında yanıt veren düşük gecikmeli ses ve anlık soru-cevap modeli.',
   },
   {
-    id: 'gemini-3.1-pro',
+    id: 'gemini-3.1-pro-preview',
     name: 'Gemini 3.1 Pro',
     provider: 'gemini',
     icon: '🌟',
     badge: 'Frontier Reasoning',
-    description: 'En derin bağlam analizi, karmaşık yazılım mimarisi ve problem çözme.',
+    description: 'En derin bağlam analizi, karmaşık yazılım mimarisi ve problem çözme. Google Arama ile güncel bilgiye erişir.',
   },
   {
-    id: 'gpt-4o',
-    name: 'ChatGPT (GPT-4o)',
+    id: 'gpt-6-astra',
+    name: 'GPT-6 Astra',
     provider: 'openai',
     icon: '🌐',
     badge: 'Omni Vision/Voice',
-    description: 'Çok yönlü genel zeka, sesli yanıt ve problem çözme.',
+    description: 'Çok yönlü genel zeka, sesli yanıt ve problem çözme. Web araması ile güncel bilgiye erişir.',
   },
   {
-    id: 'gpt-4o-mini',
-    name: 'ChatGPT (GPT-4o Mini)',
+    id: 'gpt-5.6-luna',
+    name: 'GPT-5.6 Luna',
     provider: 'openai',
     icon: '⚡',
     badge: 'Economical',
-    description: 'Hızlı ve ekonomik yanıtlar.',
+    description: 'Hızlı ve ekonomik yanıtlar. Web araması ile güncel bilgiye erişir.',
   },
 ];
 

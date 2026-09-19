@@ -737,7 +737,7 @@ Lütfen şu şablonla Apple tarzı, net ve ilham verici bir rapor üret:
           </div>
 
           <div className={styles.inputFooter}>
-            <span>Shift + Enter: {t('notes.newNote') || 'New line'} • Enter: {t('common.save') || 'Send'}</span>
+            <span>Shift + Enter: {t('aiChat.newLine')} • Enter: {t('aiChat.send')}</span>
             <span>🎙️ {t('ai.speak') || 'Voice Dictation'}</span>
           </div>
         </div>
