@@ -160,24 +160,35 @@
 }
 
 .hourLabels {
-  display: flex;
-  flex-direction: column;
+  position: relative;
 }
 
+/* Each label's vertical CENTER sits exactly on the grid line for that hour
+   (top offset set inline per-label in CalendarView.tsx, matching the same
+   HOUR_HEIGHT used for .dayColumn's hour cells below) -- absolute
+   positioning instead of a flex column + fudge-factor transform keeps every
+   hour label pinned to its real line regardless of font metrics, so the
+   left-hand hour column can't drift out of sync with the day columns. */
 .hourLabel {
+  position: absolute;
+  left: 0;
+  right: 0;
+  transform: translateY(-50%);
   font-size: var(--font-size-xs);
   color: var(--color-text-secondary);
   text-align: right;
   padding-right: var(--space-2);
-  transform: translateY(-7px);
+  white-space: nowrap;
 }
 
 .dayColumn {
   position: relative;
   border-left: 1px solid var(--color-border);
+  box-sizing: border-box;
 }
 
 .hourCell {
+  box-sizing: border-box;
   border-bottom: 1px solid var(--color-border-subtle, var(--color-border));
 }
 

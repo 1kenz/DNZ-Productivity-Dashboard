@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { CalendarTabIcon } from '@/components/ui/TabIcons';
@@ -23,6 +23,8 @@ import styles from './CalendarView.module.css';
 const HOUR_HEIGHT = 48; // px per hour row in the day/week grid
 const DAY_START_HOUR = 0;
 const DAY_END_HOUR = 24;
+const WORK_HOURS_START = 7; // default scroll position: 07:00 at the top --
+// the full 0-24h grid is still there, just scrolled past the night hours.
 
 function minutesSinceMidnight(date: Date): number {
   return date.getHours() * 60 + date.getMinutes();
@@ -51,6 +53,7 @@ export const CalendarView: React.FC = () => {
   const [isLoadingEvents, setIsLoadingEvents] = useState(false);
   const [showManage, setShowManage] = useState(false);
   const [eventModalDate, setEventModalDate] = useState<Date | null>(null);
+  const timeGridRef = useRef<HTMLDivElement>(null);
 
   const loadCalendars = useCallback(async () => {
     setIsLoadingCalendars(true);
@@ -140,6 +143,19 @@ export const CalendarView: React.FC = () => {
 
   const isTimeGridView = view === 'day' || view === 'week';
 
+  // Default the day/week grid's scroll position to working hours (07:00 at
+  // the top) instead of opening on midnight -- the full 24h grid is still
+  // there, the user just scrolls up for earlier hours. Re-applied each time
+  // we switch INTO the day/week grid (e.g. from Month), but not on every
+  // prev/next nav within it, so a manual scroll position sticks while
+  // browsing nearby days/weeks.
+  useEffect(() => {
+    if (isTimeGridView && timeGridRef.current) {
+      timeGridRef.current.scrollTop = WORK_HOURS_START * HOUR_HEIGHT;
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [view]);
+
   return (
     <div className={styles.container}>
       <div className={styles.toolbar}>
@@ -203,10 +219,14 @@ export const CalendarView: React.FC = () => {
                 ))}
               </div>
 
-              <div className={styles.timeGrid} style={{ gridTemplateColumns: `56px repeat(${days.length}, 1fr)` }}>
-                <div className={styles.hourLabels}>
+              <div ref={timeGridRef} className={styles.timeGrid} style={{ gridTemplateColumns: `56px repeat(${days.length}, 1fr)` }}>
+                <div className={styles.hourLabels} style={{ height: HOUR_HEIGHT * hourRows.length }}>
                   {hourRows.map((h) => (
-                    <div key={h} className={styles.hourLabel} style={{ height: HOUR_HEIGHT }}>
+                    <div
+                      key={h}
+                      className={styles.hourLabel}
+                      style={{ top: h * HOUR_HEIGHT }}
+                    >
                       {h.toString().padStart(2, '0')}:00
                     </div>
                   ))}
