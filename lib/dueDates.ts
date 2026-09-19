@@ -72,76 +72,63 @@ export function isSameCalendarDay(a: Date | string | null | undefined, b: Date):
   );
 }
 
-// --- Full-range segmentation for the Due Dates panel ---------------------
+// --- Range filter for the Due Dates panel ---------------------------------
 // getDueTodoGroups above stays narrow (overdue/today/next `soonDays` days)
 // because it also gates the once-a-day auto-open modal (see
 // DueDatesController.tsx) and the Header/StatsCard "due soon" badges --
 // those should only flag genuinely urgent items. The panel itself, once
-// open, shows the full picture across every task with a deadline, broken
-// into Today / This Week / This Month / next 3 months / next 6 months /
-// This Year / Later, each collapsible in the UI (see DueDatesPanel.tsx).
+// open, lets the person pick a pill filter (All / Today / This Week /
+// Next 30-60-90 Days / a custom range) and shows a single flat,
+// deadline-ascending list for whichever range is selected (see
+// DueDatesPanel.tsx). Every preset except "custom" is cumulative -- it
+// always includes anything already overdue, since an overdue task is
+// relevant no matter which forward-looking window is selected.
 
-export type DueSegmentKey =
-  | 'overdue'
-  | 'today'
-  | 'thisWeek'
-  | 'thisMonth'
-  | 'next3Months'
-  | 'next6Months'
-  | 'thisYear'
-  | 'later';
+export type DueRangeFilterKey = 'all' | 'today' | 'thisWeek' | 'nextDays' | 'custom';
 
-export type DueTodoSegments = Record<DueSegmentKey, Todo[]> & { total: number };
+export interface DueRangeFilter {
+  key: DueRangeFilterKey;
+  /** Used when key === 'nextDays'. Defaults to 30. */
+  nextDaysValue?: number;
+  /** Used when key === 'custom'. 'YYYY-MM-DD' (from a <input type="date">). */
+  customFrom?: string;
+  customTo?: string;
+}
 
-/** Splits every non-completed todo that has a deadline into time-horizon
- * buckets, each sorted by deadline ascending. Boundaries are calendar-based
- * for week/month/year (matching how a person actually thinks about "this
- * week") and rolling from today for the 3/6-month windows. */
-export function getDueTodoSegments(todos: Todo[]): DueTodoSegments {
+const endOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23, 59, 59, 999);
+
+/** Filters non-completed todos with a deadline down to `filter`'s range, sorted by deadline ascending. */
+export function filterDueTodosByRange(todos: Todo[], filter: DueRangeFilter): Todo[] {
   const now = new Date();
+  const endOfToday = endOfDay(now);
   const weekEnd = endOfWeek(now);
-  const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
-  const threeMonthsEnd = new Date(now.getFullYear(), now.getMonth() + 3, now.getDate(), 23, 59, 59, 999);
-  const sixMonthsEnd = new Date(now.getFullYear(), now.getMonth() + 6, now.getDate(), 23, 59, 59, 999);
-  const yearEnd = new Date(now.getFullYear(), 11, 31, 23, 59, 59, 999);
+  const nextDaysEnd = endOfDay(
+    new Date(now.getFullYear(), now.getMonth(), now.getDate() + (filter.nextDaysValue ?? 30))
+  );
+  const customFromDate = filter.customFrom ? new Date(`${filter.customFrom}T00:00:00`) : null;
+  const customToDate = filter.customTo ? new Date(`${filter.customTo}T23:59:59.999`) : null;
 
-  const segments: DueTodoSegments = {
-    overdue: [],
-    today: [],
-    thisWeek: [],
-    thisMonth: [],
-    next3Months: [],
-    next6Months: [],
-    thisYear: [],
-    later: [],
-    total: 0,
+  const matches = (todo: Todo): boolean => {
+    if (!todo.deadline || todo.completed) return false;
+    const deadline = new Date(todo.deadline);
+    switch (filter.key) {
+      case 'all':
+        return true;
+      case 'today':
+        return deadline <= endOfToday;
+      case 'thisWeek':
+        return deadline <= weekEnd;
+      case 'nextDays':
+        return deadline <= nextDaysEnd;
+      case 'custom':
+        if (!customFromDate || !customToDate) return true;
+        return deadline >= customFromDate && deadline <= customToDate;
+      default:
+        return true;
+    }
   };
 
-  for (const todo of todos) {
-    if (!todo.deadline || todo.completed) continue;
-    const diff = daysUntil(todo.deadline);
-    const deadline = new Date(todo.deadline);
-
-    if (diff < 0) segments.overdue.push(todo);
-    else if (diff === 0) segments.today.push(todo);
-    else if (deadline <= weekEnd) segments.thisWeek.push(todo);
-    else if (deadline <= monthEnd) segments.thisMonth.push(todo);
-    else if (deadline <= threeMonthsEnd) segments.next3Months.push(todo);
-    else if (deadline <= sixMonthsEnd) segments.next6Months.push(todo);
-    else if (deadline <= yearEnd) segments.thisYear.push(todo);
-    else segments.later.push(todo);
-  }
-
-  const byDeadlineAsc = (a: Todo, b: Todo) =>
-    new Date(a.deadline as Date).getTime() - new Date(b.deadline as Date).getTime();
-  (Object.keys(segments) as (keyof DueTodoSegments)[]).forEach((key) => {
-    if (key !== 'total') (segments[key] as Todo[]).sort(byDeadlineAsc);
-  });
-
-  segments.total = (Object.keys(segments) as (keyof DueTodoSegments)[]).reduce(
-    (sum, key) => (key === 'total' ? sum : sum + (segments[key] as Todo[]).length),
-    0
-  );
-
-  return segments;
+  return todos
+    .filter(matches)
+    .sort((a, b) => new Date(a.deadline as Date).getTime() - new Date(b.deadline as Date).getTime());
 }

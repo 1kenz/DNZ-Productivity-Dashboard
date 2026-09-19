@@ -1,52 +1,145 @@
-.body {
+.filterBar {
   display: flex;
-  flex-direction: column;
-  gap: var(--space-6);
-  max-height: 60vh;
-  overflow-y: auto;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  background: var(--color-bg-tertiary);
+  padding: 4px;
+  border-radius: var(--radius-full);
+  margin-bottom: var(--space-4);
 }
 
-.group {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
+.presetBtn {
+  padding: 6px 14px;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+  border-radius: var(--radius-full);
+  white-space: nowrap;
+  transition: all var(--transition-fast);
 }
 
-.groupHeader {
+.presetBtn:hover {
+  color: var(--color-text-primary);
+}
+
+.presetBtn.active {
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.rangeDropdown {
+  position: relative;
+}
+
+.rangeBtn {
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  width: 100%;
-  padding: 0;
-  background: none;
-  border: none;
-  text-align: left;
-  cursor: pointer;
 }
 
-.chevron {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 9px;
+.rangeBtnLabel {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rangeCaret {
+  font-size: 8px;
   color: var(--color-text-tertiary);
-  transform: rotate(90deg);
-  transition: transform var(--transition-fast);
   flex: none;
 }
 
-.chevronCollapsed {
-  transform: rotate(0deg);
+.rangeMenu {
+  position: absolute;
+  top: calc(100% + var(--space-2));
+  left: 0;
+  z-index: 20;
+  min-width: 220px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-2);
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
 }
 
-.groupTitle {
+.rangeMenuItem {
+  padding: var(--space-2) var(--space-3);
   font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-semibold);
   color: var(--color-text-secondary);
-  margin: 0;
+  border-radius: var(--radius-md);
+  text-align: left;
+  transition: background var(--transition-fast), color var(--transition-fast);
 }
 
-.groupBody {
+.rangeMenuItem:hover {
+  background: var(--color-bg-tertiary);
+  color: var(--color-text-primary);
+}
+
+.rangeMenuItemActive {
+  background: color-mix(in srgb, var(--color-primary) 15%, transparent);
+  color: var(--color-primary);
+  font-weight: var(--font-weight-medium);
+}
+
+.rangeMenuDivider {
+  height: 1px;
+  margin: var(--space-1) 0;
+  background: var(--color-border);
+}
+
+.rangeMenuCustom {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+}
+
+.rangeMenuCustomLabel {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.customDates {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.dateLabel {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-tertiary);
+  flex: 1;
+}
+
+.dateInput {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-primary);
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 4px 6px;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  max-height: 55vh;
+  overflow-y: auto;
+}
+
+.flatList {
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
@@ -159,4 +252,15 @@
 
 .emptyIcon {
   font-size: var(--font-size-4xl);
+}
+
+@media (max-width: 480px) {
+  .rangeMenu {
+    left: auto;
+    right: 0;
+  }
+  .customDates {
+    flex-direction: column;
+    align-items: stretch;
+  }
 }
