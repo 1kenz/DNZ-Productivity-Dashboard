@@ -1,15 +1,32 @@
 .container {
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  gap: 20px;
+  animation: fadeIn 0.2s ease-out;
 }
 
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Same "header card" chrome as TimeTrackingView/RecurringTasksView's
+   .header (padding, card background, border, 16px radius, shadow-sm) --
+   previously this was a bare, unstyled flex row, which is exactly the
+   kind of visible mismatch "tüm temalar aynı olsun" was about: every
+   other tab wraps its title/toolbar row in this same card, Calendar
+   didn't. */
 .toolbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
   gap: var(--space-3);
+  padding: 16px 20px;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  box-shadow: var(--shadow-sm);
 }
 
 .toolbarLeft {
@@ -19,8 +36,9 @@
 }
 
 .headerLabel {
-  font-size: var(--font-size-lg);
-  font-weight: var(--font-weight-semibold);
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
   color: var(--color-text-primary);
   text-transform: capitalize;
 }
@@ -48,26 +66,40 @@
   background: var(--color-bg-secondary);
 }
 
+/* Matches RecurringTasksView's .segmentedFilter/.filterBtn pill pattern --
+   same padding/border/shadow treatment so a segmented toggle looks the
+   same whether it's filtering tasks or switching calendar views. */
 .viewToggle {
-  display: flex;
+  display: inline-flex;
   gap: 2px;
+  padding: 4px;
   background: var(--color-bg-tertiary);
-  padding: 3px;
-  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  border-radius: 13px;
+  box-shadow: var(--shadow-sm);
 }
 
 .viewBtn {
-  padding: 4px 10px;
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-medium);
+  padding: 6px 14px;
+  font-size: 0.8rem;
+  font-weight: 500;
   color: var(--color-text-secondary);
-  border-radius: var(--radius-sm);
-  transition: all var(--transition-fast);
+  border: 1px solid transparent;
+  border-radius: 9px;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.viewBtn:hover {
+  color: var(--color-text-primary);
+  background: var(--color-bg-primary);
 }
 
 .viewBtnActive {
-  background: var(--color-bg-primary);
+  background: var(--color-bg-secondary);
   color: var(--color-text-primary);
+  border: 1px solid var(--color-border-hover);
+  box-shadow: var(--shadow-sm);
+  font-weight: 600;
 }
 
 .loadingText,
@@ -78,13 +110,17 @@
   padding: var(--space-4);
 }
 
+/* Same card treatment as TimeTrackingView/RecurringTasksView's
+   .logTableCard (18px radius + shadow-sm) instead of the smaller
+   --radius-lg token used here before. */
 .gridWrapper {
   display: flex;
   flex-direction: column;
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
+  border-radius: 18px;
   overflow: hidden;
   background: var(--color-bg-secondary);
+  box-shadow: var(--shadow-sm);
 }
 
 .dayHeaderRow {
@@ -119,8 +155,13 @@
   border-radius: 50%;
 }
 
+/* var(--color-accent) resolves to the same red as var(--color-error)
+   (see styles/design-system.css) -- using it here made "today" read as an
+   error/overdue flag rather than a neutral highlight. --color-primary is
+   the same blue used for focus/active states everywhere else (Recurring's
+   filter pills, TimeTracking's inputs, DueDatesPanel's range menu). */
 .today {
-  background: var(--color-accent, #6366F1);
+  background: var(--color-primary);
   color: #fff;
 }
 
