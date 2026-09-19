@@ -208,7 +208,7 @@ export const CalendarView: React.FC = () => {
                 {days.map((day) => (
                   <div key={day.toISOString()} className={styles.dayHeaderCell}>
                     <span className={styles.dayHeaderWeekday}>
-                      {day.toLocaleDateString(locale, { weekday: 'short' })}
+                      {day.toLocaleDateString(locale, { weekday: 'long' })}
                     </span>
                     <span
                       className={`${styles.dayHeaderNumber} ${isSameDay(day, new Date()) ? styles.today : ''}`}
