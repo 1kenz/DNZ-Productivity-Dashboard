@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { RecurringTask, RecurrenceFrequency, Priority } from '@/types';
+import { PRIORITY_RANK } from '@/lib/priority';
 import { formatSchedule, WEEKDAYS, toDateInputValue } from '@/lib/recurrence';
 import { Input } from '@/components/ui/Input';
 import { Textarea } from '@/components/ui/Textarea';
@@ -13,6 +14,10 @@ import formStyles from './RecurringTaskManager.module.css';
 import styles from './RecurringTasksView.module.css';
 
 type StatusFilter = 'all' | 'active' | 'paused';
+type RecurringSortField = 'title' | 'frequency' | 'project' | 'priority' | 'status';
+type SortOrder = 'asc' | 'desc';
+
+const FREQUENCY_RANK: Record<RecurrenceFrequency, number> = { daily: 0, weekly: 1, monthly: 2 };
 
 export const RecurringTasksView: React.FC = () => {
   const { recurringTasks, projects, addRecurringTask, updateRecurringTask, deleteRecurringTask } = useApp();
@@ -21,6 +26,19 @@ export const RecurringTasksView: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [selectedProjectId, setSelectedProjectId] = useState<string>('all');
   const [search, setSearch] = useState('');
+
+  // Column sorting state (mirrors TimeTrackingView's sortable-column pattern)
+  const [sortField, setSortField] = useState<RecurringSortField>('title');
+  const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
+
+  const handleToggleSort = (field: RecurringSortField) => {
+    if (sortField === field) {
+      setSortOrder((prev) => (prev === 'asc' ? 'desc' : 'asc'));
+    } else {
+      setSortField(field);
+      setSortOrder('asc');
+    }
+  };
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editing, setEditing] = useState<RecurringTask | null>(null);
@@ -118,6 +136,35 @@ export const RecurringTasksView: React.FC = () => {
     return true;
   });
 
+  const sortedTasks = [...filteredTasks].sort((a, b) => {
+    let cmp = 0;
+    switch (sortField) {
+      case 'title':
+        cmp = a.title.localeCompare(b.title);
+        break;
+      case 'frequency': {
+        const rankDiff = FREQUENCY_RANK[a.frequency] - FREQUENCY_RANK[b.frequency];
+        cmp = rankDiff !== 0 ? rankDiff : a.interval - b.interval;
+        break;
+      }
+      case 'project': {
+        const nameA = projects.find((p) => p.id === a.projectId)?.name || '';
+        const nameB = projects.find((p) => p.id === b.projectId)?.name || '';
+        cmp = nameA.localeCompare(nameB);
+        break;
+      }
+      case 'priority':
+        cmp = PRIORITY_RANK[a.priority] - PRIORITY_RANK[b.priority];
+        break;
+      case 'status':
+        cmp = a.active === b.active ? 0 : a.active ? -1 : 1;
+        break;
+      default:
+        cmp = 0;
+    }
+    return sortOrder === 'asc' ? cmp : -cmp;
+  });
+
   return (
     <div className={styles.container}>
       {/* 1. Header */}
@@ -191,16 +238,51 @@ export const RecurringTasksView: React.FC = () => {
           <table className={styles.table}>
             <thead>
               <tr>
-                <th>{t('tasks.title')}</th>
-                <th>{t('recurring.frequency')}</th>
-                <th>{t('projects')}</th>
-                <th>{t('tasks.priority')}</th>
-                <th>{t('common.pause')} / {t('common.resume')}</th>
+                <th className={styles.sortableTh} onClick={() => handleToggleSort('title')} title={t('sortBy')}>
+                  <div className={styles.thContent}>
+                    <span>{t('tasks.title')}</span>
+                    <span className={styles.sortIndicator}>
+                      {sortField === 'title' ? (sortOrder === 'asc' ? '▲' : '▼') : '↕'}
+                    </span>
+                  </div>
+                </th>
+                <th className={styles.sortableTh} onClick={() => handleToggleSort('frequency')} title={t('sortBy')}>
+                  <div className={styles.thContent}>
+                    <span>{t('recurring.frequency')}</span>
+                    <span className={styles.sortIndicator}>
+                      {sortField === 'frequency' ? (sortOrder === 'asc' ? '▲' : '▼') : '↕'}
+                    </span>
+                  </div>
+                </th>
+                <th className={styles.sortableTh} onClick={() => handleToggleSort('project')} title={t('sortBy')}>
+                  <div className={styles.thContent}>
+                    <span>{t('projects')}</span>
+                    <span className={styles.sortIndicator}>
+                      {sortField === 'project' ? (sortOrder === 'asc' ? '▲' : '▼') : '↕'}
+                    </span>
+                  </div>
+                </th>
+                <th className={styles.sortableTh} onClick={() => handleToggleSort('priority')} title={t('sortBy')}>
+                  <div className={styles.thContent}>
+                    <span>{t('tasks.priority')}</span>
+                    <span className={styles.sortIndicator}>
+                      {sortField === 'priority' ? (sortOrder === 'asc' ? '▲' : '▼') : '↕'}
+                    </span>
+                  </div>
+                </th>
+                <th className={styles.sortableTh} onClick={() => handleToggleSort('status')} title={t('sortBy')}>
+                  <div className={styles.thContent}>
+                    <span>{t('common.pause')} / {t('common.resume')}</span>
+                    <span className={styles.sortIndicator}>
+                      {sortField === 'status' ? (sortOrder === 'asc' ? '▲' : '▼') : '↕'}
+                    </span>
+                  </div>
+                </th>
                 <th style={{ textAlign: 'right' }}>{t('common.edit')} / {t('common.delete')}</th>
               </tr>
             </thead>
             <tbody>
-              {filteredTasks.map((task) => {
+              {sortedTasks.map((task) => {
                 const project = projects.find((p) => p.id === task.projectId);
                 return (
                   <tr key={task.id} className={`${styles.tableRow} ${!task.active ? styles.paused : ''}`}>
