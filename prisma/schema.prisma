@@ -149,11 +149,14 @@ model TimeEntry {
 }
 
 model ViewPreferences {
-  id            String  @id @default("default") // Singleton row
-  taskView      String  @default("list")
-  linkView      String  @default("grid")
-  showCompleted Boolean @default(true)
-  groupBy       String  @default("none")
+  id                       String    @id @default("default") // Singleton row
+  taskView                 String    @default("list")
+  linkView                 String    @default("grid")
+  showCompleted            Boolean   @default(true)
+  groupBy                  String    @default("none")
+  // Last calendar day the Due Dates modal auto-opened on app launch -- lets
+  // us show it once per day instead of on every reload. See lib/dueDates.ts.
+  lastDueDateModalShownAt  DateTime?
 }
 
 model RecurringTask {

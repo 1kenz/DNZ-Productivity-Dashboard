@@ -137,6 +137,8 @@ interface AppContextType {
   setIsAiSettingsOpen: (open: boolean) => void;
   isShortcutsOpen: boolean;
   setIsShortcutsOpen: (open: boolean) => void;
+  isDueDatesOpen: boolean;
+  setIsDueDatesOpen: (open: boolean) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -175,6 +177,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     showCompleted: true,
     groupBy: 'none',
     density: 'comfortable',
+    lastDueDateModalShownAt: null,
   });
 
   const [themeMode, setThemeModeState] = useState<ThemeMode>('system');
@@ -188,6 +191,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [isLiveVoiceOpen, setIsLiveVoiceOpen] = useState(false);
   const [isAiSettingsOpen, setIsAiSettingsOpen] = useState(false);
   const [isShortcutsOpen, setIsShortcutsOpen] = useState(false);
+  const [isDueDatesOpen, setIsDueDatesOpen] = useState(false);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -257,6 +261,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
             linkView: (fetchedPrefs.linkView as any) || 'grid',
             showCompleted: fetchedPrefs.showCompleted ?? true,
             groupBy: (fetchedPrefs.groupBy as any) || 'none',
+            lastDueDateModalShownAt: (fetchedPrefs as any).lastDueDateModalShownAt ?? null,
           }));
         }
 
@@ -844,6 +849,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         setIsAiSettingsOpen,
         isShortcutsOpen,
         setIsShortcutsOpen,
+        isDueDatesOpen,
+        setIsDueDatesOpen,
       }}
     >
       <FocusProvider>{children}</FocusProvider>

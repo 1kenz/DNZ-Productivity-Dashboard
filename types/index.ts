@@ -231,6 +231,8 @@ export interface ViewPreferences {
   showCompleted: boolean;
   groupBy: 'none' | 'project' | 'priority' | 'date' | 'section' | 'status' | 'domain';
   density?: 'compact' | 'comfortable';
+  // Last calendar day the Due Dates modal auto-opened -- see lib/dueDates.ts.
+  lastDueDateModalShownAt?: Date | string | null;
 }
 
 // AI Chat & Voice Assistant Types

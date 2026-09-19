@@ -23,6 +23,7 @@ import {
   AiAssistantTabIcon,
 } from '@/components/ui/TabIcons';
 import { KeyboardShortcutsModal } from '@/components/ui/KeyboardShortcutsModal';
+import { DueDatesController } from '@/components/TodoList';
 import styles from './page.module.css';
 
 type MainTab = 'dashboard' | 'time-tracker' | 'notes' | 'recurring-tasks' | 'analytics' | 'ai';
@@ -147,6 +148,7 @@ export default function Home() {
       <QuickNotesPopover />
       <CommandPalette onNavigateTab={(t) => setTab(t)} />
       <KeyboardShortcutsModal />
+      <DueDatesController />
     </main>
   );
 }

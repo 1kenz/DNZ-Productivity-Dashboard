@@ -4,6 +4,7 @@ import React from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { PRIORITY_META } from '@/lib/priority';
+import { getDueTodoGroups } from '@/lib/dueDates';
 import styles from './StatsCard.module.css';
 
 export const StatsCard: React.FC = () => {
@@ -25,6 +26,9 @@ export const StatsCard: React.FC = () => {
   const totalTimeSeconds = timeEntries
     .filter((e) => new Date(e.createdAt).toDateString() === today)
     .reduce((acc, curr) => acc + curr.duration, 0);
+
+  const dueGroups = getDueTodoGroups(todos);
+  const dueSoonCount = dueGroups.overdue.length + dueGroups.today.length + dueGroups.soon.length;
 
   const formatTime = (seconds: number) => {
     const hrs = Math.floor(seconds / 3600);
@@ -66,6 +70,13 @@ export const StatsCard: React.FC = () => {
       icon: '⏱️',
       color: 'var(--color-warning)',
       targetId: 'time-tracker-section',
+    },
+    {
+      label: t('stats.dueSoon') || 'Due Soon',
+      value: dueSoonCount,
+      icon: dueGroups.overdue.length > 0 ? '⚠️' : '📅',
+      color: dueGroups.overdue.length > 0 ? 'var(--color-error)' : 'var(--color-warning)',
+      targetId: 'tasks-section',
     },
   ];
 

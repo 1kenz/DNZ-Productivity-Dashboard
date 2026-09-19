@@ -9,11 +9,12 @@ import { WorldClock } from '@/components/WorldClock';
 import { SettingsModal } from '@/components/Settings';
 import { ThemeSelectorModal } from './ThemeSelectorModal';
 import { LocalTime } from './LocalTime';
+import { DueDatesPanelTrigger } from './DueDatesPanelTrigger';
 import { Language } from '@/types';
 import styles from './Header.module.css';
 
 export const Header: React.FC = () => {
-  const { theme, themeMode, toggleTheme, focusLevel, toggleFocusMode, setIsCommandPaletteOpen, setIsShortcutsOpen, todos, projects } = useApp();
+  const { theme, themeMode, toggleTheme, focusLevel, toggleFocusMode, setIsCommandPaletteOpen, setIsShortcutsOpen, setIsDueDatesOpen, todos, projects } = useApp();
   const { isTimeTracking, trackingElapsedTime, trackingTaskId, trackingProjectId, stopTracking, formatTime } = useFocus();
   const { language, setLanguage, t } = useLanguage();
   const { setIsThemeModalOpen } = useThemeCustomizer();
@@ -126,6 +127,9 @@ export const Header: React.FC = () => {
           >
             {themeMode === 'system' ? '💻' : themeMode === 'light' ? '☀️' : '🌙'}
           </button>
+
+          {/* Due Dates: warns the user in-app about overdue/upcoming deadlines */}
+          <DueDatesPanelTrigger todos={todos} onOpen={() => setIsDueDatesOpen(true)} />
 
           {/* Shortcuts Modal Trigger */}
           <button
