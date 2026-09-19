@@ -6,6 +6,7 @@
 // today, and not completed) rather than inventing a second definition.
 
 import { Todo } from '@/types';
+import { endOfWeek } from '@/lib/calendarDateUtils';
 
 export type DueBucket = 'overdue' | 'today' | 'soon';
 
@@ -69,4 +70,78 @@ export function isSameCalendarDay(a: Date | string | null | undefined, b: Date):
     d.getMonth() === b.getMonth() &&
     d.getDate() === b.getDate()
   );
+}
+
+// --- Full-range segmentation for the Due Dates panel ---------------------
+// getDueTodoGroups above stays narrow (overdue/today/next `soonDays` days)
+// because it also gates the once-a-day auto-open modal (see
+// DueDatesController.tsx) and the Header/StatsCard "due soon" badges --
+// those should only flag genuinely urgent items. The panel itself, once
+// open, shows the full picture across every task with a deadline, broken
+// into Today / This Week / This Month / next 3 months / next 6 months /
+// This Year / Later, each collapsible in the UI (see DueDatesPanel.tsx).
+
+export type DueSegmentKey =
+  | 'overdue'
+  | 'today'
+  | 'thisWeek'
+  | 'thisMonth'
+  | 'next3Months'
+  | 'next6Months'
+  | 'thisYear'
+  | 'later';
+
+export type DueTodoSegments = Record<DueSegmentKey, Todo[]> & { total: number };
+
+/** Splits every non-completed todo that has a deadline into time-horizon
+ * buckets, each sorted by deadline ascending. Boundaries are calendar-based
+ * for week/month/year (matching how a person actually thinks about "this
+ * week") and rolling from today for the 3/6-month windows. */
+export function getDueTodoSegments(todos: Todo[]): DueTodoSegments {
+  const now = new Date();
+  const weekEnd = endOfWeek(now);
+  const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+  const threeMonthsEnd = new Date(now.getFullYear(), now.getMonth() + 3, now.getDate(), 23, 59, 59, 999);
+  const sixMonthsEnd = new Date(now.getFullYear(), now.getMonth() + 6, now.getDate(), 23, 59, 59, 999);
+  const yearEnd = new Date(now.getFullYear(), 11, 31, 23, 59, 59, 999);
+
+  const segments: DueTodoSegments = {
+    overdue: [],
+    today: [],
+    thisWeek: [],
+    thisMonth: [],
+    next3Months: [],
+    next6Months: [],
+    thisYear: [],
+    later: [],
+    total: 0,
+  };
+
+  for (const todo of todos) {
+    if (!todo.deadline || todo.completed) continue;
+    const diff = daysUntil(todo.deadline);
+    const deadline = new Date(todo.deadline);
+
+    if (diff < 0) segments.overdue.push(todo);
+    else if (diff === 0) segments.today.push(todo);
+    else if (deadline <= weekEnd) segments.thisWeek.push(todo);
+    else if (deadline <= monthEnd) segments.thisMonth.push(todo);
+    else if (deadline <= threeMonthsEnd) segments.next3Months.push(todo);
+    else if (deadline <= sixMonthsEnd) segments.next6Months.push(todo);
+    else if (deadline <= yearEnd) segments.thisYear.push(todo);
+    else segments.later.push(todo);
+  }
+
+  const byDeadlineAsc = (a: Todo, b: Todo) =>
+    new Date(a.deadline as Date).getTime() - new Date(b.deadline as Date).getTime();
+  (Object.keys(segments) as (keyof DueTodoSegments)[]).forEach((key) => {
+    if (key !== 'total') (segments[key] as Todo[]).sort(byDeadlineAsc);
+  });
+
+  segments.total = (Object.keys(segments) as (keyof DueTodoSegments)[]).reduce(
+    (sum, key) => (key === 'total' ? sum : sum + (segments[key] as Todo[]).length),
+    0
+  );
+
+  return segments;
 }

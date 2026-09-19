@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Button } from '@/components/ui/Button';
 import * as calendarActions from '@/app/actions/calendar';
+import { GoogleLogoIcon, AppleLogoIcon } from './ProviderIcons';
 import { CalendarInfo, ConnectedCalendarAccountsStatus } from '@/types';
 import styles from './ConnectCalendarsPanel.module.css';
 
@@ -57,7 +58,9 @@ export const ConnectCalendarsPanel: React.FC<Props> = ({ status, calendars, onCh
       <div className={styles.accountsRow}>
         <div className={styles.accountCard}>
           <div className={styles.accountHeader}>
-            <span>🔵 Google Calendar</span>
+            <span className={styles.providerLabel}>
+              <GoogleLogoIcon size={16} /> Google Calendar
+            </span>
             {status?.google.connected && <span className={styles.badge}>{status.google.email}</span>}
           </div>
           {!status?.google.connected ? (
@@ -73,7 +76,9 @@ export const ConnectCalendarsPanel: React.FC<Props> = ({ status, calendars, onCh
 
         <div className={styles.accountCard}>
           <div className={styles.accountHeader}>
-            <span>🍎 Apple Calendar</span>
+            <span className={styles.providerLabel}>
+              <AppleLogoIcon size={16} /> Apple Calendar
+            </span>
             {status?.apple.connected && <span className={styles.badge}>{status.apple.appleId}</span>}
           </div>
           {!status?.apple.connected ? (

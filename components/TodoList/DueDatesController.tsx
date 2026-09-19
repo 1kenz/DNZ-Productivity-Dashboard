@@ -35,6 +35,6 @@ export const DueDatesController: React.FC = () => {
   }, [isLoading]);
 
   return (
-    <DueDatesPanel isOpen={isDueDatesOpen} onClose={() => setIsDueDatesOpen(false)} groups={groups} />
+    <DueDatesPanel isOpen={isDueDatesOpen} onClose={() => setIsDueDatesOpen(false)} todos={todos} />
   );
 };

@@ -34,6 +34,7 @@ export const TaskRow: React.FC<TaskRowProps> = ({
   const [editTitle, setEditTitle] = useState(todo.title);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isDateEditing, setIsDateEditing] = useState(false);
+  const [dateInputValue, setDateInputValue] = useState('');
   const [isPriorityOpen, setIsPriorityOpen] = useState(false);
   const priorityRef = useRef<HTMLDivElement>(null);
   const [isStatusOpen, setIsStatusOpen] = useState(false);
@@ -98,8 +99,10 @@ export const TaskRow: React.FC<TaskRowProps> = ({
 
   useEffect(() => {
     if (!isDateEditing) return;
+    setDateInputValue(todo.deadline ? toDateInputValue(todo.deadline) : '');
     const handleClickOutside = (e: MouseEvent) => {
       if (dateRef.current && !dateRef.current.contains(e.target as Node)) {
+        commitDeadline(dateInputValueRef.current);
         setIsDateEditing(false);
       }
     };
@@ -112,6 +115,7 @@ export const TaskRow: React.FC<TaskRowProps> = ({
       document.removeEventListener('mousedown', handleClickOutside);
       document.removeEventListener('keydown', handleEscape);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isDateEditing]);
 
   const project = projects.find((p) => p.id === todo.projectId);
@@ -148,14 +152,44 @@ export const TaskRow: React.FC<TaskRowProps> = ({
     }
   };
 
-  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Kept in a ref (in addition to the state value) so the outside-click
+  // listener above -- registered once per isDateEditing toggle, not on
+  // every keystroke -- always reads the latest typed value.
+  const dateInputValueRef = useRef('');
+  useEffect(() => {
+    dateInputValueRef.current = dateInputValue;
+  }, [dateInputValue]);
+
+  const commitDeadline = (value: string) => {
+    if (!value) return;
+    const year = Number(value.split('-')[0]);
+    if (!year || year < 1000) return; // still mid-keystroke on the year segment
+    updateTodo(todo.id, { deadline: new Date(value) });
+  };
+
+  const handleDateInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    updateTodo(todo.id, { deadline: value ? new Date(value) : undefined });
+    setDateInputValue(value);
+    commitDeadline(value); // live-save once the date looks complete, but stay open
+  };
+
+  const handleDateInputBlur = () => {
+    commitDeadline(dateInputValueRef.current);
     setIsDateEditing(false);
+  };
+
+  const handleDateInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      commitDeadline(dateInputValueRef.current);
+      setIsDateEditing(false);
+    } else if (e.key === 'Escape') {
+      setIsDateEditing(false);
+    }
   };
 
   const handleClearDate = () => {
     updateTodo(todo.id, { deadline: undefined });
+    setDateInputValue('');
     setIsDateEditing(false);
   };
 
@@ -436,8 +470,10 @@ export const TaskRow: React.FC<TaskRowProps> = ({
               <input
                 type="date"
                 className={styles.dateInput}
-                defaultValue={todo.deadline ? toDateInputValue(todo.deadline) : ''}
-                onChange={handleDateChange}
+                value={dateInputValue}
+                onChange={handleDateInputChange}
+                onBlur={handleDateInputBlur}
+                onKeyDown={handleDateInputKeyDown}
                 autoFocus
               />
               {todo.deadline && (
