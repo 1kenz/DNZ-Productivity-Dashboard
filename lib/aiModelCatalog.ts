@@ -15,6 +15,37 @@ const PROVIDER_ICON: Record<AiProvider, string> = {
   openai: '🌐',
 };
 
+// Cost/practicality tiers -- after building each provider's model list we
+// stable-sort by tier (JS Array.sort is a stable sort, so within a tier the
+// existing order -- generally newest-first -- is preserved). This surfaces
+// the models that realistically cover day-to-day team usage first, and
+// pushes pricier/heavier frontier models to the bottom of the picker instead
+// of mixing them in wherever the provider's API happens to list them.
+const COST_TIER_CHEAP = 0;
+const COST_TIER_MID = 1;
+const COST_TIER_EXPENSIVE = 2;
+
+function anthropicCostTier(id: string): number {
+  if (/haiku/i.test(id)) return COST_TIER_CHEAP;
+  if (/opus/i.test(id)) return COST_TIER_EXPENSIVE;
+  return COST_TIER_MID; // sonnet and anything unrecognized
+}
+
+function openAiCostTier(id: string): number {
+  if (/mini|nano/i.test(id)) return COST_TIER_CHEAP;
+  // o-series reasoning models (o1, o3, o4, ...) and any "-pro" variant are
+  // the priciest/heaviest tier; everything else (plain gpt-*, chatgpt-*) is
+  // the practical mid tier most teams actually use day to day.
+  if (/^o[0-9]/i.test(id) || /pro/i.test(id)) return COST_TIER_EXPENSIVE;
+  return COST_TIER_MID;
+}
+
+function geminiCostTier(id: string): number {
+  if (/lite/i.test(id)) return COST_TIER_CHEAP;
+  if (/pro/i.test(id)) return COST_TIER_EXPENSIVE;
+  return COST_TIER_MID; // flash and anything unrecognized
+}
+
 interface CacheEntry {
   fetchedAt: number;
   models: AiModelOption[];
@@ -62,6 +93,7 @@ export async function fetchAnthropicModels(apiKey: string): Promise<AiModelOptio
       badge: i === 0 ? 'En Yeni' : 'Claude',
       description: 'Web araması ile güncel bilgiye erişebilen Claude modeli.',
     }));
+  models.sort((a, b) => anthropicCostTier(a.id) - anthropicCostTier(b.id));
   setCachedModels('anthropic', models);
   return models;
 }
@@ -99,6 +131,7 @@ export async function fetchOpenAiModels(apiKey: string): Promise<AiModelOption[]
     badge: i === 0 ? 'En Yeni' : m.id.includes('mini') || m.id.includes('nano') ? 'Hızlı' : 'GPT',
     description: 'Web araması ile güncel bilgiye erişebilen OpenAI modeli.',
   }));
+  models.sort((a, b) => openAiCostTier(a.id) - openAiCostTier(b.id));
   setCachedModels('openai', models);
   return models;
 }
@@ -165,6 +198,7 @@ export async function fetchGeminiModels(apiKey: string): Promise<AiModelOption[]
       badge: m.id.includes('pro') ? 'Frontier Reasoning' : m.id.includes('lite') ? 'Ultra Fast' : 'Gemini',
       description: 'Google Arama ile desteklenen güncel bilgiye erişebilen Gemini modeli.',
     }));
+  models.sort((a, b) => geminiCostTier(a.id) - geminiCostTier(b.id));
   setCachedModels('gemini', models);
   return models;
 }

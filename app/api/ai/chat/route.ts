@@ -7,6 +7,27 @@ interface AiSource {
   url: string;
 }
 
+// Shape of the items OpenAI's Responses API (POST /v1/responses) returns in
+// `output` -- only the fields this route actually reads. A response can also
+// contain e.g. `web_search_call` items alongside the `message` item; those
+// are ignored here since only the message's text and citations are needed.
+interface OpenAiResponseAnnotation {
+  type?: string;
+  url?: string;
+  title?: string;
+}
+
+interface OpenAiResponseContentPart {
+  type?: string;
+  text?: string;
+  annotations?: OpenAiResponseAnnotation[];
+}
+
+interface OpenAiResponseOutputItem {
+  type?: string;
+  content?: OpenAiResponseContentPart[];
+}
+
 /**
  * Appends a short "Kaynaklar" (Sources) list to a reply when the model
  * actually used its web search tool -- shared by all three providers so a
@@ -176,20 +197,27 @@ export async function POST(req: NextRequest) {
       }
     } else if (provider === 'openai') {
       const openAiModel = model || 'gpt-6-astra';
-      const openAiMessages = [];
+      const openAiInput: Array<{ role: string; content: string }> = [];
 
       if (systemPrompt) {
-        openAiMessages.push({ role: 'system', content: systemPrompt });
+        openAiInput.push({ role: 'system', content: systemPrompt });
       }
 
       for (const m of messages) {
-        openAiMessages.push({
+        openAiInput.push({
           role: m.role === 'user' ? 'user' : 'assistant',
           content: m.content,
         });
       }
 
-      const res = await fetch('https://api.openai.com/v1/chat/completions', {
+      // OpenAI's web-search tool is only exposed through the Responses API
+      // (POST /v1/responses). The older Chat Completions `web_search_options`
+      // parameter only works on the narrow "-search-preview" model family and
+      // is rejected ("Unknown parameter: 'web_search_options'") by every
+      // regular chat model this app actually lists in its picker -- so this
+      // call goes through Responses instead, which supports real web search
+      // across the full range of GA chat models.
+      const res = await fetch('https://api.openai.com/v1/responses', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -197,11 +225,9 @@ export async function POST(req: NextRequest) {
         },
         body: JSON.stringify({
           model: openAiModel,
-          messages: openAiMessages,
+          input: openAiInput,
           temperature: 0.7,
-          // Lets the model issue real web searches via OpenAI's own
-          // search-augmented Chat Completions tool.
-          web_search_options: {},
+          tools: [{ type: 'web_search' }],
         }),
       });
 
@@ -211,12 +237,16 @@ export async function POST(req: NextRequest) {
       }
 
       const data = await res.json();
-      const message = data?.choices?.[0]?.message;
-      const rawText = message?.content || 'OpenAI yanıt veremedi.';
-      const annotations: any[] = message?.annotations || [];
-      const sources: AiSource[] = annotations
-        .filter((a) => a?.type === 'url_citation' && a?.url_citation?.url)
-        .map((a) => ({ title: a.url_citation.title, url: a.url_citation.url }));
+      const outputItems: OpenAiResponseOutputItem[] = data?.output || [];
+      const messageItem = outputItems.find((item) => item.type === 'message');
+      const textParts: OpenAiResponseContentPart[] = (messageItem?.content || []).filter(
+        (c) => c.type === 'output_text'
+      );
+      const rawText = textParts.map((c) => c.text || '').join('\n').trim() || 'OpenAI yanıt veremedi.';
+      const sources: AiSource[] = textParts
+        .flatMap((c) => c.annotations || [])
+        .filter((a) => a.type === 'url_citation' && Boolean(a.url))
+        .map((a) => ({ title: a.title, url: a.url as string }));
 
       replyText = isVoiceTurn ? rawText : appendSourcesFooter(rawText, sources);
     } else if (provider === 'anthropic') {
