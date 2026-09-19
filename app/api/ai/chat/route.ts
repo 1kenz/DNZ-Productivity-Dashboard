@@ -163,7 +163,16 @@ export async function POST(req: NextRequest) {
       }
       if (lastErr) {
         console.error('All Gemini API attempts failed:', lastErr?.message || lastErr);
-        replyText = `⚠️ **Gemini Yanıt Veremedi:** ${lastErr?.message || 'Bilinmeyen hata'}`;
+        const rawMessage: string = lastErr?.message || 'Bilinmeyen hata';
+        // A quota/billing error is per-API-key, not per-model, so every
+        // candidate above failed with the same cause -- the cascade did
+        // its job (it always tried every fallback model first), this just
+        // isn't a recoverable-by-retrying situation. Say so plainly
+        // instead of leaving it looking like every model is broken.
+        const isQuotaError = /quota|429|rate.?limit|RESOURCE_EXHAUSTED/i.test(rawMessage);
+        replyText = isQuotaError
+          ? `⚠️ **Gemini kotası doldu.** Bu API anahtarının kullanım kotası/faturalandırma limiti dolmuş görünüyor (denenen tüm Gemini modelleri aynı hatayı verdi, bu bir model sorunu değil). Google AI Studio'daki plan/faturalandırma ayarlarınızı kontrol edin, ya da bu arada model seçiciden Claude veya GPT gibi başka bir sağlayıcıya geçebilirsiniz.\n\n*Teknik detay: ${rawMessage}*`
+          : `⚠️ **Gemini Yanıt Veremedi:** ${rawMessage}`;
       }
     } else if (provider === 'openai') {
       const openAiModel = model || 'gpt-6-astra';

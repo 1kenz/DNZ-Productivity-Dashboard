@@ -80,19 +80,47 @@ export const AiChatView: React.FC = () => {
     refreshConversations();
   }, []);
 
-  // Update active conversation & messages when id changes
+  // Update active conversation & messages when id changes.
+  //
+  // `conversations` is a dependency too (not just activeConversationId) so
+  // that if `conversations` finishes loading *after* activeConversationId
+  // is already set, the matching conversation's messages still get loaded
+  // once it's found. But that means this effect also re-fires on every
+  // *unrelated* update to the conversations list -- e.g. handleSendMessage
+  // renaming the conversation's title right after the first message, or
+  // ConversationSidebar pinning/renaming one elsewhere -- and it used to
+  // call setMessages(conv.messages || []) every single time, stomping the
+  // live `messages` state (which has already moved ahead with the
+  // optimistically-appended user/assistant messages) back down to whatever
+  // stale snapshot `conversations` happens to hold for this conversation --
+  // silently erasing the person's own just-typed message from the screen.
+  //
+  // skipNextMessagesLoadRef lets handleSendMessage/handleNewChat say "I'm
+  // switching activeConversationId to a conversation whose messages I
+  // already know are right (I just set them myself), don't reload" for the
+  // one render where a brand-new conversation is created; everything else
+  // (clicking a different chat in the sidebar, deleting the active one)
+  // still loads that conversation's real history as before.
+  const loadedConversationIdRef = useRef<string | null>(null);
+  const skipNextMessagesLoadRef = useRef(false);
   useEffect(() => {
     if (activeConversationId) {
       const conv = conversations.find((c) => c.id === activeConversationId);
       if (conv) {
         setActiveConversation(conv);
-        setMessages(conv.messages || []);
+        const isSwitchingConversation = loadedConversationIdRef.current !== activeConversationId;
+        if (isSwitchingConversation && !skipNextMessagesLoadRef.current) {
+          setMessages(conv.messages || []);
+        }
+        skipNextMessagesLoadRef.current = false;
+        loadedConversationIdRef.current = activeConversationId;
         const modelOpt = AI_MODELS.find((m) => m.id === conv.model);
         if (modelOpt) setSelectedModel(modelOpt);
       }
     } else {
       setActiveConversation(null);
       setMessages([]);
+      loadedConversationIdRef.current = null;
     }
   }, [activeConversationId, conversations]);
 
@@ -181,6 +209,7 @@ export const AiChatView: React.FC = () => {
         });
         targetConvId = created.id;
         setConversations((prev) => [created, ...prev]);
+        skipNextMessagesLoadRef.current = true;
         setActiveConversationId(created.id);
       } catch (e) {
         console.warn('DB conversation creation failed in send message, using local ID:', e);
@@ -197,6 +226,7 @@ export const AiChatView: React.FC = () => {
           updatedAt: new Date(),
         };
         setConversations((prev) => [fallbackConv, ...prev]);
+        skipNextMessagesLoadRef.current = true;
         setActiveConversationId(fallbackId);
       }
     }
@@ -271,6 +301,9 @@ export const AiChatView: React.FC = () => {
       };
 
       setMessages((prev) => [...prev, assistantMsg]);
+      // (The assistant reply is already persisted server-side -- see
+      // app/api/ai/chat/route.ts's own addAiMessage call keyed off the
+      // conversationId sent in this request -- so nothing to save here.)
     } catch (err: any) {
       console.error('Chat error:', err);
       const errMsg: AiMessage = {

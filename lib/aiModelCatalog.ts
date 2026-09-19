@@ -115,6 +115,14 @@ interface GeminiModelEntry {
   supportedGenerationMethods?: string[];
 }
 
+/** Extracts the "2.5" out of "gemini-2.5-flash-lite", or null for ids that
+ * don't carry a version number (bare "gemini-pro" from the old v1 naming,
+ * odd one-off ids, etc.) */
+function geminiVersion(id: string): number | null {
+  const m = id.match(/^gemini-(\d+(?:\.\d+)?)/);
+  return m ? parseFloat(m[1]) : null;
+}
+
 export async function fetchGeminiModels(apiKey: string): Promise<AiModelOption[]> {
   const res = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models?pageSize=200&key=${encodeURIComponent(apiKey)}`
@@ -122,20 +130,41 @@ export async function fetchGeminiModels(apiKey: string): Promise<AiModelOption[]
   if (!res.ok) throw new Error(`Gemini models list failed: ${res.status}`);
   const data = await res.json();
   const entries: GeminiModelEntry[] = data.models || [];
-  const models = entries
+
+  const candidates = entries
+    .map((m) => ({ ...m, id: m.name.replace(/^models\//, '') }))
     .filter((m) => (m.supportedGenerationMethods || []).includes('generateContent'))
-    .filter((m) => !/embedding|aqa|imagen|veo|tts/i.test(m.name))
-    .map((m) => {
-      const id = m.name.replace(/^models\//, '');
-      return {
-        id,
-        name: m.displayName || id,
-        provider: 'gemini' as const,
-        icon: PROVIDER_ICON.gemini,
-        badge: id.includes('pro') ? 'Frontier Reasoning' : id.includes('lite') ? 'Ultra Fast' : 'Gemini',
-        description: 'Google Arama ile desteklenen güncel bilgiye erişebilen Gemini modeli.',
-      };
-    });
+    // Drop non-chat capabilities, the separate open-weight Gemma family
+    // (a different product line, not what picking "Gemini" should surface),
+    // and "-latest"/"-preview" aliases -- Google always also lists the
+    // concrete dated/numbered model those point to, so keeping both just
+    // shows the same model twice under two different names.
+    .filter((m) => !/embedding|aqa|imagen|veo|tts|gemma/i.test(m.id))
+    .filter((m) => !/-latest$|-preview$/i.test(m.id));
+
+  // Keep only the current generation (plus one generation back) instead of
+  // hardcoding a version cutoff that would go stale the moment Google
+  // ships the next one -- computed from whatever the API actually
+  // returned, so this stays accurate on its own.
+  const versions = candidates.map((m) => geminiVersion(m.id)).filter((v): v is number => v !== null);
+  const newestVersion = versions.length > 0 ? Math.max(...versions) : null;
+
+  const models = candidates
+    .filter((m) => {
+      const v = geminiVersion(m.id);
+      // Unversioned ids (legacy "gemini-pro"-style names) are old enough
+      // to drop once we can tell there's a versioned generation available.
+      if (v === null) return newestVersion === null;
+      return newestVersion === null || v >= newestVersion - 1;
+    })
+    .map((m) => ({
+      id: m.id,
+      name: m.displayName || m.id,
+      provider: 'gemini' as const,
+      icon: PROVIDER_ICON.gemini,
+      badge: m.id.includes('pro') ? 'Frontier Reasoning' : m.id.includes('lite') ? 'Ultra Fast' : 'Gemini',
+      description: 'Google Arama ile desteklenen güncel bilgiye erişebilen Gemini modeli.',
+    }));
   setCachedModels('gemini', models);
   return models;
 }
