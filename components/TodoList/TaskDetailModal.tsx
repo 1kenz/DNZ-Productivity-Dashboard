@@ -11,6 +11,7 @@ import { AppPicker } from '@/components/QuickLinks/AppPicker';
 import { fileDropHandlers, fileNameFromPath } from '@/lib/electron';
 import { getTodoProgress } from '@/lib/progress';
 import { PRIORITY_ORDER, PRIORITY_META } from '@/lib/priority';
+import { AskAiButton } from './AskAiButton';
 import styles from './TaskDetailModal.module.css';
 
 interface TaskDetailDrawerProps {
@@ -157,7 +158,10 @@ export const TaskDetailDrawer: React.FC<TaskDetailDrawerProps> = ({ todo, isOpen
         </div>
 
         <div className={styles.section}>
-          <label className={styles.label}>{t('tasks.description')}</label>
+          <div className={styles.sectionHeaderRow}>
+            <label className={styles.label}>{t('tasks.description')}</label>
+            <AskAiButton taskTitle={title || todo.title} />
+          </div>
           <textarea
             className={styles.textarea}
             value={description}

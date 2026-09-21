@@ -392,6 +392,16 @@ export interface AiConversation {
   updatedAt: Date;
 }
 
+// A task's title, on its way to the AI Assistant tab (from the "Ask AI"
+// button on a task) -- set by AppContext.setPendingAiRequest, consumed
+// once by AiChatView (which either sends it as a chat message or opens
+// Live Voice with it), then cleared. See AppContext's PendingAiRequest
+// section and components/TodoList/AskAiButton.tsx.
+export interface PendingAiRequest {
+  mode: 'text' | 'voice';
+  taskTitle: string;
+}
+
 export interface AiSettings {
   id: string;
   anthropicApiKey?: string | null;

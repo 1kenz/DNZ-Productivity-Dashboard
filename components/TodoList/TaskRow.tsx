@@ -7,6 +7,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { Todo, DOMAIN_AREAS } from '@/types';
 import { PRIORITY_ORDER, PRIORITY_META } from '@/lib/priority';
 import { TaskDetailDrawer } from './TaskDetailModal';
+import { AskAiButton } from './AskAiButton';
 import styles from './TaskRow.module.css';
 
 interface TaskRowProps {
@@ -340,6 +341,8 @@ export const TaskRow: React.FC<TaskRowProps> = ({
               <span className={styles.playIcon}>▶</span>
             </button>
           )}
+
+          <AskAiButton taskTitle={todo.title} compact />
         </div>
 
         <div className={styles.statusCell} ref={statusRef}>

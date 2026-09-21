@@ -18,6 +18,7 @@ import {
   FocusLevel,
   ThemeMode,
   Theme,
+  PendingAiRequest,
 } from '@/types';
 import * as todoActions from '@/app/actions/todo';
 import * as projectActions from '@/app/actions/project';
@@ -150,6 +151,12 @@ interface AppContextType {
   setIsShortcutsOpen: (open: boolean) => void;
   isDueDatesOpen: boolean;
   setIsDueDatesOpen: (open: boolean) => void;
+
+  // "Ask AI" cross-tab handoff -- a task's "Ask AI" button (TaskDetailModal,
+  // TaskRow) sets this, page.tsx reacts by switching to the AI Assistant
+  // tab, and AiChatView consumes+clears it once mounted there.
+  pendingAiRequest: PendingAiRequest | null;
+  setPendingAiRequest: (request: PendingAiRequest | null) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -203,6 +210,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
   const [isLiveVoiceOpen, setIsLiveVoiceOpen] = useState(false);
   const [isAiSettingsOpen, setIsAiSettingsOpen] = useState(false);
+  const [pendingAiRequest, setPendingAiRequest] = useState<PendingAiRequest | null>(null);
   const [isShortcutsOpen, setIsShortcutsOpen] = useState(false);
   const [isDueDatesOpen, setIsDueDatesOpen] = useState(false);
 
@@ -863,6 +871,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         setIsLiveVoiceOpen,
         isAiSettingsOpen,
         setIsAiSettingsOpen,
+        pendingAiRequest,
+        setPendingAiRequest,
         isShortcutsOpen,
         setIsShortcutsOpen,
         isDueDatesOpen,

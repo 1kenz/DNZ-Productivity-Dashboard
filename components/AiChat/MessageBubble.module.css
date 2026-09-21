@@ -257,6 +257,86 @@
   border-color: rgba(239, 68, 68, 0.2);
 }
 
+/* "Add to Task" popover -- painted from theme tokens (unlike the rest of
+   this file's hardcoded dark palette) since it's a small floating panel
+   that needs to read correctly on the light theme too. */
+.addTaskContainer {
+  position: relative;
+  display: inline-flex;
+}
+
+.addTaskPopover {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 0;
+  z-index: var(--z-popover, 1060);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 220px;
+  padding: var(--space-2, 8px);
+  background: var(--color-bg-secondary, #ffffff);
+  border: 1px solid var(--color-border, rgba(0, 0, 0, 0.12));
+  border-radius: var(--radius-md, 10px);
+  box-shadow: var(--shadow-lg, 0 12px 32px rgba(0, 0, 0, 0.25));
+}
+
+.addTaskOption {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px var(--space-2, 8px);
+  font-size: var(--font-size-sm, 0.78rem);
+  color: var(--color-text-primary, #0f172a);
+  text-align: left;
+  border-radius: var(--radius-sm, 6px);
+  white-space: nowrap;
+}
+
+.addTaskOption:hover {
+  background: var(--color-bg-tertiary, rgba(0, 0, 0, 0.05));
+}
+
+.addTaskSelect {
+  width: 100%;
+  padding: 6px 8px;
+  font-size: var(--font-size-sm, 0.78rem);
+  color: var(--color-text-primary, #0f172a);
+  background: var(--color-bg-primary, #f8fafc);
+  border: 1px solid var(--color-border, rgba(0, 0, 0, 0.12));
+  border-radius: var(--radius-sm, 6px);
+}
+
+.addTaskPopoverActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.addTaskCancelBtn,
+.addTaskConfirmBtn {
+  padding: 4px 10px;
+  font-size: var(--font-size-xs, 0.7rem);
+  font-weight: 600;
+  border-radius: var(--radius-sm, 6px);
+}
+
+.addTaskCancelBtn {
+  color: var(--color-text-secondary, #64748b);
+  background: var(--color-bg-tertiary, rgba(0, 0, 0, 0.05));
+}
+
+.addTaskConfirmBtn {
+  color: #ffffff;
+  background: var(--color-primary, #6366f1);
+}
+
+.addTaskConfirmBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .deleteActionBtn:hover {
   background: rgba(239, 68, 68, 0.22);
   border-color: rgba(239, 68, 68, 0.4);

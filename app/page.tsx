@@ -31,7 +31,7 @@ import styles from './page.module.css';
 type MainTab = 'dashboard' | 'time-tracker' | 'notes' | 'calendar' | 'recurring-tasks' | 'analytics' | 'ai';
 
 export default function Home() {
-  const { focusMode } = useApp();
+  const { focusMode, pendingAiRequest, setPendingAiRequest } = useApp();
   const { t } = useLanguage();
   const [tab, setTab] = useState<MainTab>('dashboard');
   const [openCalendarManage, setOpenCalendarManage] = useState(false);
@@ -42,6 +42,17 @@ export default function Home() {
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
   }, [tab, focusMode]);
+
+  // A task's "Ask AI" button (see AskAiButton.tsx) sets pendingAiRequest
+  // from deep inside the Tasks view; jump to the AI Assistant tab so
+  // AiChatView (rendered below with pendingAiRequest passed through) can
+  // pick it up and act on it once mounted there.
+  useEffect(() => {
+    if (pendingAiRequest) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setTab('ai');
+    }
+  }, [pendingAiRequest]);
 
   // Connecting a Google/Apple account is a full-page OAuth round trip (see
   // ConnectCalendarsPanel's <a href="/api/google/auth">), so it lands back
@@ -132,7 +143,10 @@ export default function Home() {
         )}
 
         {tab === 'ai' && !focusMode ? (
-          <AiChatView />
+          <AiChatView
+            pendingRequest={pendingAiRequest}
+            onPendingRequestConsumed={() => setPendingAiRequest(null)}
+          />
         ) : tab === 'analytics' && !focusMode ? (
           <AnalyticsView />
         ) : tab === 'time-tracker' && !focusMode ? (

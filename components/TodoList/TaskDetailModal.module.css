@@ -59,6 +59,17 @@
   letter-spacing: 0.5px;
 }
 
+.sectionHeaderRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-1);
+}
+
+.sectionHeaderRow .label {
+  margin-bottom: 0;
+}
+
 .textarea {
   width: 100%;
   min-height: 160px;

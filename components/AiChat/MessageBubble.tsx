@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { AiMessage, AiReport } from '@/types';
 import { useApp } from '@/contexts/AppContext';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -29,13 +29,34 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
   isSelected,
   onToggleSelect,
 }) => {
-  const { addTodo, addNote } = useApp();
+  const { addTodo, updateTodo, addNote, todos } = useApp();
   const { t } = useLanguage();
   const { speak, stop, isSpeaking } = useSpeechSynthesis();
   const [copied, setCopied] = useState(false);
   const [taskAdded, setTaskAdded] = useState(false);
   const [noteSaved, setNoteSaved] = useState(false);
   const [vaultSaved, setVaultSaved] = useState(false);
+
+  // "Add to Task" popover -- lets a message go into an existing task's
+  // description, become a new subtask under an existing task, or become a
+  // brand-new task (the last one is what the old single-purpose button
+  // used to always do).
+  const [addTaskMode, setAddTaskMode] = useState<'closed' | 'choose' | 'pick-description' | 'pick-subtask'>('closed');
+  const [targetTaskId, setTargetTaskId] = useState('');
+  const addTaskRef = useRef<HTMLDivElement>(null);
+  const openTasks = todos.filter((td) => !td.completed);
+
+  useEffect(() => {
+    if (addTaskMode === 'closed') return;
+    const handleOutside = (e: MouseEvent) => {
+      if (addTaskRef.current && !addTaskRef.current.contains(e.target as Node)) {
+        setAddTaskMode('closed');
+        setTargetTaskId('');
+      }
+    };
+    document.addEventListener('mousedown', handleOutside);
+    return () => document.removeEventListener('mousedown', handleOutside);
+  }, [addTaskMode]);
 
   const isUser = message.role === 'user';
 
@@ -69,10 +90,14 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
     }
   };
 
-  const handleCreateTask = (e?: React.MouseEvent) => {
-    e?.stopPropagation();
+  const suggestedTitle = () => {
     const lines = message.content.split('\n').filter((l) => l.trim());
-    const title = lines[0]?.replace(/^[#*-]\s*/, '').slice(0, 80) || 'AI Task Suggestion';
+    return lines[0]?.replace(/^[#*-]\s*/, '').slice(0, 80) || 'AI Task Suggestion';
+  };
+
+  const handleCreateNewTask = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    const title = suggestedTitle();
     const description = message.content;
 
     if (onAddTask) {
@@ -88,6 +113,48 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
       });
     }
 
+    setAddTaskMode('closed');
+    setTargetTaskId('');
+    setTaskAdded(true);
+    setTimeout(() => setTaskAdded(false), 2500);
+  };
+
+  const handleAddAsDescription = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    if (!targetTaskId) return;
+    const target = todos.find((td) => td.id === targetTaskId);
+    if (!target) return;
+
+    const merged = target.description
+      ? `${target.description}\n\n${message.content}`
+      : message.content;
+    updateTodo(targetTaskId, { description: merged });
+
+    setAddTaskMode('closed');
+    setTargetTaskId('');
+    setTaskAdded(true);
+    setTimeout(() => setTaskAdded(false), 2500);
+  };
+
+  const handleAddAsSubtask = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    if (!targetTaskId) return;
+    const parent = todos.find((td) => td.id === targetTaskId);
+    if (!parent) return;
+
+    addTodo({
+      title: suggestedTitle(),
+      description: message.content,
+      completed: false,
+      priority: parent.priority,
+      status: parent.status,
+      projectId: parent.projectId,
+      parentTodoId: parent.id,
+      tags: ['AI-Assistant'],
+    });
+
+    setAddTaskMode('closed');
+    setTargetTaskId('');
     setTaskAdded(true);
     setTimeout(() => setTaskAdded(false), 2500);
   };
@@ -268,14 +335,78 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
                   {vaultSaved ? '✓ ' + (t('ai.vaultSaved') || 'Saved in Vault') : '📁 ' + (t('ai.saveToVault') || 'Save to Vault')}
                 </button>
 
-                <button
-                  type="button"
-                  className={styles.actionBtn}
-                  onClick={handleCreateTask}
-                  title="Create Todo from this response"
-                >
-                  {taskAdded ? '✓ ' + t('tasks.addTask') : '➕ ' + (t('ai.createTask') || 'To Task')}
-                </button>
+                <div className={styles.addTaskContainer} ref={addTaskRef}>
+                  <button
+                    type="button"
+                    className={styles.actionBtn}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setAddTaskMode((m) => (m === 'closed' ? 'choose' : 'closed'));
+                    }}
+                    title="Add this response to a task"
+                  >
+                    {taskAdded ? '✓ ' + t('tasks.addTask') : '➕ ' + (t('ai.createTask') || 'To Task')}
+                  </button>
+
+                  {addTaskMode === 'choose' && (
+                    <div className={styles.addTaskPopover} onClick={(e) => e.stopPropagation()}>
+                      <button type="button" className={styles.addTaskOption} onClick={handleCreateNewTask}>
+                        🆕 {t('ai.addAsNewTask') || 'Yeni görev olarak ekle'}
+                      </button>
+                      <button
+                        type="button"
+                        className={styles.addTaskOption}
+                        onClick={() => setAddTaskMode('pick-description')}
+                      >
+                        📝 {t('ai.addAsDescription') || 'Mevcut göreve açıklama olarak ekle'}
+                      </button>
+                      <button
+                        type="button"
+                        className={styles.addTaskOption}
+                        onClick={() => setAddTaskMode('pick-subtask')}
+                      >
+                        🔗 {t('ai.addAsSubtask') || 'Mevcut görevin altına alt görev olarak ekle'}
+                      </button>
+                    </div>
+                  )}
+
+                  {(addTaskMode === 'pick-description' || addTaskMode === 'pick-subtask') && (
+                    <div className={styles.addTaskPopover} onClick={(e) => e.stopPropagation()}>
+                      <select
+                        className={styles.addTaskSelect}
+                        value={targetTaskId}
+                        onChange={(e) => setTargetTaskId(e.target.value)}
+                      >
+                        <option value="">{t('tasks.selectTask') || 'Görev seç...'}</option>
+                        {openTasks.map((td) => (
+                          <option key={td.id} value={td.id}>
+                            {td.title}
+                          </option>
+                        ))}
+                      </select>
+                      <div className={styles.addTaskPopoverActions}>
+                        <button
+                          type="button"
+                          className={styles.addTaskCancelBtn}
+                          onClick={() => {
+                            setAddTaskMode('closed');
+                            setTargetTaskId('');
+                          }}
+                        >
+                          {t('common.cancel')}
+                        </button>
+                        <button
+                          type="button"
+                          className={styles.addTaskConfirmBtn}
+                          disabled={!targetTaskId}
+                          onClick={addTaskMode === 'pick-description' ? handleAddAsDescription : handleAddAsSubtask}
+                        >
+                          {t('common.add') || t('tasks.addTask')}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
 
                 <button
                   type="button"

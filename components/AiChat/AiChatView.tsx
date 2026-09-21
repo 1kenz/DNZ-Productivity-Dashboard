@@ -7,6 +7,7 @@ import {
   AI_MODELS,
   AiModelOption,
   AiSettings,
+  PendingAiRequest,
 } from '@/types';
 import {
   getAiConversations,
@@ -30,7 +31,15 @@ import { LiveVoiceModal } from './LiveVoiceModal';
 import { ReportVaultModal } from './ReportVaultModal';
 import styles from './AiChatView.module.css';
 
-export const AiChatView: React.FC = () => {
+interface AiChatViewProps {
+  /** Set by a task's "Ask AI" button (via AppContext.pendingAiRequest,
+   * relayed through page.tsx) -- consumed once on mount/change below,
+   * then cleared via onPendingRequestConsumed. */
+  pendingRequest?: PendingAiRequest | null;
+  onPendingRequestConsumed?: () => void;
+}
+
+export const AiChatView: React.FC<AiChatViewProps> = ({ pendingRequest, onPendingRequestConsumed }) => {
   const { todos, projects } = useApp();
   const { t, language } = useLanguage();
 
@@ -411,6 +420,39 @@ Kullanıcı seninle canlı sesli olarak karşılıklı konuşuyor. Sen kullanıc
    - Hem ekranda okunabilecek netlikte hem de sesli konuşmaya uygun akıcı bir dille cevap ver.
 2. Tüm yanıtlarını sesli konuşmaya uygun, kısa, net, saygılı, madde işaretsiz ve doğal bir konuşma diliyle aktar.`;
   };
+
+  // Consumes a task's "Ask AI" request (see AskAiButton.tsx / AppContext's
+  // pendingAiRequest / page.tsx) once this view is mounted: either sends
+  // the task straight into the chat as a written message, or opens Live
+  // Voice with a spoken opener about it -- same two entry points
+  // handleTriggerDenizSitrep already uses below, just seeded from a task
+  // instead of the day's full task list.
+  useEffect(() => {
+    if (!pendingRequest) return;
+
+    if (pendingRequest.mode === 'text') {
+      const prompt =
+        language === 'de'
+          ? `Kannst du mir bei der Aufgabe "${pendingRequest.taskTitle}" helfen?`
+          : language === 'en'
+          ? `Could you help me with the task "${pendingRequest.taskTitle}"?`
+          : `"${pendingRequest.taskTitle}" görevi hakkında bana yardımcı olur musun?`;
+      handleSendMessage(prompt);
+    } else {
+      const voiceLang = aiSettings?.voiceLanguage || 'tr-TR';
+      const intro = voiceLang.startsWith('de')
+        ? `Du möchtest über die Aufgabe "${pendingRequest.taskTitle}" sprechen. Wie kann ich dir dabei helfen?`
+        : voiceLang.startsWith('en')
+        ? `You'd like to talk about the task "${pendingRequest.taskTitle}". How can I help you with it?`
+        : `"${pendingRequest.taskTitle}" görevin hakkında konuşmak istiyorsun. Bu konuda nasıl yardımcı olabilirim?`;
+      setDenizSpeechIntro(intro);
+      setDenizCustomSystemPrompt(getLiveDenizSystemPrompt());
+      setIsLiveVoiceOpen(true);
+    }
+
+    onPendingRequestConsumed?.();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingRequest]);
 
   // Deniz SITREP Trigger (Generates written SITREP + launches interactive live voice assistant)
   const handleTriggerDenizSitrep = () => {
