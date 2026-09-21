@@ -88,7 +88,7 @@ function useElectronAudioCapture({
   const analyserRef = useRef<AnalyserNode | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
-  const rafIdRef = useRef<number | null>(null);
+  const vadIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const speechStartedRef = useRef(false);
   const cycleStartRef = useRef(0);
   const lastLoudTimeRef = useRef(0);
@@ -117,9 +117,9 @@ function useElectronAudioCapture({
   }, []);
 
   const cancelVadLoop = useCallback(() => {
-    if (rafIdRef.current !== null) {
-      cancelAnimationFrame(rafIdRef.current);
-      rafIdRef.current = null;
+    if (vadIntervalRef.current !== null) {
+      clearInterval(vadIntervalRef.current);
+      vadIntervalRef.current = null;
     }
     if (audioContextRef.current) {
       audioContextRef.current.close().catch(() => {});
@@ -177,6 +177,12 @@ function useElectronAudioCapture({
     }
   }, []);
 
+  // setInterval rather than requestAnimationFrame: rAF callbacks can be
+  // throttled all the way down to a near-standstill by Chromium for a
+  // window that loses focus/occlusion, even with the main-process
+  // throttling switches in main.js as a first line of defense -- a
+  // polling timer degrades far more gracefully and isn't tied to paint
+  // scheduling at all, which this audio-level check has no need of.
   const runVadLoop = useCallback(() => {
     const analyser = analyserRef.current;
     if (!analyser) return;
@@ -184,6 +190,7 @@ function useElectronAudioCapture({
 
     const tick = () => {
       if (!analyserRef.current || !mediaRecorderRef.current || mediaRecorderRef.current.state !== 'recording') {
+        cancelVadLoop();
         return;
       }
       analyser.getByteTimeDomainData(data);
@@ -210,14 +217,11 @@ function useElectronAudioCapture({
         if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
           mediaRecorderRef.current.stop();
         }
-        return;
       }
-
-      rafIdRef.current = requestAnimationFrame(tick);
     };
 
-    rafIdRef.current = requestAnimationFrame(tick);
-  }, []);
+    vadIntervalRef.current = setInterval(tick, 100);
+  }, [cancelVadLoop]);
 
   const beginRecordingCycle = useCallback(() => {
     if (!shouldListenRef.current || !mediaStreamRef.current) return;

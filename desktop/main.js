@@ -16,6 +16,19 @@ async function loadEmbeddedPostgres() {
   return EmbeddedPostgres;
 }
 
+// Chromium throttles (and can effectively pause) JS timers/rAF loops in a
+// window that isn't the frontmost, focused, unoccluded one -- normally a
+// good power-saving default, but fatal for Live Voice mode's mic capture:
+// its voice-activity detector must keep polling reliably even if the user
+// alt-tabs away, another window briefly overlaps it, or macOS just doesn't
+// consider it "key" for a moment. These switches must be set before the
+// app is ready. Established pattern for exactly this class of desktop app
+// (real-time audio/notifications) -- see e.g. Slack's and Discord's own
+// Electron flags.
+app.commandLine.appendSwitch('disable-background-timer-throttling');
+app.commandLine.appendSwitch('disable-backgrounding-occluded-windows');
+app.commandLine.appendSwitch('disable-renderer-backgrounding');
+
 const isPackaged = app.isPackaged;
 const resourcesPath = isPackaged ? process.resourcesPath : path.join(__dirname, 'resources');
 
