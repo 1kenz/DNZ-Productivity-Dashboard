@@ -483,6 +483,17 @@ export const TaskRow: React.FC<TaskRowProps> = ({
                 <button
                   type="button"
                   className={styles.dateMenuClearBtn}
+                  // The date <input> above has autoFocus + onBlur (to
+                  // commit/close when focus leaves the popover). A plain
+                  // click on this button first fires mousedown, which
+                  // shifts focus away from the input and fires its onBlur
+                  // *before* this button's own onClick runs -- so onBlur
+                  // was re-committing the still-uncleared date and closing
+                  // the popover out from under the click, and Clear never
+                  // actually fired. Preventing the default mousedown
+                  // behavior keeps focus on the input so onBlur doesn't
+                  // fire, letting the click reach handleClearDate.
+                  onMouseDown={(e) => e.preventDefault()}
                   onClick={handleClearDate}
                 >
                   {t('common.clear') || 'Clear'}
