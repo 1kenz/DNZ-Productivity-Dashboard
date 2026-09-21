@@ -44,7 +44,10 @@
       "icon": "resources/icon.png",
       "target": [
         "dmg"
-      ]
+      ],
+      "extendInfo": {
+        "NSMicrophoneUsageDescription": "DNZ Productivity Dashboard uses the microphone for the Live Voice AI Assistant feature, so you can talk to the assistant instead of typing."
+      }
     },
     "asar": false
   }

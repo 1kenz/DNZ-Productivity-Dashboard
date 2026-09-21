@@ -250,7 +250,29 @@ function startNextServer() {
   });
 }
 
+// macOS denies getUserMedia()/SpeechRecognition mic access outright (no
+// prompt, no error the renderer can act on) unless the app both declares
+// NSMicrophoneUsageDescription (see desktop/package.json's build.mac.
+// extendInfo) AND explicitly allows the 'media' permission request here --
+// Electron's default permission handler denies everything it doesn't know
+// about. This is what the Live Voice feature needs to ever get mic access
+// in the packaged app.
+function configureMediaPermissions() {
+  session.defaultSession.setPermissionRequestHandler((webContents, permission, callback) => {
+    if (permission === 'media') {
+      callback(true);
+      return;
+    }
+    callback(false);
+  });
+  session.defaultSession.setPermissionCheckHandler((webContents, permission) => {
+    return permission === 'media';
+  });
+}
+
 function createWindow() {
+  configureMediaPermissions();
+
   mainWindow = new BrowserWindow({
     width: 1360,
     height: 900,

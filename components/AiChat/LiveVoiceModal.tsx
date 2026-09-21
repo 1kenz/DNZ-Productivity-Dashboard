@@ -193,6 +193,19 @@ export const LiveVoiceModal: React.FC<LiveVoiceModalProps> = ({
     },
     onError: (err) => {
       console.warn('Live voice recognition error:', err);
+      if (!isOpenRef.current) return;
+      // Silent mic-permission failures are the #1 cause of the feature
+      // looking completely broken (esp. in the packaged desktop app,
+      // where macOS can deny mic access with no OS-level prompt at all):
+      // give the same audible hand-back the chat-send error path uses
+      // instead of only logging to the console.
+      const isPermissionError = err?.error === 'not-allowed' || err?.error === 'service-not-allowed';
+      const errorText = isPermissionError
+        ? (t('ai.micPermissionDenied') || 'Microphone access is blocked.')
+        : (t('ai.voiceRecognitionError') || 'Voice recognition error. Please try again.');
+      setLastReply(errorText);
+      setLiveState('speaking');
+      speakAndResumeListening(errorText);
     },
   });
 
