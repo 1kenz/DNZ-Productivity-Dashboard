@@ -56,46 +56,65 @@ export async function disconnectDrive() {
   revalidatePath('/');
 }
 
-export async function backupToDrive() {
+// Next.js redacts the message of any error a Server Action *throws* once
+// the app runs in production (NODE_ENV=production, which is exactly how
+// the packaged desktop app runs its server) -- the client only ever sees
+// a generic "An error occurred in the Server Components render..." plus a
+// digest, never the actual reason. That's by design (avoids leaking
+// internals), but it also means the helpful messages these functions used
+// to build (e.g. "Backup to Drive failed: <real reason>") were being
+// thrown away silently in the packaged app -- someone hitting "Backup
+// Now" had no way to ever find out why it failed. Returning a plain
+// {success, error} value instead of throwing sidesteps the redaction
+// entirely, since only *thrown* errors get stripped.
+type DriveResult<T> = { success: true; data: T } | { success: false; error: string };
+
+function driveError(context: string, err: unknown): { success: false; error: string } {
+  console.error(`[googleDrive] ${context} failed:`, err);
+  return { success: false, error: err instanceof Error ? err.message : String(err) };
+}
+
+export async function backupToDrive(): Promise<DriveResult<{ id: string; name: string; createdTime: string }>> {
   try {
     const accessToken = await getValidAccessToken();
     const backup = await exportAllData();
     const fileName = `backup-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-')}.json`;
     const file = await uploadBackupToDrive(accessToken, fileName, JSON.stringify(backup));
-    return file;
+    return { success: true, data: file };
   } catch (err) {
-    console.error('[googleDrive] backupToDrive failed:', err);
-    throw new Error(`Backup to Drive failed: ${err instanceof Error ? err.message : String(err)}`);
+    return driveError('backupToDrive', err);
   }
 }
 
-export async function listDriveBackups() {
+export async function listDriveBackups(): Promise<
+  DriveResult<{ id: string; name: string; createdTime: string }[]>
+> {
   try {
     const accessToken = await getValidAccessToken();
-    return await listBackupsInDrive(accessToken);
+    const files = await listBackupsInDrive(accessToken);
+    return { success: true, data: files };
   } catch (err) {
-    console.error('[googleDrive] listDriveBackups failed:', err);
-    throw new Error(`Could not list Drive backups: ${err instanceof Error ? err.message : String(err)}`);
+    return driveError('listDriveBackups', err);
   }
 }
 
-export async function restoreFromDrive(fileId: string) {
+export async function restoreFromDrive(fileId: string): Promise<DriveResult<void>> {
   try {
     const accessToken = await getValidAccessToken();
     const backup = (await downloadBackupFromDrive(accessToken, fileId)) as BackupPayload;
     await restoreBackup(backup);
+    return { success: true, data: undefined };
   } catch (err) {
-    console.error('[googleDrive] restoreFromDrive failed:', err);
-    throw new Error(`Restore from Drive failed: ${err instanceof Error ? err.message : String(err)}`);
+    return driveError('restoreFromDrive', err);
   }
 }
 
-export async function deleteDriveBackup(fileId: string) {
+export async function deleteDriveBackup(fileId: string): Promise<DriveResult<void>> {
   try {
     const accessToken = await getValidAccessToken();
     await deleteBackupFromDrive(accessToken, fileId);
+    return { success: true, data: undefined };
   } catch (err) {
-    console.error('[googleDrive] deleteDriveBackup failed:', err);
-    throw new Error(`Could not delete Drive backup: ${err instanceof Error ? err.message : String(err)}`);
+    return driveError('deleteDriveBackup', err);
   }
 }

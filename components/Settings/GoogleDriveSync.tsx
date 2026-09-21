@@ -27,8 +27,12 @@ export const GoogleDriveSync: React.FC = () => {
       const s = await driveActions.getDriveStatus();
       setStatus(s);
       if (s.connected) {
-        const files = await driveActions.listDriveBackups();
-        setBackups(files);
+        const result = await driveActions.listDriveBackups();
+        if (result.success) {
+          setBackups(result.data);
+        } else {
+          setMessage({ type: 'error', text: result.error });
+        }
       }
     } catch (e) {
       console.error(e);
@@ -61,20 +65,15 @@ export const GoogleDriveSync: React.FC = () => {
   const handleBackupNow = async () => {
     setIsBusy(true);
     setMessage(null);
-    try {
-      await driveActions.backupToDrive();
+    const result = await driveActions.backupToDrive();
+    if (result.success) {
       setMessage({ type: 'success', text: 'Backed up to Google Drive.' });
       const files = await driveActions.listDriveBackups();
-      setBackups(files);
-    } catch (e) {
-      console.error(e);
-      setMessage({
-        type: 'error',
-        text: e instanceof Error ? e.message : 'Backup to Drive failed. Check the console for details.',
-      });
-    } finally {
-      setIsBusy(false);
+      if (files.success) setBackups(files.data);
+    } else {
+      setMessage({ type: 'error', text: result.error });
     }
+    setIsBusy(false);
   };
 
   const handleRestore = async (file: DriveFile) => {
@@ -85,16 +84,12 @@ export const GoogleDriveSync: React.FC = () => {
 
     setIsBusy(true);
     setMessage(null);
-    try {
-      await driveActions.restoreFromDrive(file.id);
+    const result = await driveActions.restoreFromDrive(file.id);
+    if (result.success) {
       setMessage({ type: 'success', text: 'Restored from Drive. Reloading...' });
       setTimeout(() => window.location.reload(), 800);
-    } catch (e) {
-      console.error(e);
-      setMessage({
-        type: 'error',
-        text: e instanceof Error ? e.message : 'Restore failed. Check the console for details.',
-      });
+    } else {
+      setMessage({ type: 'error', text: result.error });
       setIsBusy(false);
     }
   };
@@ -105,19 +100,14 @@ export const GoogleDriveSync: React.FC = () => {
 
     setDeletingId(file.id);
     setMessage(null);
-    try {
-      await driveActions.deleteDriveBackup(file.id);
+    const result = await driveActions.deleteDriveBackup(file.id);
+    if (result.success) {
       setBackups((prev) => prev.filter((f) => f.id !== file.id));
       setMessage({ type: 'success', text: `Deleted "${file.name}" from Drive.` });
-    } catch (e) {
-      console.error(e);
-      setMessage({
-        type: 'error',
-        text: e instanceof Error ? e.message : 'Delete failed. Check the console for details.',
-      });
-    } finally {
-      setDeletingId(null);
+    } else {
+      setMessage({ type: 'error', text: result.error });
     }
+    setDeletingId(null);
   };
 
   const handleDisconnect = async () => {
