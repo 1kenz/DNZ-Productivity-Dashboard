@@ -215,13 +215,14 @@
 
 /* The actual scroll container -- .timeGrid inside it is the single grid
    described above (header row + hour rows), so it can just be as tall as
-   its content and doesn't need its own overflow/max-height. 560px is sized
-   to fit the sticky day-header row (~60px) plus 10 hour rows (10 * 48px =
-   480px) -- paired with WORK_HOURS_START scrolling to 07:00 in
-   CalendarView.tsx, that makes 07:00-17:00 the default visible window
-   with no scrolling needed; earlier/later hours are still one scroll away. */
+   its content and doesn't need its own overflow/max-height. 660px is sized
+   to fit the sticky day-header row (~60px) plus 12 hour rows (12 * 48px =
+   576px) -- paired with WORK_HOURS_START scrolling to 06:00 in
+   CalendarView.tsx, that makes 06:00-18:00 the default visible window
+   with no scrolling needed (in both Day and Week view -- they share this
+   grid); earlier/later hours are still one scroll away. */
 .timeGridScroll {
-  max-height: 560px;
+  max-height: 660px;
   overflow-y: auto;
 }
 

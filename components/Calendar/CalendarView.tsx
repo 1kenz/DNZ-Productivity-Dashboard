@@ -23,10 +23,11 @@ import styles from './CalendarView.module.css';
 const HOUR_HEIGHT = 48; // px per hour row in the day/week grid
 const DAY_START_HOUR = 0;
 const DAY_END_HOUR = 24;
-const WORK_HOURS_START = 7; // default scroll position: 07:00 at the top,
-// paired with .timeGridScroll's max-height so 07:00-17:00 is the default
-// visible window without scrolling -- the full 0-24h grid is still there,
-// just scrolled past the night hours.
+const WORK_HOURS_START = 6; // default scroll position: 06:00 at the top,
+// paired with .timeGridScroll's max-height so 06:00-18:00 is the default
+// visible window without scrolling -- applies to BOTH the Day and Week
+// views, since they share this same grid (see isTimeGridView below). The
+// full 0-24h grid is still there, just scrolled past the night hours.
 
 function minutesSinceMidnight(date: Date): number {
   return date.getHours() * 60 + date.getMinutes();
