@@ -23,8 +23,8 @@ import styles from './CalendarView.module.css';
 const HOUR_HEIGHT = 48; // px per hour row in the day/week grid
 const DAY_START_HOUR = 0;
 const DAY_END_HOUR = 24;
-const WORK_HOURS_START = 6; // default scroll position: 06:00 at the top,
-// paired with .timeGridScroll's max-height so 06:00-18:00 is the default
+const WORK_HOURS_START = 7; // default scroll position: 07:00 at the top,
+// paired with .timeGridScroll's max-height so 07:00-17:00 is the default
 // visible window without scrolling -- the full 0-24h grid is still there,
 // just scrolled past the night hours.
 
@@ -40,7 +40,15 @@ function eventOverlapsDay(ev: UnifiedCalendarEvent, day: Date): boolean {
   return evStart < dayEnd && evEnd > dayStart;
 }
 
-export const CalendarView: React.FC = () => {
+interface Props {
+  // Set right after landing back from the Google/Apple OAuth round trip
+  // (see the "?drive=connected" handling in app/page.tsx) so Manage
+  // Calendars is already open, showing whether the connection worked
+  // instead of the person having to find and click the button themselves.
+  autoOpenManage?: boolean;
+}
+
+export const CalendarView: React.FC<Props> = ({ autoOpenManage }) => {
   const { viewPreferences, updateViewPreferences } = useApp();
   const { t, language } = useLanguage();
 
@@ -53,7 +61,7 @@ export const CalendarView: React.FC = () => {
   const [events, setEvents] = useState<UnifiedCalendarEvent[]>([]);
   const [isLoadingCalendars, setIsLoadingCalendars] = useState(true);
   const [isLoadingEvents, setIsLoadingEvents] = useState(false);
-  const [showManage, setShowManage] = useState(false);
+  const [showManage, setShowManage] = useState(Boolean(autoOpenManage));
   const [eventModalDate, setEventModalDate] = useState<Date | null>(null);
   const timeGridRef = useRef<HTMLDivElement>(null);
 

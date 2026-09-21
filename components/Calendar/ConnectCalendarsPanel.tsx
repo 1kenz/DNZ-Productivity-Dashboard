@@ -106,9 +106,10 @@ export const ConnectCalendarsPanel: React.FC<Props> = ({ status, calendars, onCh
                     </button>
                   </div>
                   {account.syncError && (
-                    <p className={styles.syncErrorText} title={account.syncError}>
-                      ⚠ {t('calendar.syncErrorHint')}
-                    </p>
+                    <div className={styles.syncErrorBlock}>
+                      <p className={styles.syncErrorText}>⚠ {t('calendar.syncErrorHint')}</p>
+                      <p className={styles.syncErrorDetail}>{account.syncError}</p>
+                    </div>
                   )}
                 </div>
               ))}
@@ -147,9 +148,10 @@ export const ConnectCalendarsPanel: React.FC<Props> = ({ status, calendars, onCh
                     </button>
                   </div>
                   {account.syncError && (
-                    <p className={styles.syncErrorText} title={account.syncError}>
-                      ⚠ {t('calendar.syncErrorHint')}
-                    </p>
+                    <div className={styles.syncErrorBlock}>
+                      <p className={styles.syncErrorText}>⚠ {t('calendar.syncErrorHint')}</p>
+                      <p className={styles.syncErrorDetail}>{account.syncError}</p>
+                    </div>
                   )}
                 </div>
               ))}

@@ -34,6 +34,7 @@ export default function Home() {
   const { focusMode } = useApp();
   const { t } = useLanguage();
   const [tab, setTab] = useState<MainTab>('dashboard');
+  const [openCalendarManage, setOpenCalendarManage] = useState(false);
 
   // Whenever the visible section changes (tab switch or focus mode toggle),
   // jump back to the top of the page instead of keeping whatever scroll
@@ -41,6 +42,28 @@ export default function Home() {
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
   }, [tab, focusMode]);
+
+  // Connecting a Google/Apple account is a full-page OAuth round trip (see
+  // ConnectCalendarsPanel's <a href="/api/google/auth">), so it lands back
+  // here as a fresh page load at "/?drive=connected" (or "?drive=error...")
+  // -- without this, that landed on whatever the default tab is
+  // (Dashboard), leaving the person to manually navigate back to Calendar
+  // and reopen Manage Calendars to see whether the connection worked.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const drive = params.get('drive');
+    if (drive === 'connected' || drive === 'error') {
+      // Deliberately setting state inside this effect rather than during
+      // render: window.location is only readable client-side, and this is
+      // reacting to a one-time signal from an external system (the URL
+      // left behind by the OAuth redirect) exactly once on mount, not a
+      // per-render derivation that could cascade.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setTab('calendar');
+      setOpenCalendarManage(true);
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  }, []);
 
   return (
     <main className={styles.main}>
@@ -117,7 +140,7 @@ export default function Home() {
         ) : tab === 'notes' && !focusMode ? (
           <NotesView />
         ) : tab === 'calendar' && !focusMode ? (
-          <CalendarView />
+          <CalendarView autoOpenManage={openCalendarManage} />
         ) : tab === 'recurring-tasks' && !focusMode ? (
           <RecurringTasksView />
         ) : focusMode ? (

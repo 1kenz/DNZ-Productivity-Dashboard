@@ -124,6 +124,17 @@ interface ProviderFetchResult {
   error?: string;
 }
 
+// Google/Apple error bodies can be a full JSON payload or (rarely) an HTML
+// error page -- cap what we store/display so one oversized error message
+// can't blow up the Manage Calendars panel's layout.
+const MAX_SYNC_ERROR_LENGTH = 300;
+function truncateSyncError(err: unknown): string {
+  const message = err instanceof Error ? err.message : String(err);
+  return message.length > MAX_SYNC_ERROR_LENGTH
+    ? `${message.slice(0, MAX_SYNC_ERROR_LENGTH)}…`
+    : message;
+}
+
 /** Isolates one Google account's calendar-list fetch so a token/scope/API
  * problem on ONE account never breaks the others -- the failure is
  * returned as `error` instead of just being swallowed, so the caller can
@@ -139,7 +150,7 @@ async function fetchGoogleAccountCalendars(account: GoogleAccountRow): Promise<P
     };
   } catch (err) {
     console.error(`[calendar] Google calendar fetch failed for account ${account.id}:`, err);
-    return { calendars: [], error: err instanceof Error ? err.message : String(err) };
+    return { calendars: [], error: truncateSyncError(err) };
   }
 }
 
@@ -151,7 +162,7 @@ async function fetchAppleAccountCalendars(account: AppleCalendarAccountRow): Pro
     return { calendars: appleCals.map((c) => ({ ...c, accountId: account.id, accountLabel: account.appleId })) };
   } catch (err) {
     console.error(`[calendar] Apple calendar fetch failed for account ${account.id}:`, err);
-    return { calendars: [], error: err instanceof Error ? err.message : String(err) };
+    return { calendars: [], error: truncateSyncError(err) };
   }
 }
 

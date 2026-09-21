@@ -76,10 +76,29 @@
    missing Calendar API scope/enablement, etc.) -- without this the
    account just connects fine but its calendars silently never show up in
    .calendarList below, with no explanation. */
+.syncErrorBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-top: 2px;
+}
+
 .syncErrorText {
   font-size: var(--font-size-xs);
   color: var(--color-error);
   line-height: var(--line-height-normal);
+}
+
+/* The actual error message from Google/Apple (truncated server-side, see
+   MAX_SYNC_ERROR_LENGTH in app/actions/calendar.ts) -- shown in full
+   rather than only as a hover title, since a title tooltip is easy to
+   miss and hard to copy out to report back. */
+.syncErrorDetail {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-tertiary);
+  line-height: var(--line-height-normal);
+  word-break: break-word;
+  font-family: var(--font-mono, monospace);
 }
 
 .disconnectBtn {
