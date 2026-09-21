@@ -203,74 +203,6 @@ export const CalendarView: React.FC = () => {
         <div className={styles.gridWrapper}>
           {isTimeGridView ? (
             <>
-              <div className={styles.dayHeaderRow} style={{ gridTemplateColumns: `56px repeat(${days.length}, 1fr)` }}>
-                <div />
-                {days.map((day) => (
-                  <div key={day.toISOString()} className={styles.dayHeaderCell}>
-                    <span className={styles.dayHeaderWeekday}>
-                      {day.toLocaleDateString(locale, { weekday: 'long' })}
-                    </span>
-                    <span
-                      className={`${styles.dayHeaderNumber} ${isSameDay(day, new Date()) ? styles.today : ''}`}
-                    >
-                      {day.getDate()}
-                    </span>
-                  </div>
-                ))}
-              </div>
-
-              <div ref={timeGridRef} className={styles.timeGrid} style={{ gridTemplateColumns: `56px repeat(${days.length}, 1fr)` }}>
-                <div className={styles.hourLabels} style={{ height: HOUR_HEIGHT * hourRows.length }}>
-                  {hourRows.map((h) => (
-                    <div
-                      key={h}
-                      className={styles.hourLabel}
-                      style={{ top: h * HOUR_HEIGHT }}
-                    >
-                      {h.toString().padStart(2, '0')}:00
-                    </div>
-                  ))}
-                </div>
-
-                {days.map((day) => {
-                  const dayEvents = events.filter((ev) => !ev.allDay && eventOverlapsDay(ev, day));
-                  return (
-                    <div
-                      key={day.toISOString()}
-                      className={styles.dayColumn}
-                      style={{ height: HOUR_HEIGHT * hourRows.length }}
-                      onDoubleClick={() => setEventModalDate(day)}
-                    >
-                      {hourRows.map((h) => (
-                        <div key={h} className={styles.hourCell} style={{ height: HOUR_HEIGHT }} />
-                      ))}
-                      {dayEvents.map((ev) => {
-                        const evStart = new Date(ev.start);
-                        const evEnd = new Date(ev.end);
-                        const clampedStart = evStart < startOfDay(day) ? startOfDay(day) : evStart;
-                        const clampedEnd = evEnd > endOfDay(day) ? endOfDay(day) : evEnd;
-                        const top = (minutesSinceMidnight(clampedStart) / 60) * HOUR_HEIGHT;
-                        const durationMinutes = Math.max(
-                          20,
-                          (clampedEnd.getTime() - clampedStart.getTime()) / 60000
-                        );
-                        const height = (durationMinutes / 60) * HOUR_HEIGHT;
-                        return (
-                          <div
-                            key={ev.id}
-                            className={styles.eventBlock}
-                            style={{ top, height, background: ev.calendarColor }}
-                            title={`${ev.title} (${ev.calendarName})`}
-                          >
-                            {ev.title}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  );
-                })}
-              </div>
-
               {events.some((ev) => ev.allDay) && (
                 <div className={styles.allDayRow} style={{ gridTemplateColumns: `56px repeat(${days.length}, 1fr)` }}>
                   <div className={styles.allDayLabel}>{t('calendar.allDay')}</div>
@@ -292,6 +224,88 @@ export const CalendarView: React.FC = () => {
                   ))}
                 </div>
               )}
+
+              {/* Day headers used to be their own grid, sibling to the
+                  scrollable hour grid below -- two separate CSS Grid
+                  instances trying to keep the same `repeat(N, 1fr)` column
+                  widths in sync. That drifted column-by-column (worse
+                  toward Saturday/Sunday): a previous fix assumed a
+                  scrollbar width mismatch, but macOS's overlay scrollbars
+                  take up no layout space at all, so that wasn't the actual
+                  cause -- it was simply two independent grid layouts each
+                  rounding fractional 1fr widths slightly differently.
+                  Putting the header cells inside the SAME grid as the hour
+                  rows (as its first row, sticky-positioned to the scroll
+                  container) means the column tracks are computed exactly
+                  once, so the header can never be out of alignment with
+                  the day columns beneath it. */}
+              <div ref={timeGridRef} className={styles.timeGridScroll}>
+                <div className={styles.timeGrid} style={{ gridTemplateColumns: `56px repeat(${days.length}, 1fr)` }}>
+                  <div className={styles.dayHeaderCorner} />
+                  {days.map((day) => (
+                    <div key={day.toISOString()} className={styles.dayHeaderCell}>
+                      <span className={styles.dayHeaderWeekday}>
+                        {day.toLocaleDateString(locale, { weekday: 'long' })}
+                      </span>
+                      <span
+                        className={`${styles.dayHeaderNumber} ${isSameDay(day, new Date()) ? styles.today : ''}`}
+                      >
+                        {day.getDate()}
+                      </span>
+                    </div>
+                  ))}
+
+                  <div className={styles.hourLabels} style={{ height: HOUR_HEIGHT * hourRows.length }}>
+                    {hourRows.map((h) => (
+                      <div
+                        key={h}
+                        className={styles.hourLabel}
+                        style={{ top: h * HOUR_HEIGHT }}
+                      >
+                        {h.toString().padStart(2, '0')}:00
+                      </div>
+                    ))}
+                  </div>
+
+                  {days.map((day) => {
+                    const dayEvents = events.filter((ev) => !ev.allDay && eventOverlapsDay(ev, day));
+                    return (
+                      <div
+                        key={day.toISOString()}
+                        className={styles.dayColumn}
+                        style={{ height: HOUR_HEIGHT * hourRows.length }}
+                        onDoubleClick={() => setEventModalDate(day)}
+                      >
+                        {hourRows.map((h) => (
+                          <div key={h} className={styles.hourCell} style={{ height: HOUR_HEIGHT }} />
+                        ))}
+                        {dayEvents.map((ev) => {
+                          const evStart = new Date(ev.start);
+                          const evEnd = new Date(ev.end);
+                          const clampedStart = evStart < startOfDay(day) ? startOfDay(day) : evStart;
+                          const clampedEnd = evEnd > endOfDay(day) ? endOfDay(day) : evEnd;
+                          const top = (minutesSinceMidnight(clampedStart) / 60) * HOUR_HEIGHT;
+                          const durationMinutes = Math.max(
+                            20,
+                            (clampedEnd.getTime() - clampedStart.getTime()) / 60000
+                          );
+                          const height = (durationMinutes / 60) * HOUR_HEIGHT;
+                          return (
+                            <div
+                              key={ev.id}
+                              className={styles.eventBlock}
+                              style={{ top, height, background: ev.calendarColor }}
+                              title={`${ev.title} (${ev.calendarName})`}
+                            >
+                              {ev.title}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
             </>
           ) : (
             <div className={styles.monthGrid}>

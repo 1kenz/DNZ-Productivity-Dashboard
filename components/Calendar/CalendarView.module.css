@@ -123,37 +123,37 @@
   box-shadow: var(--shadow-sm);
 }
 
-/* .timeGrid below always shows a vertical scrollbar (it's taller than its
-   max-height), which narrows ITS content area by the scrollbar's width --
-   but this header row, directly above it, isn't scrollable and stays full
-   width. Both grids share the exact same `repeat(N, 1fr)` column template,
-   so that few-pixel width difference gets divided across all 7 columns and
-   compounds left-to-right, drifting the day header cells further and
-   further out of line with the day columns underneath by the time you
-   reach Saturday/Sunday. Reserving the identical (invisible) scrollbar
-   gutter here keeps both grids exactly the same width. */
-.dayHeaderRow {
-  display: grid;
+/* The day-header cells and the hour grid below now live inside a single
+   CSS Grid (see .timeGrid/.timeGridScroll) instead of two separate grids
+   that each computed their own `repeat(N, 1fr)` column widths -- that setup
+   drifted the header out of alignment with the day columns by a few pixels
+   per column, worse toward Saturday/Sunday, and no amount of reserving a
+   matching scrollbar gutter fixed it for good (macOS's overlay scrollbars
+   don't reserve layout width at all, so that wasn't even the real cause).
+   One grid means one column-width computation, so the header physically
+   cannot be out of sync with the columns beneath it. These cells are
+   sticky-positioned to stay pinned to the top of .timeGridScroll while the
+   hour rows scroll underneath. */
+.dayHeaderCorner {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  background: var(--color-bg-secondary);
   border-bottom: 1px solid var(--color-border);
-  overflow-y: scroll;
-  scrollbar-width: none;
-}
-
-.dayHeaderRow::-webkit-scrollbar {
-  background: transparent;
-}
-
-.dayHeaderRow::-webkit-scrollbar-thumb {
-  background: transparent;
 }
 
 .dayHeaderCell {
+  position: sticky;
+  top: 0;
+  z-index: 3;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 2px;
   padding: var(--space-2) 0;
   border-left: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-bg-secondary);
 }
 
 .dayHeaderWeekday {
@@ -213,13 +213,16 @@
   white-space: nowrap;
 }
 
+/* The actual scroll container -- .timeGrid inside it is the single grid
+   described above (header row + hour rows), so it can just be as tall as
+   its content and doesn't need its own overflow/max-height. */
+.timeGridScroll {
+  max-height: 600px;
+  overflow-y: auto;
+}
+
 .timeGrid {
   display: grid;
-  max-height: 600px;
-  /* `scroll` (not `auto`) so the scrollbar gutter is always reserved --
-     matches .dayHeaderRow's always-reserved gutter above regardless of
-     whether this particular view happens to need to scroll. */
-  overflow-y: scroll;
 }
 
 .hourLabels {

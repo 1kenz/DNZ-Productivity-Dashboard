@@ -248,6 +248,12 @@ export type CalendarViewMode = 'day' | 'week' | 'month';
 export interface CalendarInfo {
   provider: CalendarProvider;
   id: string; // provider's own calendar id / CalDAV collection URL
+  // Which connected account (see ConnectedCalendarAccountsStatus) this
+  // calendar came from -- undefined for the always-on local calendar.
+  // Needed because a calendar id like Google's "primary" is only unique
+  // WITHIN one account, not across every connected Google account.
+  accountId?: string;
+  accountLabel?: string; // e.g. the account's email/Apple ID, for display
   name: string;
   color: string;
   visible: boolean;
@@ -272,9 +278,17 @@ export interface UnifiedCalendarEvent {
   writable: boolean;
 }
 
+export interface ConnectedCalendarAccount {
+  id: string;
+  label: string; // email (Google) or Apple ID (Apple)
+}
+
+// Now a list per provider rather than a single connected/email pair --
+// see the multi-account support added to GoogleDriveAuth/
+// AppleCalendarAccount in prisma/schema.prisma.
 export interface ConnectedCalendarAccountsStatus {
-  google: { configured: boolean; connected: boolean; email?: string };
-  apple: { configured: boolean; connected: boolean; appleId?: string };
+  google: { configured: boolean; accounts: ConnectedCalendarAccount[] };
+  apple: { configured: boolean; accounts: ConnectedCalendarAccount[] };
 }
 
 // AI Chat & Voice Assistant Types

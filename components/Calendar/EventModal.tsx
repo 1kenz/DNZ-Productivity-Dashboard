@@ -26,8 +26,13 @@ function toLocalInputValue(date: Date): string {
 export const EventModal: React.FC<Props> = ({ isOpen, onClose, onCreated, calendars, initialDate }) => {
   const { t } = useLanguage();
   const writableCalendars = calendars.filter((c) => c.writable);
+  // provider:accountId:calendarId -- accountId is empty for the local
+  // calendar. Two nested "split on first colon" calls (rather than a plain
+  // split(':')) because an Apple calendar's id is a full CalDAV collection
+  // URL, which itself contains colons.
+  const keyFor = (c: CalendarInfo) => `${c.provider}:${c.accountId || ''}:${c.id}`;
   const [calendarKey, setCalendarKey] = useState<string>(
-    writableCalendars[0] ? `${writableCalendars[0].provider}:${writableCalendars[0].id}` : ''
+    writableCalendars[0] ? keyFor(writableCalendars[0]) : ''
   );
   const [title, setTitle] = useState('');
   const [allDay, setAllDay] = useState(false);
@@ -40,11 +45,12 @@ export const EventModal: React.FC<Props> = ({ isOpen, onClose, onCreated, calend
 
   const handleSave = async () => {
     if (!title.trim() || !calendarKey) return;
-    const [provider, calendarId] = calendarKey.split(/:(.+)/) as [CalendarProvider, string];
+    const [provider, rest] = calendarKey.split(/:(.+)/) as [CalendarProvider, string];
+    const [accountId, calendarId] = rest.split(/:(.+)/) as [string, string];
     setIsSaving(true);
     setError(null);
     try {
-      await calendarActions.createCalendarEvent(provider, calendarId, {
+      await calendarActions.createCalendarEvent(provider, accountId || undefined, calendarId, {
         title: title.trim(),
         description: description.trim() || undefined,
         location: location.trim() || undefined,
@@ -81,8 +87,9 @@ export const EventModal: React.FC<Props> = ({ isOpen, onClose, onCreated, calend
             className={styles.select}
           >
             {writableCalendars.map((cal) => (
-              <option key={`${cal.provider}:${cal.id}`} value={`${cal.provider}:${cal.id}`}>
-                {cal.name} ({cal.provider === 'google' ? 'Google' : cal.provider === 'apple' ? 'Apple' : 'Local'})
+              <option key={keyFor(cal)} value={keyFor(cal)}>
+                {cal.name} ({cal.provider === 'google' ? 'Google' : cal.provider === 'apple' ? 'Apple' : 'Local'}
+                {cal.accountLabel ? ` · ${cal.accountLabel}` : ''})
               </option>
             ))}
           </select>

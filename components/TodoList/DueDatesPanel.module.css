@@ -1,3 +1,16 @@
+
+/* Fixed height so the panel never auto-shrinks to fit a sparse filter
+   result -- see the comment in DueDatesPanel.tsx above where this class is
+   used. min-height is a floor for short viewports; the vh figure gives the
+   dropdown menu (opened from .rangeDropdown below) generous room even when
+   the flat list itself is empty or has just one row. */
+.panelBody {
+  display: flex;
+  flex-direction: column;
+  height: 65vh;
+  min-height: 420px;
+}
+
 .filterBar {
   display: flex;
   flex-wrap: wrap;
@@ -135,7 +148,10 @@
 .body {
   display: flex;
   flex-direction: column;
-  max-height: 55vh;
+  /* Fills whatever's left of .panelBody's fixed height below the filter
+     bar, instead of sizing itself to the item count. */
+  flex: 1;
+  min-height: 0;
   overflow-y: auto;
 }
 
@@ -243,6 +259,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
+  flex: 1;
   gap: var(--space-3);
   padding: var(--space-10) var(--space-4);
   color: var(--color-text-secondary);

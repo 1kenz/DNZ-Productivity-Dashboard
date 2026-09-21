@@ -150,6 +150,15 @@ export const DueDatesPanel: React.FC<DueDatesPanelProps> = ({ isOpen, onClose, t
   return (
     <>
       <Modal isOpen={isOpen} onClose={onClose} title={t('dueDates.title') || 'Due Dates'} size="md">
+        {/* Fixed-height wrapper -- without this the panel auto-shrinks to fit
+            however few rows the active filter matches (e.g. just 1 row for
+            "Today"), and the Next-N-Days dropdown below -- which needs
+            ~250-300px to render its 30/60/90 options plus the custom-range
+            fields -- then gets clipped by the Modal's own `overflow-y: auto`
+            boundary since it has nowhere near that much room to open into.
+            Reserving a constant height here means the dropdown always has
+            space to render fully, no matter how many due tasks are showing. */}
+        <div className={styles.panelBody}>
         <div className={styles.filterBar}>
           <button
             type="button"
@@ -237,6 +246,7 @@ export const DueDatesPanel: React.FC<DueDatesPanelProps> = ({ isOpen, onClose, t
             <div className={styles.flatList}>{items.map(renderRow)}</div>
           </div>
         )}
+        </div>
       </Modal>
 
       {selectedTodo && (

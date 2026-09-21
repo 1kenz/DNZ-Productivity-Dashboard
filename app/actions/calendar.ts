@@ -1,13 +1,12 @@
 'use server';
 
+import { randomUUID } from 'crypto';
 import { prisma } from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 import { isGoogleDriveConfigured, getValidAccessToken } from '@/lib/googleDrive';
 import { listGoogleCalendars, getGoogleEvents, createGoogleEvent, NewEventInput } from '@/lib/googleCalendar';
 import { createAppleClient, listAppleCalendars, getAppleEvents, createAppleEvent } from '@/lib/appleCalendar';
 import { CalendarInfo, CalendarProvider, ConnectedCalendarAccountsStatus, UnifiedCalendarEvent } from '@/types';
-
-const APPLE_ACCOUNT_ID = 'default';
 
 // The built-in fallback calendar -- always present in listAllCalendars()
 // so a person can add an event before connecting Google/Apple at all (or
@@ -27,13 +26,14 @@ const LOCAL_CALENDAR_DEFAULTS: CalendarInfo = {
 // AppleCalendarAccount / CalendarPreference are intersected in via `as any`
 // here (same pattern as ViewPreferences.lastDueDateModalShownAt in
 // app/actions/settings.ts) because the generated @prisma/client types only
-// pick up new prisma/schema.prisma models after `npx prisma generate`
+// pick up new prisma/schema.prisma models/fields after `npx prisma generate`
 // re-runs -- this keeps the file compiling correctly both before and after
 // that regeneration happens.
 const db = prisma as any;
 
 interface CalendarPreferenceRow {
   provider: string;
+  accountId: string | null;
   calendarId: string;
   name: string;
   color: string;
@@ -51,28 +51,34 @@ interface LocalCalendarEventRow {
   allDay: boolean;
 }
 
+interface AppleCalendarAccountRow {
+  id: string;
+  appleId: string;
+  appPassword: string;
+}
+
 export async function getConnectedCalendarAccountsStatus(): Promise<ConnectedCalendarAccountsStatus> {
-  const [googleAuth, appleAccount] = await Promise.all([
-    prisma.googleDriveAuth.findUnique({ where: { id: 'default' } }),
-    db.appleCalendarAccount.findUnique({ where: { id: APPLE_ACCOUNT_ID } }),
+  const [googleAccounts, appleAccounts] = await Promise.all([
+    db.googleDriveAuth.findMany({ orderBy: { createdAt: 'asc' } }),
+    db.appleCalendarAccount.findMany({ orderBy: { createdAt: 'asc' } }) as Promise<AppleCalendarAccountRow[]>,
   ]);
   return {
     google: {
       configured: isGoogleDriveConfigured(),
-      connected: Boolean(googleAuth),
-      email: googleAuth?.email || undefined,
+      accounts: googleAccounts.map((a: { id: string; email: string | null }) => ({ id: a.id, label: a.email || a.id })),
     },
     apple: {
       configured: true, // no server-side app config needed -- just the user's own iCloud credentials
-      connected: Boolean(appleAccount),
-      appleId: appleAccount?.appleId || undefined,
+      accounts: appleAccounts.map((a) => ({ id: a.id, label: a.appleId })),
     },
   };
 }
 
 /** Verifies the given iCloud credentials by attempting a CalDAV login, then
- * stores them. Throws with a user-facing message if the login fails (wrong
- * email, or a real Apple ID password instead of an app-specific one). */
+ * stores them as a new connected account -- or, if this Apple ID is already
+ * connected, refreshes its stored password. Throws with a user-facing
+ * message if the login fails (wrong email, or a real Apple ID password
+ * instead of an app-specific one). */
 export async function connectAppleCalendar(appleId: string, appPassword: string) {
   try {
     await createAppleClient(appleId, appPassword);
@@ -82,51 +88,62 @@ export async function connectAppleCalendar(appleId: string, appPassword: string)
       'Could not sign in to iCloud Calendar. Double-check the email and make sure you generated an app-specific password at appleid.apple.com (not your regular Apple ID password).'
     );
   }
-  await db.appleCalendarAccount.upsert({
-    where: { id: APPLE_ACCOUNT_ID },
-    update: { appleId, appPassword },
-    create: { id: APPLE_ACCOUNT_ID, appleId, appPassword },
-  });
+
+  const existing: AppleCalendarAccountRow | null = await db.appleCalendarAccount.findFirst({ where: { appleId } });
+  if (existing) {
+    await db.appleCalendarAccount.update({ where: { id: existing.id }, data: { appPassword } });
+  } else {
+    await db.appleCalendarAccount.create({ data: { id: randomUUID(), appleId, appPassword } });
+  }
   revalidatePath('/');
 }
 
-export async function disconnectAppleCalendar() {
-  await db.appleCalendarAccount.deleteMany({ where: { id: APPLE_ACCOUNT_ID } });
-  await db.calendarPreference.deleteMany({ where: { provider: 'apple' } });
+export async function disconnectAppleCalendar(accountId: string) {
+  await db.appleCalendarAccount.deleteMany({ where: { id: accountId } });
+  await db.calendarPreference.deleteMany({ where: { provider: 'apple', accountId } });
   revalidatePath('/');
 }
 
-async function getAppleClientOrNull() {
-  const account = await db.appleCalendarAccount.findUnique({ where: { id: APPLE_ACCOUNT_ID } });
-  if (!account) return null;
-  return createAppleClient(account.appleId, account.appPassword);
+export async function disconnectGoogleAccount(accountId: string) {
+  await prisma.googleDriveAuth.deleteMany({ where: { id: accountId } });
+  await db.calendarPreference.deleteMany({ where: { provider: 'google', accountId } });
+  revalidatePath('/');
 }
 
-/** Merges each provider's live calendar list with this app's stored
- * visibility/color preferences, creating a preference row for any calendar
- * seen for the first time (default: visible, provider's own color). */
+async function getAppleAccounts(): Promise<AppleCalendarAccountRow[]> {
+  return db.appleCalendarAccount.findMany({ orderBy: { createdAt: 'asc' } });
+}
+
+/** Merges each connected account's live calendar list with this app's
+ * stored visibility/color preferences, creating a preference row for any
+ * calendar seen for the first time (default: visible, provider's own
+ * color). Every calendar from every connected Google/Apple account is
+ * included, tagged with which account it came from. */
 export async function listAllCalendars(): Promise<CalendarInfo[]> {
   const results: CalendarInfo[] = [];
 
-  const googleAuth = await prisma.googleDriveAuth.findUnique({ where: { id: 'default' } });
-  if (googleAuth) {
+  const googleAccounts = await db.googleDriveAuth.findMany({ orderBy: { createdAt: 'asc' } });
+  for (const account of googleAccounts) {
     try {
-      const accessToken = await getValidAccessToken();
+      const accessToken = await getValidAccessToken(account.id);
       const googleCals = await listGoogleCalendars(accessToken);
-      results.push(...googleCals);
+      results.push(
+        ...googleCals.map((c) => ({ ...c, accountId: account.id, accountLabel: account.email || undefined }))
+      );
     } catch (err) {
-      console.error('[calendar] listAllCalendars: Google fetch failed:', err);
+      console.error(`[calendar] listAllCalendars: Google fetch failed for account ${account.id}:`, err);
     }
   }
 
-  try {
-    const appleClient = await getAppleClientOrNull();
-    if (appleClient) {
-      const appleCals = await listAppleCalendars(appleClient);
-      results.push(...appleCals);
+  const appleAccounts = await getAppleAccounts();
+  for (const account of appleAccounts) {
+    try {
+      const client = await createAppleClient(account.appleId, account.appPassword);
+      const appleCals = await listAppleCalendars(client);
+      results.push(...appleCals.map((c) => ({ ...c, accountId: account.id, accountLabel: account.appleId })));
+    } catch (err) {
+      console.error(`[calendar] listAllCalendars: Apple fetch failed for account ${account.id}:`, err);
     }
-  } catch (err) {
-    console.error('[calendar] listAllCalendars: Apple fetch failed:', err);
   }
 
   // Appended last (not first) so a connected Google/Apple calendar keeps
@@ -136,19 +153,30 @@ export async function listAllCalendars(): Promise<CalendarInfo[]> {
   results.push({ ...LOCAL_CALENDAR_DEFAULTS });
 
   const prefs: CalendarPreferenceRow[] = await db.calendarPreference.findMany({
-    where: { OR: results.map((c) => ({ provider: c.provider, calendarId: c.id })) },
+    where: {
+      OR: results.map((c) => ({ provider: c.provider, accountId: c.accountId ?? null, calendarId: c.id })),
+    },
   });
-  const prefMap = new Map(prefs.map((p) => [`${p.provider}:${p.calendarId}`, p]));
+  const prefKey = (provider: string, accountId: string | null | undefined, calendarId: string) =>
+    `${provider}:${accountId ?? ''}:${calendarId}`;
+  const prefMap = new Map(prefs.map((p) => [prefKey(p.provider, p.accountId, p.calendarId), p]));
 
-  const missing = results.filter((c) => !prefMap.has(`${c.provider}:${c.id}`));
+  const missing = results.filter((c) => !prefMap.has(prefKey(c.provider, c.accountId, c.id)));
   if (missing.length > 0) {
     await prisma.$transaction(
       missing.map((c) =>
         db.calendarPreference.upsert({
-          where: { provider_calendarId: { provider: c.provider, calendarId: c.id } },
+          where: {
+            provider_accountId_calendarId: {
+              provider: c.provider,
+              accountId: c.accountId ?? null,
+              calendarId: c.id,
+            },
+          },
           update: {},
           create: {
             provider: c.provider,
+            accountId: c.accountId ?? null,
             calendarId: c.id,
             name: c.name,
             color: c.color,
@@ -161,7 +189,7 @@ export async function listAllCalendars(): Promise<CalendarInfo[]> {
   }
 
   return results.map((c) => {
-    const pref = prefMap.get(`${c.provider}:${c.id}`);
+    const pref = prefMap.get(prefKey(c.provider, c.accountId, c.id));
     return pref
       ? { ...c, name: pref.name, color: pref.color, visible: pref.visible, writable: pref.writable }
       : c;
@@ -170,11 +198,12 @@ export async function listAllCalendars(): Promise<CalendarInfo[]> {
 
 export async function updateCalendarPreference(
   provider: CalendarProvider,
+  accountId: string | undefined,
   calendarId: string,
   updates: { visible?: boolean; color?: string }
 ) {
   await db.calendarPreference.updateMany({
-    where: { provider, calendarId },
+    where: { provider, accountId: accountId ?? null, calendarId },
     data: updates,
   });
   revalidatePath('/');
@@ -215,31 +244,46 @@ export async function getEventsInRange(startISO: string, endISO: string): Promis
     );
   }
 
+  // Group visible Google/Apple calendars by which account they belong to,
+  // so each account's events are fetched with that account's own token/
+  // client rather than assuming there's only one connected account.
   const googleCals = visible.filter((c) => c.provider === 'google');
-  if (googleCals.length > 0) {
+  const googleByAccount = new Map<string, CalendarInfo[]>();
+  for (const cal of googleCals) {
+    const key = cal.accountId || '';
+    if (!googleByAccount.has(key)) googleByAccount.set(key, []);
+    googleByAccount.get(key)!.push(cal);
+  }
+  for (const [accountId, cals] of googleByAccount) {
     try {
-      const accessToken = await getValidAccessToken();
-      const perCalendar = await Promise.all(
-        googleCals.map((cal) => getGoogleEvents(accessToken, cal, start, end))
-      );
+      const accessToken = await getValidAccessToken(accountId || undefined);
+      const perCalendar = await Promise.all(cals.map((cal) => getGoogleEvents(accessToken, cal, start, end)));
       events.push(...perCalendar.flat());
     } catch (err) {
-      console.error('[calendar] getEventsInRange: Google fetch failed:', err);
+      console.error(`[calendar] getEventsInRange: Google fetch failed for account ${accountId}:`, err);
     }
   }
 
   const appleCals = visible.filter((c) => c.provider === 'apple');
-  if (appleCals.length > 0) {
-    try {
-      const appleClient = await getAppleClientOrNull();
-      if (appleClient) {
-        const perCalendar = await Promise.all(
-          appleCals.map((cal) => getAppleEvents(appleClient, cal, start, end))
-        );
+  const appleByAccount = new Map<string, CalendarInfo[]>();
+  for (const cal of appleCals) {
+    const key = cal.accountId || '';
+    if (!appleByAccount.has(key)) appleByAccount.set(key, []);
+    appleByAccount.get(key)!.push(cal);
+  }
+  if (appleByAccount.size > 0) {
+    const appleAccounts = await getAppleAccounts();
+    const accountsById = new Map(appleAccounts.map((a) => [a.id, a]));
+    for (const [accountId, cals] of appleByAccount) {
+      const account = accountsById.get(accountId);
+      if (!account) continue;
+      try {
+        const client = await createAppleClient(account.appleId, account.appPassword);
+        const perCalendar = await Promise.all(cals.map((cal) => getAppleEvents(client, cal, start, end)));
         events.push(...perCalendar.flat());
+      } catch (err) {
+        console.error(`[calendar] getEventsInRange: Apple fetch failed for account ${accountId}:`, err);
       }
-    } catch (err) {
-      console.error('[calendar] getEventsInRange: Apple fetch failed:', err);
     }
   }
 
@@ -248,6 +292,7 @@ export async function getEventsInRange(startISO: string, endISO: string): Promis
 
 export async function createCalendarEvent(
   provider: CalendarProvider,
+  accountId: string | undefined,
   calendarId: string,
   event: NewEventInput
 ): Promise<UnifiedCalendarEvent> {
@@ -280,11 +325,13 @@ export async function createCalendarEvent(
   }
 
   if (provider === 'google') {
-    const accessToken = await getValidAccessToken();
+    const accessToken = await getValidAccessToken(accountId);
     return createGoogleEvent(accessToken, calendarId, event);
   }
 
-  const appleClient = await getAppleClientOrNull();
-  if (!appleClient) throw new Error('Apple Calendar is not connected');
+  if (!accountId) throw new Error('Apple Calendar account not specified');
+  const account: AppleCalendarAccountRow | null = await db.appleCalendarAccount.findUnique({ where: { id: accountId } });
+  if (!account) throw new Error('Apple Calendar is not connected');
+  const appleClient = await createAppleClient(account.appleId, account.appPassword);
   return createAppleEvent(appleClient, calendarId, event);
 }

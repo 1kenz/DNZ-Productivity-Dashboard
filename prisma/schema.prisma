@@ -182,12 +182,20 @@ model RecurringTask {
   updatedAt   DateTime  @updatedAt
 }
 
+// One row per connected Google account -- used for BOTH Drive backups
+// (app/actions/googleDrive.ts) and Google Calendar sync (app/actions/
+// calendar.ts). Used to be a fixed-id singleton ("default"); multiple
+// Google accounts can now be connected side by side, each its own row.
+// Drive keeps using whichever row is oldest (createdAt asc) as its
+// "primary" account when no accountId is specified, so existing Drive
+// backup call sites don't need to change.
 model GoogleDriveAuth {
-  id           String   @id @default("default") // Singleton row
+  id           String   @id @default(uuid())
   accessToken  String
   refreshToken String
   expiryDate   DateTime
   email        String?
+  createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 }
 
@@ -235,7 +243,7 @@ model AiSettings {
 // password) generated at appleid.apple.com, used for Basic auth against
 // caldav.icloud.com. See lib/appleCalendar.ts.
 model AppleCalendarAccount {
-  id          String   @id @default("default")
+  id          String   @id @default(uuid())
   appleId     String
   appPassword String
   displayName String?
@@ -249,7 +257,14 @@ model AppleCalendarAccount {
 // whenever app/actions/calendar.ts lists calendars from that provider.
 model CalendarPreference {
   id         String   @id @default(uuid())
-  provider   String // 'google' | 'apple'
+  provider   String // 'google' | 'apple' | 'local'
+  // Which connected GoogleDriveAuth/AppleCalendarAccount row this calendar
+  // belongs to -- null for the always-on local calendar and for rows
+  // created before multi-account support. Required for real disambiguation
+  // once more than one account of the same provider is connected: Google
+  // gives every account's default calendar the literal id "primary", so
+  // (provider, calendarId) alone can no longer be assumed unique.
+  accountId  String?
   calendarId String // the provider's own calendar id / CalDAV collection URL
   name       String
   color      String   @default("#4285F4")
@@ -257,7 +272,7 @@ model CalendarPreference {
   writable   Boolean  @default(true)
   updatedAt  DateTime @updatedAt
 
-  @@unique([provider, calendarId])
+  @@unique([provider, accountId, calendarId])
 }
 
 // A calendar event stored directly in this app's own DB instead of a

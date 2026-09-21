@@ -203,6 +203,10 @@
   text-transform: capitalize;
 }
 
+/* Now the single functional pause/resume control (previously a static
+   <span> badge, duplicated by an icon button over in .actionsCol) -- styled
+   to still read as a status pill, but interactive: cursor, hover lift and a
+   focus ring like the rest of the table's buttons. */
 .statusPill {
   display: inline-flex;
   align-items: center;
@@ -211,6 +215,19 @@
   font-weight: 700;
   padding: 3px 10px;
   border-radius: 9999px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.statusPill:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.08);
+}
+
+.statusPill:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
 }
 
 .statusPill.statusActive {

@@ -128,3 +128,28 @@ CREATE TABLE IF NOT EXISTS "LocalCalendarEvent" (
 );
 
 CREATE INDEX IF NOT EXISTS "LocalCalendarEvent_start_idx" ON "LocalCalendarEvent"("start");
+
+-- --- Multi-account calendar support: GoogleDriveAuth and
+-- AppleCalendarAccount used to be fixed-id singleton rows (id = 'default'),
+-- so only one Google account and one Apple/iCloud account could ever be
+-- connected. Both tables already used a plain TEXT primary key with no
+-- single-row constraint at the DB level, so no ALTER is needed there --
+-- app code just needed to stop always writing to id = 'default' and start
+-- creating a new row per account instead (see app/actions/calendar.ts and
+-- app/api/google/callback/route.ts). GoogleDriveAuth does need a createdAt
+-- column added, though, so Drive backups (which don't ask for a specific
+-- account) can keep using "the oldest connected account" as an unambiguous
+-- default the same way it behaved back when there could only ever be one.
+ALTER TABLE "GoogleDriveAuth" ADD COLUMN IF NOT EXISTS "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;
+
+-- CalendarPreference.accountId: disambiguates calendars across MULTIPLE
+-- connected accounts of the same provider -- e.g. every Google account's
+-- default calendar has the literal id "primary", so the old
+-- (provider, calendarId) unique index would collide the moment a second
+-- Google account was connected. NULL for the always-on local calendar and
+-- for any pre-existing single-account rows (Postgres treats NULLs as
+-- distinct from each other for uniqueness purposes, so that's safe).
+ALTER TABLE "CalendarPreference" ADD COLUMN IF NOT EXISTS "accountId" TEXT;
+
+DROP INDEX IF EXISTS "CalendarPreference_provider_calendarId_key";
+CREATE UNIQUE INDEX IF NOT EXISTS "CalendarPreference_provider_accountId_calendarId_key" ON "CalendarPreference"("provider", "accountId", "calendarId");

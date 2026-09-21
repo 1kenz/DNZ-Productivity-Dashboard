@@ -180,19 +180,28 @@ export async function POST(req: NextRequest) {
           break;
         } catch (err) {
           lastErr = err;
+          const msg: string = err instanceof Error ? err.message : String(err);
+          // A quota/billing error is tied to the API key's Cloud Billing
+          // tier, not to which model name we ask for -- every remaining
+          // candidate would just fail the exact same way, so stop here
+          // instead of burning through 3-4 more failing requests (which
+          // only delays the error and eats further into the same quota).
+          if (/quota|429|rate.?limit|RESOURCE_EXHAUSTED/i.test(msg)) break;
         }
       }
       if (lastErr) {
         console.error('All Gemini API attempts failed:', lastErr?.message || lastErr);
         const rawMessage: string = lastErr?.message || 'Bilinmeyen hata';
-        // A quota/billing error is per-API-key, not per-model, so every
-        // candidate above failed with the same cause -- the cascade did
-        // its job (it always tried every fallback model first), this just
-        // isn't a recoverable-by-retrying situation. Say so plainly
-        // instead of leaving it looking like every model is broken.
         const isQuotaError = /quota|429|rate.?limit|RESOURCE_EXHAUSTED/i.test(rawMessage);
+        // The single most common cause of confusion here: a paid Gemini
+        // Advanced / Google AI Pro subscription (the consumer chat app) is
+        // a completely separate product from the Gemini API used by this
+        // app -- it does not raise this API key's rate limit at all. The
+        // API's quota is governed only by the Cloud Billing account (if
+        // any) attached to the API key's own Google Cloud project; see
+        // https://ai.google.dev/gemini-api/docs/billing.
         replyText = isQuotaError
-          ? `⚠️ **Gemini kotası doldu.** Bu API anahtarının kullanım kotası/faturalandırma limiti dolmuş görünüyor (denenen tüm Gemini modelleri aynı hatayı verdi, bu bir model sorunu değil). Google AI Studio'daki plan/faturalandırma ayarlarınızı kontrol edin, ya da bu arada model seçiciden Claude veya GPT gibi başka bir sağlayıcıya geçebilirsiniz.\n\n*Teknik detay: ${rawMessage}*`
+          ? `⚠️ **Gemini kotası doldu.** Bu API anahtarının kullanım kotası/faturalandırma limiti dolmuş görünüyor (denenen Gemini modelleri aynı hatayı verdi, bu bir model sorunu değil).\n\nÖnemli: Gemini Advanced / Google AI Pro gibi bir kişisel/tüketici aboneliğiniz olsa bile bu, bu API anahtarının kotasını **yükseltmez** -- ikisi tamamen ayrı şeylerdir. API kotası yalnızca bu anahtarın bağlı olduğu Google Cloud projesine eklenmiş bir faturalandırma hesabına (Cloud Billing) göre belirlenir. [Google AI Studio](https://aistudio.google.com/) üzerinden bu projeye faturalandırma ekleyin (ai.google.dev/gemini-api/docs/billing), ya da bu arada model seçiciden Claude veya GPT gibi başka bir sağlayıcıya geçebilirsiniz.\n\n*Teknik detay: ${rawMessage}*`
           : `⚠️ **Gemini Yanıt Veremedi:** ${rawMessage}`;
       }
     } else if (provider === 'openai') {

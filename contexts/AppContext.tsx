@@ -33,6 +33,11 @@ import * as timeActions from '@/app/actions/time';
 import * as settingsActions from '@/app/actions/settings';
 import { FocusProvider } from './FocusContext';
 
+// A quick, single-dimension filter a Daily Overview stat card can apply to
+// the Todo list -- distinct from TodoList's own all/active/completed filter,
+// which it layers on top of.
+export type QuickTaskFilter = 'active' | 'urgentHigh' | 'doneToday' | 'dueSoon' | null;
+
 interface AppContextType {
   // Loading state
   isLoading: boolean;
@@ -125,6 +130,12 @@ interface AppContextType {
   setSelectedProjectId: (id: string | null) => void;
   selectedDomain: DomainArea | null;
   setSelectedDomain: (domain: DomainArea | null) => void;
+  // Set by a Daily Overview stat card (StatsCard) so the Todo list can jump
+  // straight to that specific slice of tasks instead of just scrolling to
+  // the generic, unfiltered list -- cleared by the user picking a normal
+  // TodoList filter/tab or explicitly clearing the banner it shows.
+  quickTaskFilter: QuickTaskFilter;
+  setQuickTaskFilter: (filter: QuickTaskFilter) => void;
 
   // Global UI Modals / Drawers
   isQuickNotesOpen: boolean;
@@ -186,6 +197,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [focusLevel, setFocusLevel] = useState<FocusLevel>('off');
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const [selectedDomain, setSelectedDomain] = useState<DomainArea | null>(null);
+  const [quickTaskFilter, setQuickTaskFilter] = useState<QuickTaskFilter>(null);
 
   const [isQuickNotesOpen, setIsQuickNotesOpen] = useState(false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
@@ -841,6 +853,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         setSelectedProjectId,
         selectedDomain,
         setSelectedDomain,
+        quickTaskFilter,
+        setQuickTaskFilter,
         isQuickNotesOpen,
         setIsQuickNotesOpen,
         isCommandPaletteOpen,

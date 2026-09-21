@@ -1,3 +1,4 @@
+import { randomUUID } from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { exchangeCodeForTokens, fetchUserEmail } from '@/lib/googleDrive';
@@ -26,22 +27,33 @@ export async function GET(request: NextRequest) {
     const email = await fetchUserEmail(tokens.access_token);
     const expiryDate = new Date(Date.now() + tokens.expires_in * 1000);
 
-    await prisma.googleDriveAuth.upsert({
-      where: { id: 'default' },
-      create: {
-        id: 'default',
-        accessToken: tokens.access_token,
-        refreshToken: tokens.refresh_token,
-        expiryDate,
-        email,
-      },
-      update: {
-        accessToken: tokens.access_token,
-        refreshToken: tokens.refresh_token,
-        expiryDate,
-        email,
-      },
-    });
+    // Multiple Google accounts can be connected side by side (see
+    // GoogleDriveAuth in prisma/schema.prisma) -- re-authorizing an account
+    // that's already connected (same email) just refreshes its tokens in
+    // place, while authorizing a *different* Google account (the OAuth
+    // consent screen's "select_account" prompt lets the person pick one
+    // each time) adds it as a new row instead of overwriting the existing
+    // one.
+    const existing = email
+      ? await prisma.googleDriveAuth.findFirst({ where: { email } })
+      : null;
+
+    if (existing) {
+      await prisma.googleDriveAuth.update({
+        where: { id: existing.id },
+        data: { accessToken: tokens.access_token, refreshToken: tokens.refresh_token, expiryDate, email },
+      });
+    } else {
+      await prisma.googleDriveAuth.create({
+        data: {
+          id: randomUUID(),
+          accessToken: tokens.access_token,
+          refreshToken: tokens.refresh_token,
+          expiryDate,
+          email,
+        },
+      });
+    }
 
     return NextResponse.redirect(`${origin}/?drive=connected`);
   } catch (err) {

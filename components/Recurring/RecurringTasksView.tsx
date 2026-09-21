@@ -306,20 +306,17 @@ export const RecurringTasksView: React.FC = () => {
                       <span className={styles.priorityBadge}>{task.priority}</span>
                     </td>
                     <td>
-                      <span className={`${styles.statusPill} ${task.active ? styles.statusActive : styles.statusPaused}`}>
+                      <button
+                        type="button"
+                        className={`${styles.statusPill} ${task.active ? styles.statusActive : styles.statusPaused}`}
+                        onClick={() => toggleActive(task)}
+                        title={task.active ? t('common.pause') : t('common.resume')}
+                      >
                         {task.active ? `▶️ ${t('recurring.active')}` : `⏸️ ${t('recurring.paused')}`}
-                      </span>
+                      </button>
                     </td>
                     <td>
                       <div className={styles.actionsCol}>
-                        <button
-                          type="button"
-                          className={styles.actionBtn}
-                          onClick={() => toggleActive(task)}
-                          title={task.active ? t('common.pause') : t('common.resume')}
-                        >
-                          {task.active ? '⏸️' : '▶️'}
-                        </button>
                         <button
                           type="button"
                           className={styles.actionBtn}

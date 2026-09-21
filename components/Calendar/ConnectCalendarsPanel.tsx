@@ -14,12 +14,18 @@ interface Props {
   onChanged: () => void;
 }
 
+/** Each connected Google/Apple account gets its own row here, with its own
+ * disconnect button -- more than one of each can be connected side by side
+ * (see the multi-account GoogleDriveAuth/AppleCalendarAccount models in
+ * prisma/schema.prisma), and the "add another" action stays available no
+ * matter how many are already connected. */
 export const ConnectCalendarsPanel: React.FC<Props> = ({ status, calendars, onChanged }) => {
   const { t } = useLanguage();
   const [appleId, setAppleId] = useState('');
   const [appPassword, setAppPassword] = useState('');
   const [isConnectingApple, setIsConnectingApple] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [disconnectingId, setDisconnectingId] = useState<string | null>(null);
 
   const handleConnectApple = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,21 +43,40 @@ export const ConnectCalendarsPanel: React.FC<Props> = ({ status, calendars, onCh
     }
   };
 
-  const handleDisconnectApple = async () => {
-    if (!window.confirm('Disconnect Apple Calendar?')) return;
-    await calendarActions.disconnectAppleCalendar();
-    onChanged();
+  const handleDisconnectGoogle = async (accountId: string, label: string) => {
+    if (!window.confirm(`${t('calendar.disconnect')} ${label}?`)) return;
+    setDisconnectingId(accountId);
+    try {
+      await calendarActions.disconnectGoogleAccount(accountId);
+      onChanged();
+    } finally {
+      setDisconnectingId(null);
+    }
+  };
+
+  const handleDisconnectApple = async (accountId: string, label: string) => {
+    if (!window.confirm(`${t('calendar.disconnect')} ${label}?`)) return;
+    setDisconnectingId(accountId);
+    try {
+      await calendarActions.disconnectAppleCalendar(accountId);
+      onChanged();
+    } finally {
+      setDisconnectingId(null);
+    }
   };
 
   const handleToggleVisible = async (cal: CalendarInfo) => {
-    await calendarActions.updateCalendarPreference(cal.provider, cal.id, { visible: !cal.visible });
+    await calendarActions.updateCalendarPreference(cal.provider, cal.accountId, cal.id, { visible: !cal.visible });
     onChanged();
   };
 
   const handleColorChange = async (cal: CalendarInfo, color: string) => {
-    await calendarActions.updateCalendarPreference(cal.provider, cal.id, { color });
+    await calendarActions.updateCalendarPreference(cal.provider, cal.accountId, cal.id, { color });
     onChanged();
   };
+
+  const googleAccounts = status?.google.accounts || [];
+  const appleAccounts = status?.apple.accounts || [];
 
   return (
     <div className={styles.panel}>
@@ -61,17 +86,33 @@ export const ConnectCalendarsPanel: React.FC<Props> = ({ status, calendars, onCh
             <span className={styles.providerLabel}>
               <GoogleLogoIcon size={16} /> Google Calendar
             </span>
-            {status?.google.connected && <span className={styles.badge}>{status.google.email}</span>}
           </div>
-          {!status?.google.connected ? (
-            <a href="/api/google/auth">
-              <Button variant="secondary" size="sm">
-                {t('calendar.connectGoogle')}
-              </Button>
-            </a>
-          ) : (
-            <p className={styles.hint}>{t('calendar.connectedAs')} {status.google.email}</p>
+
+          {googleAccounts.length > 0 && (
+            <div className={styles.accountList}>
+              {googleAccounts.map((account) => (
+                <div key={account.id} className={styles.accountEntry}>
+                  <span className={styles.badge}>{account.label}</span>
+                  <button
+                    type="button"
+                    className={styles.disconnectBtn}
+                    onClick={() => handleDisconnectGoogle(account.id, account.label)}
+                    disabled={disconnectingId === account.id}
+                    title={t('calendar.disconnect')}
+                    aria-label={t('calendar.disconnect')}
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+            </div>
           )}
+
+          <a href="/api/google/auth">
+            <Button variant="secondary" size="sm">
+              {googleAccounts.length > 0 ? t('calendar.addAnotherAccount') : t('calendar.connectGoogle')}
+            </Button>
+          </a>
         </div>
 
         <div className={styles.accountCard}>
@@ -79,44 +120,58 @@ export const ConnectCalendarsPanel: React.FC<Props> = ({ status, calendars, onCh
             <span className={styles.providerLabel}>
               <AppleLogoIcon size={16} /> Apple Calendar
             </span>
-            {status?.apple.connected && <span className={styles.badge}>{status.apple.appleId}</span>}
           </div>
-          {!status?.apple.connected ? (
-            <form onSubmit={handleConnectApple} className={styles.appleForm}>
-              <input
-                type="email"
-                required
-                placeholder={t('calendar.appleIdLabel')}
-                value={appleId}
-                onChange={(e) => setAppleId(e.target.value)}
-                className={styles.input}
-              />
-              <input
-                type="password"
-                required
-                placeholder={t('calendar.appPasswordLabel')}
-                value={appPassword}
-                onChange={(e) => setAppPassword(e.target.value)}
-                className={styles.input}
-              />
-              <p className={styles.hint}>{t('calendar.appPasswordHint')}</p>
-              {error && <p className={styles.errorText}>{error}</p>}
-              <Button type="submit" variant="secondary" size="sm" isLoading={isConnectingApple}>
-                {t('calendar.connect')}
-              </Button>
-            </form>
-          ) : (
-            <Button variant="ghost" size="sm" onClick={handleDisconnectApple}>
-              {t('calendar.disconnect')}
-            </Button>
+
+          {appleAccounts.length > 0 && (
+            <div className={styles.accountList}>
+              {appleAccounts.map((account) => (
+                <div key={account.id} className={styles.accountEntry}>
+                  <span className={styles.badge}>{account.label}</span>
+                  <button
+                    type="button"
+                    className={styles.disconnectBtn}
+                    onClick={() => handleDisconnectApple(account.id, account.label)}
+                    disabled={disconnectingId === account.id}
+                    title={t('calendar.disconnect')}
+                    aria-label={t('calendar.disconnect')}
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+            </div>
           )}
+
+          <form onSubmit={handleConnectApple} className={styles.appleForm}>
+            <input
+              type="email"
+              required
+              placeholder={t('calendar.appleIdLabel')}
+              value={appleId}
+              onChange={(e) => setAppleId(e.target.value)}
+              className={styles.input}
+            />
+            <input
+              type="password"
+              required
+              placeholder={t('calendar.appPasswordLabel')}
+              value={appPassword}
+              onChange={(e) => setAppPassword(e.target.value)}
+              className={styles.input}
+            />
+            <p className={styles.hint}>{t('calendar.appPasswordHint')}</p>
+            {error && <p className={styles.errorText}>{error}</p>}
+            <Button type="submit" variant="secondary" size="sm" isLoading={isConnectingApple}>
+              {appleAccounts.length > 0 ? t('calendar.addAnotherAccount') : t('calendar.connect')}
+            </Button>
+          </form>
         </div>
       </div>
 
       {calendars.length > 0 && (
         <div className={styles.calendarList}>
           {calendars.map((cal) => (
-            <label key={`${cal.provider}:${cal.id}`} className={styles.calendarRow}>
+            <label key={`${cal.provider}:${cal.accountId || ''}:${cal.id}`} className={styles.calendarRow}>
               <input type="checkbox" checked={cal.visible} onChange={() => handleToggleVisible(cal)} />
               <input
                 type="color"
@@ -125,7 +180,10 @@ export const ConnectCalendarsPanel: React.FC<Props> = ({ status, calendars, onCh
                 className={styles.colorSwatch}
               />
               <span className={styles.calendarName}>{cal.name}</span>
-              <span className={styles.calendarProvider}>{cal.provider === 'google' ? 'Google' : cal.provider === 'apple' ? 'Apple' : 'Local'}</span>
+              <span className={styles.calendarProvider}>
+                {cal.provider === 'google' ? 'Google' : cal.provider === 'apple' ? 'Apple' : 'Local'}
+                {cal.accountLabel ? ` \u00b7 ${cal.accountLabel}` : ''}
+              </span>
             </label>
           ))}
         </div>

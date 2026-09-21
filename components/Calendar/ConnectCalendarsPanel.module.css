@@ -46,6 +46,49 @@
   color: var(--color-text-secondary);
 }
 
+/* One row per connected account (multiple can be connected per provider --
+   see ConnectCalendarsPanel.tsx), each with its own disconnect button. */
+.accountList {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.accountEntry {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-2);
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}
+
+.disconnectBtn {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: var(--color-text-tertiary);
+  font-size: 11px;
+  transition: all var(--transition-fast);
+}
+
+.disconnectBtn:hover {
+  background: color-mix(in srgb, var(--color-error) 18%, transparent);
+  color: var(--color-error);
+}
+
+.disconnectBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .hint {
   font-size: var(--font-size-xs);
   color: var(--color-text-secondary);

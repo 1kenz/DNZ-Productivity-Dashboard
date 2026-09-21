@@ -3,12 +3,16 @@
 import React from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { PRIORITY_META } from '@/lib/priority';
 import { getDueTodoGroups } from '@/lib/dueDates';
 import styles from './StatsCard.module.css';
 
-export const StatsCard: React.FC = () => {
-  const { todos, timeEntries } = useApp();
+interface StatsCardProps {
+  /** Switches the main tab bar -- provided by app/page.tsx, which owns that state. */
+  onNavigateTab?: (tab: 'time-tracker' | 'recurring-tasks') => void;
+}
+
+export const StatsCard: React.FC<StatsCardProps> = ({ onNavigateTab }) => {
+  const { todos, timeEntries, recurringTasks, setQuickTaskFilter } = useApp();
   const { t } = useLanguage();
 
   const activeTasks = todos.filter((t) => !t.completed && t.status !== 'done').length;
@@ -30,6 +34,8 @@ export const StatsCard: React.FC = () => {
   const dueGroups = getDueTodoGroups(todos);
   const dueSoonCount = dueGroups.overdue.length + dueGroups.today.length + dueGroups.soon.length;
 
+  const activeRecurringCount = recurringTasks.filter((r) => r.active).length;
+
   const formatTime = (seconds: number) => {
     const hrs = Math.floor(seconds / 3600);
     const mins = Math.floor((seconds % 3600) / 60);
@@ -42,41 +48,70 @@ export const StatsCard: React.FC = () => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
-  const statItems = [
+  // Each card either narrows the Todo list to a specific quick filter (see
+  // AppContext's QuickTaskFilter) and scrolls to it, or switches to a
+  // different tab entirely (Time Tracker / Recurring) -- never just a bare
+  // scroll to the generic, unfiltered task list.
+  const statItems: Array<{
+    label: string;
+    value: number | string;
+    icon: string;
+    color: string;
+    onClick: () => void;
+  }> = [
     {
       label: t('stats.active') || 'Active',
       value: activeTasks,
       icon: '📋',
       color: 'var(--color-primary)',
-      targetId: 'tasks-section',
+      onClick: () => {
+        setQuickTaskFilter('active');
+        scrollToSection('tasks-section');
+      },
     },
     {
       label: t('stats.urgentHigh') || t('stats.urgent') || 'Urgent & High',
       value: urgentOrHighCount,
       icon: '🚨',
       color: 'var(--color-urgent)',
-      targetId: 'tasks-section',
+      onClick: () => {
+        setQuickTaskFilter('urgentHigh');
+        scrollToSection('tasks-section');
+      },
     },
     {
       label: t('stats.doneToday') || 'Done Today',
       value: completedToday,
       icon: '✅',
       color: 'var(--color-success)',
-      targetId: 'tasks-section',
+      onClick: () => {
+        setQuickTaskFilter('doneToday');
+        scrollToSection('tasks-section');
+      },
     },
     {
       label: t('stats.tracked') || 'Tracked',
       value: formatTime(totalTimeSeconds),
       icon: '⏱️',
       color: 'var(--color-warning)',
-      targetId: 'time-tracker-section',
+      onClick: () => onNavigateTab?.('time-tracker'),
     },
     {
       label: t('stats.dueSoon') || 'Due Soon',
       value: dueSoonCount,
       icon: dueGroups.overdue.length > 0 ? '⚠️' : '📅',
       color: dueGroups.overdue.length > 0 ? 'var(--color-error)' : 'var(--color-warning)',
-      targetId: 'tasks-section',
+      onClick: () => {
+        setQuickTaskFilter('dueSoon');
+        scrollToSection('tasks-section');
+      },
+    },
+    {
+      label: t('stats.recurring') || 'Recurring Tasks',
+      value: activeRecurringCount,
+      icon: '🔁',
+      color: 'var(--color-info, #06b6d4)',
+      onClick: () => onNavigateTab?.('recurring-tasks'),
     },
   ];
 
@@ -90,7 +125,7 @@ export const StatsCard: React.FC = () => {
             type="button"
             className={styles.statItem}
             style={{ '--stat-color': stat.color } as React.CSSProperties}
-            onClick={() => scrollToSection(stat.targetId)}
+            onClick={stat.onClick}
             title={stat.label}
           >
             <div className={styles.statHeader}>

@@ -13,6 +13,7 @@ import { DynamicFocusBar } from '@/components/Tools/DynamicFocusBar';
 import { Button } from '@/components/ui/Button';
 import { Todo, ViewPreferences, DOMAIN_AREAS, DomainArea } from '@/types';
 import { PRIORITY_ORDER, PRIORITY_RANK, PRIORITY_META } from '@/lib/priority';
+import { getDueTodoGroups } from '@/lib/dueDates';
 import styles from './TodoList.module.css';
 
 type FilterType = 'all' | 'active' | 'completed';
@@ -45,6 +46,8 @@ export const TodoList: React.FC = () => {
     setSelectedProjectId,
     selectedDomain,
     setSelectedDomain,
+    quickTaskFilter,
+    setQuickTaskFilter,
   } = useApp();
 
   const { t } = useLanguage();
@@ -53,6 +56,16 @@ export const TodoList: React.FC = () => {
   const [sort, setSort] = useState<SortType>('date');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
   const [showForm, setShowForm] = useState(false);
+
+  // Precomputed once per render for the 'dueSoon' quick filter -- mirrors
+  // exactly what the StatsCard "Due Soon" badge counts (see StatsCard.tsx).
+  const dueSoonIds = React.useMemo(() => {
+    if (quickTaskFilter !== 'dueSoon') return null;
+    const groups = getDueTodoGroups(todos);
+    return new Set([...groups.overdue, ...groups.today, ...groups.soon].map((t) => t.id));
+  }, [quickTaskFilter, todos]);
+
+  const todayStr = new Date().toDateString();
 
   const filteredTodos = todos.filter((todo) => {
     if (todo.parentTodoId) return false;
@@ -64,6 +77,24 @@ export const TodoList: React.FC = () => {
       const itemDomain = todo.domain || project?.domain;
       if (itemDomain !== selectedDomain) return false;
     }
+
+    // Quick filter set by a Daily Overview stat card -- see AppContext's
+    // QuickTaskFilter. Layered on top of everything above, matching exactly
+    // how StatsCard computes each count.
+    if (quickTaskFilter === 'active' && (todo.completed || todo.status === 'done')) return false;
+    if (
+      quickTaskFilter === 'urgentHigh' &&
+      (todo.completed || todo.status === 'done' || (todo.priority !== 'urgent' && todo.priority !== 'high'))
+    ) {
+      return false;
+    }
+    if (
+      quickTaskFilter === 'doneToday' &&
+      !((todo.completed || todo.status === 'done') && new Date(todo.updatedAt).toDateString() === todayStr)
+    ) {
+      return false;
+    }
+    if (quickTaskFilter === 'dueSoon' && !dueSoonIds?.has(todo.id)) return false;
 
     if (filter === 'active') return !todo.completed;
     if (filter === 'completed') return todo.completed;
@@ -362,6 +393,23 @@ export const TodoList: React.FC = () => {
             </strong>
           </span>
           <button onClick={() => setSelectedProjectId(null)} title={t('common.clear')}>
+            ✕ {t('common.clear')}
+          </button>
+        </div>
+      )}
+
+      {quickTaskFilter && (
+        <div className={styles.projectFilterBanner}>
+          <span>
+            {t('stats.dailyOverview')}:{' '}
+            <strong>
+              {quickTaskFilter === 'active' && (t('stats.active') || 'Active')}
+              {quickTaskFilter === 'urgentHigh' && (t('stats.urgentHigh') || 'Urgent & High')}
+              {quickTaskFilter === 'doneToday' && (t('stats.doneToday') || 'Done Today')}
+              {quickTaskFilter === 'dueSoon' && (t('stats.dueSoon') || 'Due Soon')}
+            </strong>
+          </span>
+          <button onClick={() => setQuickTaskFilter(null)} title={t('common.clear')}>
             ✕ {t('common.clear')}
           </button>
         </div>

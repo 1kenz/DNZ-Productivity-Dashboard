@@ -136,7 +136,7 @@ export default function Home() {
         ) : (
           <div className={styles.dashboardGrid}>
             <div className={styles.sidebar}>
-              <StatsCard />
+              <StatsCard onNavigateTab={(target) => setTab(target)} />
               <ProjectManager />
               <RecurringTaskManager onOpenFullView={() => setTab('recurring-tasks')} />
               <QuickNotes />

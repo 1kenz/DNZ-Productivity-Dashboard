@@ -87,9 +87,22 @@ export async function fetchUserEmail(accessToken: string): Promise<string | unde
   return data.email;
 }
 
-/** Reads stored tokens, refreshing (and persisting) if the access token has expired. */
-export async function getValidAccessToken(): Promise<string> {
-  const auth = await prisma.googleDriveAuth.findUnique({ where: { id: 'default' } });
+/** Reads stored tokens for one connected Google account, refreshing (and
+ * persisting) if the access token has expired. Pass `accountId` to target a
+ * specific connected account (e.g. one particular calendar sync source);
+ * omit it to get Drive's "primary" account -- the oldest connected one,
+ * matching the old single-account behavior for every existing Drive call
+ * site that doesn't know (or care) about multiple accounts. */
+export async function getValidAccessToken(accountId?: string): Promise<string> {
+  // `createdAt` isn't in the stale generated GoogleDriveAuth type until
+  // `npx prisma generate` re-runs against the current schema.prisma (same
+  // reason app/actions/calendar.ts goes through an `as any` cast for the
+  // newer calendar-sync models) -- cast just this one call rather than
+  // widening every prisma.googleDriveAuth call in this file.
+  const db = prisma as any;
+  const auth = accountId
+    ? await prisma.googleDriveAuth.findUnique({ where: { id: accountId } })
+    : await db.googleDriveAuth.findFirst({ orderBy: { createdAt: 'asc' } });
   if (!auth) throw new Error('Google Drive is not connected');
 
   const isExpired = auth.expiryDate.getTime() - 60_000 < Date.now(); // refresh 1min early
@@ -98,7 +111,7 @@ export async function getValidAccessToken(): Promise<string> {
   const refreshed = await refreshAccessToken(auth.refreshToken);
   const expiryDate = new Date(Date.now() + refreshed.expires_in * 1000);
   await prisma.googleDriveAuth.update({
-    where: { id: 'default' },
+    where: { id: auth.id },
     data: { accessToken: refreshed.access_token, expiryDate },
   });
   return refreshed.access_token;

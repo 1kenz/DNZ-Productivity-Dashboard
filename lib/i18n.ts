@@ -240,6 +240,7 @@ export const DICTIONARIES = {
     'stats.doneToday': 'Done Today',
     'stats.tracked': 'Tracked',
     'stats.dueSoon': 'Due Soon',
+    'stats.recurring': 'Recurring Tasks',
 
     'dueDates.title': 'Due Dates',
     'dueDates.overdueGroup': 'Overdue',
@@ -314,6 +315,7 @@ export const DICTIONARIES = {
     'calendar.newEvent': 'New Event',
     'calendar.manageCalendars': 'Manage Calendars',
     'calendar.connectGoogle': 'Connect Google Calendar',
+    'calendar.addAnotherAccount': '+ Add Another Account',
     'calendar.connectApple': 'Connect Apple Calendar',
     'calendar.disconnect': 'Disconnect',
     'calendar.connectedAs': 'Connected as',
@@ -749,6 +751,7 @@ export const DICTIONARIES = {
     'stats.doneToday': 'Bugün Biten',
     'stats.tracked': 'Kaydedilen',
     'stats.dueSoon': 'Yaklaşan Teslim',
+    'stats.recurring': 'Tekrarlanan Görevler',
 
     'dueDates.title': 'Teslim Tarihleri',
     'dueDates.overdueGroup': 'Süresi Geçmiş',
@@ -823,6 +826,7 @@ export const DICTIONARIES = {
     'calendar.newEvent': 'Yeni Etkinlik',
     'calendar.manageCalendars': 'Takvimleri Yönet',
     'calendar.connectGoogle': 'Google Takvimi Bağla',
+    'calendar.addAnotherAccount': '+ Başka Hesap Ekle',
     'calendar.connectApple': 'Apple Takvimi Bağla',
     'calendar.disconnect': 'Bağlantıyı Kes',
     'calendar.connectedAs': 'Bağlı hesap',
@@ -1255,6 +1259,7 @@ export const DICTIONARIES = {
     'stats.doneToday': 'Heute erledigt',
     'stats.tracked': 'Erfasst',
     'stats.dueSoon': 'Bald fällig',
+    'stats.recurring': 'Wiederkehrende Aufgaben',
 
     'dueDates.title': 'Fälligkeitstermine',
     'dueDates.overdueGroup': 'Überfällig',
@@ -1329,6 +1334,7 @@ export const DICTIONARIES = {
     'calendar.newEvent': 'Neuer Termin',
     'calendar.manageCalendars': 'Kalender verwalten',
     'calendar.connectGoogle': 'Google Kalender verbinden',
+    'calendar.addAnotherAccount': '+ Weiteres Konto hinzufügen',
     'calendar.connectApple': 'Apple Kalender verbinden',
     'calendar.disconnect': 'Trennen',
     'calendar.connectedAs': 'Verbunden als',
