@@ -269,6 +269,10 @@ export interface UnifiedCalendarEvent {
   calendarId: string;
   calendarName: string;
   calendarColor: string;
+  // Which connected account (see ConnectedCalendarAccountsStatus) this event
+  // belongs to -- undefined for the always-on local calendar. Needed to
+  // resolve the right OAuth/CalDAV credentials when updating or deleting.
+  accountId?: string;
   title: string;
   description?: string;
   location?: string;
@@ -276,6 +280,11 @@ export interface UnifiedCalendarEvent {
   end: string; // ISO 8601
   allDay: boolean;
   writable: boolean;
+  // Apple/CalDAV-only addressing info, needed by updateCalendarObject /
+  // deleteCalendarObject (tsdav) since a VEVENT's UID alone isn't enough to
+  // locate its resource on the CalDAV server.
+  davUrl?: string;
+  davEtag?: string;
 }
 
 export interface ConnectedCalendarAccount {

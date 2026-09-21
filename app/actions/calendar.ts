@@ -4,8 +4,22 @@ import { randomUUID } from 'crypto';
 import { prisma } from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 import { isGoogleDriveConfigured, getValidAccessToken } from '@/lib/googleDrive';
-import { listGoogleCalendars, getGoogleEvents, createGoogleEvent, NewEventInput } from '@/lib/googleCalendar';
-import { createAppleClient, listAppleCalendars, getAppleEvents, createAppleEvent } from '@/lib/appleCalendar';
+import {
+  listGoogleCalendars,
+  getGoogleEvents,
+  createGoogleEvent,
+  updateGoogleEvent,
+  deleteGoogleEvent,
+  NewEventInput,
+} from '@/lib/googleCalendar';
+import {
+  createAppleClient,
+  listAppleCalendars,
+  getAppleEvents,
+  createAppleEvent,
+  updateAppleEvent,
+  deleteAppleEvent,
+} from '@/lib/appleCalendar';
 import { CalendarInfo, CalendarProvider, ConnectedCalendarAccount, ConnectedCalendarAccountsStatus, UnifiedCalendarEvent } from '@/types';
 
 // The built-in fallback calendar -- always present in listAllCalendars()
@@ -418,12 +432,95 @@ export async function createCalendarEvent(
 
   if (provider === 'google') {
     const accessToken = await getValidAccessToken(accountId);
-    return createGoogleEvent(accessToken, calendarId, event);
+    return createGoogleEvent(accessToken, calendarId, event, accountId);
   }
 
   if (!accountId) throw new Error('Apple Calendar account not specified');
   const account: AppleCalendarAccountRow | null = await db.appleCalendarAccount.findUnique({ where: { id: accountId } });
   if (!account) throw new Error('Apple Calendar is not connected');
   const appleClient = await createAppleClient(account.appleId, account.appPassword);
-  return createAppleEvent(appleClient, calendarId, event);
+  return createAppleEvent(appleClient, calendarId, event, accountId);
+}
+
+/** Updates an existing event in place. `event` must be a UnifiedCalendarEvent
+ * previously returned by getEventsInRange/createCalendarEvent, so it carries
+ * the provider/calendarId/accountId (and, for Apple, davUrl/davEtag) needed
+ * to locate it again. */
+export async function updateCalendarEvent(
+  event: UnifiedCalendarEvent,
+  updates: NewEventInput
+): Promise<UnifiedCalendarEvent> {
+  if (!event.writable) throw new Error('This calendar is read-only.');
+
+  if (event.provider === 'local') {
+    const row = await db.localCalendarEvent.update({
+      where: { id: event.id },
+      data: {
+        title: updates.title,
+        description: updates.description || null,
+        location: updates.location || null,
+        start: new Date(updates.start),
+        end: new Date(updates.end),
+        allDay: updates.allDay,
+      },
+    });
+    revalidatePath('/');
+    return {
+      id: row.id,
+      provider: 'local',
+      calendarId: LOCAL_CALENDAR_ID,
+      calendarName: LOCAL_CALENDAR_DEFAULTS.name,
+      calendarColor: LOCAL_CALENDAR_DEFAULTS.color,
+      title: row.title,
+      description: row.description || undefined,
+      location: row.location || undefined,
+      start: row.start.toISOString(),
+      end: row.end.toISOString(),
+      allDay: row.allDay,
+      writable: true,
+    };
+  }
+
+  if (event.provider === 'google') {
+    const accessToken = await getValidAccessToken(event.accountId);
+    const updated = await updateGoogleEvent(accessToken, event.calendarId, event.id, updates, event.accountId);
+    return { ...updated, calendarName: event.calendarName, calendarColor: event.calendarColor };
+  }
+
+  if (!event.accountId) throw new Error('Apple Calendar account not specified');
+  if (!event.davUrl) throw new Error('This event is missing its Apple Calendar address and cannot be edited.');
+  const account: AppleCalendarAccountRow | null = await db.appleCalendarAccount.findUnique({
+    where: { id: event.accountId },
+  });
+  if (!account) throw new Error('Apple Calendar is not connected');
+  const appleClient = await createAppleClient(account.appleId, account.appPassword);
+  const updated = await updateAppleEvent(appleClient, event.davUrl, event.davEtag, event.id, updates, event.accountId);
+  return { ...updated, calendarId: event.calendarId, calendarName: event.calendarName, calendarColor: event.calendarColor };
+}
+
+/** Deletes an existing event. Same addressing requirements as
+ * updateCalendarEvent above. */
+export async function deleteCalendarEvent(event: UnifiedCalendarEvent): Promise<void> {
+  if (!event.writable) throw new Error('This calendar is read-only.');
+
+  if (event.provider === 'local') {
+    await db.localCalendarEvent.delete({ where: { id: event.id } });
+    revalidatePath('/');
+    return;
+  }
+
+  if (event.provider === 'google') {
+    const accessToken = await getValidAccessToken(event.accountId);
+    await deleteGoogleEvent(accessToken, event.calendarId, event.id);
+    return;
+  }
+
+  if (!event.accountId) throw new Error('Apple Calendar account not specified');
+  if (!event.davUrl) throw new Error('This event is missing its Apple Calendar address and cannot be deleted.');
+  const account: AppleCalendarAccountRow | null = await db.appleCalendarAccount.findUnique({
+    where: { id: event.accountId },
+  });
+  if (!account) throw new Error('Apple Calendar is not connected');
+  const appleClient = await createAppleClient(account.appleId, account.appPassword);
+  await deleteAppleEvent(appleClient, event.davUrl, event.davEtag);
 }

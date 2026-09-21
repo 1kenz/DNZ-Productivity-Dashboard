@@ -231,6 +231,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  cursor: pointer;
 }
 
 /* The actual scroll container -- .timeGrid inside it is the single grid
@@ -343,6 +344,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  cursor: pointer;
 }
 
 .monthEventMore {

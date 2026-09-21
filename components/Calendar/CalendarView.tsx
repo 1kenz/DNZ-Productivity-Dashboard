@@ -66,6 +66,7 @@ export const CalendarView: React.FC<Props> = ({ autoOpenManage }) => {
   const [isLoadingEvents, setIsLoadingEvents] = useState(false);
   const [showManage, setShowManage] = useState(Boolean(autoOpenManage));
   const [eventModalDate, setEventModalDate] = useState<Date | null>(null);
+  const [editingEvent, setEditingEvent] = useState<UnifiedCalendarEvent | null>(null);
   const timeGridRef = useRef<HTMLDivElement>(null);
 
   const loadCalendars = useCallback(async () => {
@@ -275,6 +276,10 @@ export const CalendarView: React.FC<Props> = ({ autoOpenManage }) => {
                                 className={styles.allDayChip}
                                 style={{ background: ev.calendarColor }}
                                 title={ev.title}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setEditingEvent(ev);
+                                }}
                               >
                                 {ev.title}
                               </div>
@@ -325,6 +330,10 @@ export const CalendarView: React.FC<Props> = ({ autoOpenManage }) => {
                               className={styles.eventBlock}
                               style={{ top, height, background: ev.calendarColor }}
                               title={`${ev.title} (${ev.calendarName})`}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setEditingEvent(ev);
+                              }}
                             >
                               {ev.title}
                             </div>
@@ -357,6 +366,10 @@ export const CalendarView: React.FC<Props> = ({ autoOpenManage }) => {
                           className={styles.monthEventChip}
                           style={{ background: ev.calendarColor }}
                           title={ev.title}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setEditingEvent(ev);
+                          }}
                         >
                           {ev.title}
                         </div>
@@ -377,13 +390,17 @@ export const CalendarView: React.FC<Props> = ({ autoOpenManage }) => {
         </div>
       )}
 
-      {eventModalDate && (
+      {(eventModalDate || editingEvent) && (
         <EventModal
-          isOpen={Boolean(eventModalDate)}
-          onClose={() => setEventModalDate(null)}
+          isOpen={Boolean(eventModalDate || editingEvent)}
+          onClose={() => {
+            setEventModalDate(null);
+            setEditingEvent(null);
+          }}
           onCreated={loadEvents}
           calendars={calendars}
-          initialDate={eventModalDate}
+          initialDate={eventModalDate || new Date()}
+          event={editingEvent || undefined}
         />
       )}
     </div>

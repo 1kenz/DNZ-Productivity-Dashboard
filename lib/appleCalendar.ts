@@ -145,6 +145,7 @@ export async function getAppleEvents(
       calendarId: calendar.id,
       calendarName: calendar.name,
       calendarColor: calendar.color,
+      accountId: calendar.accountId,
       title: parsed.summary,
       description: parsed.description,
       location: parsed.location,
@@ -152,6 +153,11 @@ export async function getAppleEvents(
       end: parsed.end.iso,
       allDay: parsed.start.allDay,
       writable: calendar.writable,
+      // Needed to address this event for update/delete -- a VEVENT's UID
+      // alone isn't a CalDAV resource locator, and the etag guards against
+      // clobbering a concurrent edit made elsewhere.
+      davUrl: obj.url,
+      davEtag: obj.etag,
     });
   }
   return events;
@@ -179,7 +185,8 @@ function escapeIcsText(value: string): string {
 export async function createAppleEvent(
   client: DAVClient,
   calendarId: string,
-  event: NewEventInput
+  event: NewEventInput,
+  accountId?: string
 ): Promise<UnifiedCalendarEvent> {
   const uid = `dnz-${Date.now()}-${Math.random().toString(36).slice(2, 10)}@productivity-dashboard`;
   const dtstamp = formatIcsDate(new Date().toISOString(), false);
@@ -221,6 +228,7 @@ export async function createAppleEvent(
     calendarId,
     calendarName: calendarId,
     calendarColor: '#FF9500',
+    accountId,
     title: event.title,
     description: event.description,
     location: event.location,
@@ -228,5 +236,79 @@ export async function createAppleEvent(
     end: event.end,
     allDay: event.allDay,
     writable: true,
+    davUrl: res.url,
   };
+}
+
+function buildIcsString(uid: string, event: NewEventInput): string {
+  const dtstamp = formatIcsDate(new Date().toISOString(), false);
+  const startProp = event.allDay
+    ? `DTSTART;VALUE=DATE:${formatIcsDate(event.start, true)}`
+    : `DTSTART:${formatIcsDate(event.start, false)}`;
+  const endProp = event.allDay
+    ? `DTEND;VALUE=DATE:${formatIcsDate(event.end, true)}`
+    : `DTEND:${formatIcsDate(event.end, false)}`;
+
+  const lines = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//DNZ Productivity Dashboard//EN',
+    'BEGIN:VEVENT',
+    `UID:${uid}`,
+    `DTSTAMP:${dtstamp}`,
+    startProp,
+    endProp,
+    `SUMMARY:${escapeIcsText(event.title)}`,
+  ];
+  if (event.description) lines.push(`DESCRIPTION:${escapeIcsText(event.description)}`);
+  if (event.location) lines.push(`LOCATION:${escapeIcsText(event.location)}`);
+  lines.push('END:VEVENT', 'END:VCALENDAR');
+  return lines.join('\r\n');
+}
+
+export async function updateAppleEvent(
+  client: DAVClient,
+  davUrl: string,
+  davEtag: string | undefined,
+  uid: string,
+  event: NewEventInput,
+  accountId?: string
+): Promise<UnifiedCalendarEvent> {
+  const iCalString = buildIcsString(uid, event);
+  const res = await client.updateCalendarObject({
+    calendarObject: { url: davUrl, data: iCalString, etag: davEtag },
+  });
+  if (!res.ok) {
+    throw new Error(`Apple Calendar event update failed: ${res.status} ${await res.text()}`);
+  }
+  return {
+    id: uid,
+    provider: 'apple',
+    calendarId: davUrl,
+    calendarName: davUrl,
+    calendarColor: '#FF9500',
+    accountId,
+    title: event.title,
+    description: event.description,
+    location: event.location,
+    start: event.start,
+    end: event.end,
+    allDay: event.allDay,
+    writable: true,
+    davUrl,
+    davEtag: res.headers.get('etag') || undefined,
+  };
+}
+
+export async function deleteAppleEvent(
+  client: DAVClient,
+  davUrl: string,
+  davEtag: string | undefined
+): Promise<void> {
+  const res = await client.deleteCalendarObject({
+    calendarObject: { url: davUrl, etag: davEtag } as DAVCalendarObject,
+  });
+  if (!res.ok && res.status !== 404) {
+    throw new Error(`Apple Calendar event deletion failed: ${res.status} ${await res.text()}`);
+  }
 }

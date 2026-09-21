@@ -83,6 +83,7 @@ export async function getGoogleEvents(
         calendarId: calendar.id,
         calendarName: calendar.name,
         calendarColor: calendar.color,
+        accountId: calendar.accountId,
         title: ev.summary || '(No title)',
         description: ev.description,
         location: ev.location,
@@ -106,7 +107,8 @@ export interface NewEventInput {
 export async function createGoogleEvent(
   accessToken: string,
   calendarId: string,
-  event: NewEventInput
+  event: NewEventInput,
+  accountId?: string
 ): Promise<UnifiedCalendarEvent> {
   const body = {
     summary: event.title,
@@ -130,6 +132,7 @@ export async function createGoogleEvent(
     calendarId,
     calendarName: calendarId,
     calendarColor: '#4285F4',
+    accountId,
     title: created.summary || event.title,
     description: created.description,
     location: created.location,
@@ -138,4 +141,66 @@ export async function createGoogleEvent(
     allDay: event.allDay,
     writable: true,
   };
+}
+
+export async function updateGoogleEvent(
+  accessToken: string,
+  calendarId: string,
+  eventId: string,
+  event: NewEventInput,
+  accountId?: string
+): Promise<UnifiedCalendarEvent> {
+  const body = {
+    summary: event.title,
+    description: event.description,
+    location: event.location,
+    start: event.allDay ? { date: event.start.slice(0, 10) } : { dateTime: event.start },
+    end: event.allDay ? { date: event.end.slice(0, 10) } : { dateTime: event.end },
+  };
+  const res = await fetch(
+    `${CALENDAR_API}/calendars/${encodeURIComponent(calendarId)}/events/${encodeURIComponent(eventId)}`,
+    {
+      method: 'PATCH',
+      headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    }
+  );
+  if (!res.ok) {
+    throw new Error(`Google event update failed: ${res.status} ${await res.text()}`);
+  }
+  const updated: GoogleEvent = await res.json();
+  return {
+    id: updated.id,
+    provider: 'google',
+    calendarId,
+    calendarName: calendarId,
+    calendarColor: '#4285F4',
+    accountId,
+    title: updated.summary || event.title,
+    description: updated.description,
+    location: updated.location,
+    start: (updated.start.dateTime || updated.start.date) as string,
+    end: (updated.end.dateTime || updated.end.date) as string,
+    allDay: event.allDay,
+    writable: true,
+  };
+}
+
+export async function deleteGoogleEvent(
+  accessToken: string,
+  calendarId: string,
+  eventId: string
+): Promise<void> {
+  const res = await fetch(
+    `${CALENDAR_API}/calendars/${encodeURIComponent(calendarId)}/events/${encodeURIComponent(eventId)}`,
+    {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${accessToken}` },
+    }
+  );
+  // Google returns 410 Gone if the event was already deleted -- treat that
+  // the same as success rather than surfacing an error for a no-op.
+  if (!res.ok && res.status !== 410) {
+    throw new Error(`Google event deletion failed: ${res.status} ${await res.text()}`);
+  }
 }
