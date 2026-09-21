@@ -184,27 +184,39 @@
   color: #fff;
 }
 
-.allDayRow {
-  display: grid;
-  border-bottom: 1px solid var(--color-border);
-}
-
+/* Now grid items inside .timeGrid (see CalendarView.tsx) rather than a
+   separate grid of their own -- sticky-positioned to sit right below the
+   sticky day-header row (same 60px estimate used for .timeGridScroll's
+   max-height) while the hour rows scroll underneath, same technique as
+   .dayHeaderCell/.dayHeaderCorner. */
 .allDayLabel {
+  position: sticky;
+  top: 60px;
+  left: 0;
+  z-index: 2;
   font-size: var(--font-size-xs);
   color: var(--color-text-secondary);
   padding: var(--space-1) var(--space-2);
+  background: var(--color-bg-secondary);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .allDayCell {
+  position: sticky;
+  top: 60px;
+  z-index: 2;
   display: flex;
   flex-direction: column;
   gap: 2px;
   padding: var(--space-1);
+  background: var(--color-bg-secondary);
   border-left: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .allDayChip {
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
   color: #fff;
   padding: 1px var(--space-2);
   border-radius: var(--radius-sm);
@@ -269,7 +281,8 @@
   right: 2px;
   border-radius: var(--radius-sm);
   color: #fff;
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
   padding: 2px 4px;
   overflow: hidden;
   cursor: pointer;
@@ -314,7 +327,8 @@
 }
 
 .monthEventChip {
-  font-size: 10px;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
   color: #fff;
   padding: 1px 4px;
   border-radius: 2px;

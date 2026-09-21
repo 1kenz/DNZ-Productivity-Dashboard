@@ -218,42 +218,22 @@ export const CalendarView: React.FC<Props> = ({ autoOpenManage }) => {
         <div className={styles.gridWrapper}>
           {isTimeGridView ? (
             <>
-              {events.some((ev) => ev.allDay) && (
-                <div className={styles.allDayRow} style={{ gridTemplateColumns: `56px repeat(${days.length}, 1fr)` }}>
-                  <div className={styles.allDayLabel}>{t('calendar.allDay')}</div>
-                  {days.map((day) => (
-                    <div key={day.toISOString()} className={styles.allDayCell}>
-                      {events
-                        .filter((ev) => ev.allDay && eventOverlapsDay(ev, day))
-                        .map((ev) => (
-                          <div
-                            key={ev.id}
-                            className={styles.allDayChip}
-                            style={{ background: ev.calendarColor }}
-                            title={ev.title}
-                          >
-                            {ev.title}
-                          </div>
-                        ))}
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {/* Day headers used to be their own grid, sibling to the
-                  scrollable hour grid below -- two separate CSS Grid
-                  instances trying to keep the same `repeat(N, 1fr)` column
-                  widths in sync. That drifted column-by-column (worse
-                  toward Saturday/Sunday): a previous fix assumed a
-                  scrollbar width mismatch, but macOS's overlay scrollbars
-                  take up no layout space at all, so that wasn't the actual
-                  cause -- it was simply two independent grid layouts each
-                  rounding fractional 1fr widths slightly differently.
-                  Putting the header cells inside the SAME grid as the hour
-                  rows (as its first row, sticky-positioned to the scroll
-                  container) means the column tracks are computed exactly
-                  once, so the header can never be out of alignment with
-                  the day columns beneath it. */}
+              {/* The day headers, and the all-day row when present, used
+                  to each be their own grid, siblings of the scrollable
+                  hour grid below -- every extra grid instance trying to
+                  keep the same `repeat(N, 1fr)` column widths in sync
+                  drifted column-by-column (worse toward Saturday/Sunday):
+                  a previous fix assumed a scrollbar width mismatch, but
+                  macOS's overlay scrollbars take up no layout space at
+                  all, so that wasn't the actual cause -- it was simply
+                  independent grid layouts each rounding fractional 1fr
+                  widths slightly differently. Putting the header cells AND
+                  the all-day cells inside the SAME grid as the hour rows
+                  (as sticky-positioned rows pinned to the scroll
+                  container, stacked top-to-bottom in DOM/row order) means
+                  every column track is computed exactly once, so nothing
+                  in this view can ever drift out of alignment with the
+                  day columns beneath it. */}
               <div ref={timeGridRef} className={styles.timeGridScroll}>
                 <div className={styles.timeGrid} style={{ gridTemplateColumns: `56px repeat(${days.length}, 1fr)` }}>
                   <div className={styles.dayHeaderCorner} />
@@ -269,6 +249,28 @@ export const CalendarView: React.FC<Props> = ({ autoOpenManage }) => {
                       </span>
                     </div>
                   ))}
+
+                  {events.some((ev) => ev.allDay) && (
+                    <>
+                      <div className={styles.allDayLabel}>{t('calendar.allDay')}</div>
+                      {days.map((day) => (
+                        <div key={day.toISOString()} className={styles.allDayCell}>
+                          {events
+                            .filter((ev) => ev.allDay && eventOverlapsDay(ev, day))
+                            .map((ev) => (
+                              <div
+                                key={ev.id}
+                                className={styles.allDayChip}
+                                style={{ background: ev.calendarColor }}
+                                title={ev.title}
+                              >
+                                {ev.title}
+                              </div>
+                            ))}
+                        </div>
+                      ))}
+                    </>
+                  )}
 
                   <div className={styles.hourLabels} style={{ height: HOUR_HEIGHT * hourRows.length }}>
                     {hourRows.map((h) => (
