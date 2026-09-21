@@ -1,8 +1,16 @@
+/* Was `height: 600px` with each .taskList scrolling independently inside
+   it -- that gave every column its own cramped mini-scrollbar, and
+   scrolling one column out of sync with the others made cards appear to
+   vanish (a column's header/cards scroll out of view while its neighbors
+   hadn't). Columns now just grow to fit their own card count and the page
+   scrolls as a whole, like every other list in the app. `align-items:
+   start` keeps a short column (e.g. empty DONE) from being stretched to
+   match its tallest sibling now that the grid row has no fixed height. */
 .board {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
+  align-items: start;
   gap: var(--space-4);
-  height: 600px;
   overflow-x: auto;
 }
 
@@ -75,9 +83,7 @@
 }
 
 .taskList {
-  flex: 1;
   padding: var(--space-3);
-  overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
@@ -150,10 +156,5 @@
 @media (max-width: 768px) {
   .board {
     grid-template-columns: 1fr;
-    height: auto;
-  }
-
-  .column {
-    max-height: 400px;
   }
 }
