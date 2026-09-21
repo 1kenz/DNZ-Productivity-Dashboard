@@ -110,7 +110,8 @@ CREATE TABLE IF NOT EXISTS "CalendarPreference" (
     CONSTRAINT "CalendarPreference_pkey" PRIMARY KEY ("id")
 );
 
-CREATE UNIQUE INDEX IF NOT EXISTS "CalendarPreference_provider_calendarId_key" ON "CalendarPreference"("provider", "calendarId");
+-- (No intermediate 2-column unique index here -- see the comment by the
+-- final 3-column CalendarPreference index below for why.)
 
 -- --- LocalCalendarEvent: the built-in "My Calendar" fallback, always
 -- available even when no Google/Apple account is connected ---
@@ -152,4 +153,18 @@ ALTER TABLE "GoogleDriveAuth" ADD COLUMN IF NOT EXISTS "createdAt" TIMESTAMP(3) 
 ALTER TABLE "CalendarPreference" ADD COLUMN IF NOT EXISTS "accountId" TEXT;
 
 DROP INDEX IF EXISTS "CalendarPreference_provider_calendarId_key";
+
+-- Remove true duplicate rows (same provider + accountId + calendarId,
+-- NULLs included since Postgres DISTINCT ON treats NULL = NULL here)
+-- before the unique index below can be created. Safe/idempotent: it only
+-- ever removes exact re-syncs of the same account's same calendar, never
+-- two different accounts' calendars that happen to share a provider's
+-- generic id like "primary" -- those differ by accountId and are kept.
+DELETE FROM "CalendarPreference"
+WHERE "ctid" NOT IN (
+  SELECT DISTINCT ON ("provider", "accountId", "calendarId") "ctid"
+  FROM "CalendarPreference"
+  ORDER BY "provider", "accountId", "calendarId", "updatedAt" DESC, "id"
+);
+
 CREATE UNIQUE INDEX IF NOT EXISTS "CalendarPreference_provider_accountId_calendarId_key" ON "CalendarPreference"("provider", "accountId", "calendarId");
