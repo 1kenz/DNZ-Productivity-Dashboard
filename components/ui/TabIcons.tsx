@@ -117,6 +117,14 @@ export const AnalyticsTabIcon: React.FC<IconProps> = ({ size = 16, className }) 
   </svg>
 );
 
+// Friendly robot-head mark for the AI Assistant -- used both as this
+// tab's icon and as the assistant's avatar on its chat bubbles (see
+// MessageBubble.tsx). Deliberately painted with theme tokens rather than
+// a fixed brand gradient (unlike this file's other tab icons): a solid
+// black head would disappear against a dark background, so the head/ears/
+// antenna use --color-text-primary (flips light/dark automatically) and
+// the eyes/mouth punch through in --color-bg-secondary with a
+// --color-primary pupil accent.
 export const AiAssistantTabIcon: React.FC<IconProps> = ({ size = 16, className }) => (
   <svg
     width={size}
@@ -127,25 +135,16 @@ export const AiAssistantTabIcon: React.FC<IconProps> = ({ size = 16, className }
     className={className}
     style={{ flexShrink: 0 }}
   >
-    <path
-      d="M12 2L14.2 8.3C14.6 9.4 15.6 10.4 16.7 10.8L23 13L16.7 15.2C15.6 15.6 14.6 16.6 14.2 17.7L12 24L9.8 17.7C9.4 16.6 8.4 15.6 7.3 15.2L1 13L7.3 10.8C8.4 10.4 9.4 9.4 9.8 8.3L12 2Z"
-      fill="url(#aiIntelligenceGrad)"
-    />
-    <path
-      d="M19 2L20.1 5.1C20.3 5.7 20.8 6.2 21.4 6.4L24.5 7.5L21.4 8.6C20.8 8.8 20.3 9.3 20.1 9.9L19 13L17.9 9.9C17.7 9.3 17.2 8.8 16.6 8.6L13.5 7.5L16.6 6.4C17.2 6.2 17.7 5.7 17.9 5.1L19 2Z"
-      fill="url(#aiIntelligenceGrad2)"
-    />
-    <defs>
-      <linearGradient id="aiIntelligenceGrad" x1="1" y1="2" x2="23" y2="24" gradientUnits="userSpaceOnUse">
-        <stop stopColor="#A855F7" />
-        <stop offset="0.5" stopColor="#6366F1" />
-        <stop offset="1" stopColor="#06B6D4" />
-      </linearGradient>
-      <linearGradient id="aiIntelligenceGrad2" x1="13.5" y1="2" x2="24.5" y2="13" gradientUnits="userSpaceOnUse">
-        <stop stopColor="#EC4899" />
-        <stop offset="1" stopColor="#8B5CF6" />
-      </linearGradient>
-    </defs>
+    <line x1="12" y1="1.5" x2="12" y2="4.2" stroke="var(--color-text-primary)" strokeWidth="1.6" strokeLinecap="round" />
+    <circle cx="12" cy="1.4" r="1.3" fill="var(--color-text-primary)" />
+    <rect x="0.8" y="9" width="2.6" height="6.5" rx="1.3" fill="var(--color-text-primary)" />
+    <rect x="20.6" y="9" width="2.6" height="6.5" rx="1.3" fill="var(--color-text-primary)" />
+    <rect x="3.8" y="4" width="16.4" height="15.5" rx="5.5" fill="var(--color-text-primary)" />
+    <circle cx="9" cy="11.8" r="2" fill="var(--color-bg-secondary)" />
+    <circle cx="9" cy="11.8" r="0.9" fill="var(--color-primary)" />
+    <circle cx="15" cy="11.8" r="2" fill="var(--color-bg-secondary)" />
+    <circle cx="15" cy="11.8" r="0.9" fill="var(--color-primary)" />
+    <path d="M9 16 Q12 18.2 15 16" stroke="var(--color-bg-secondary)" strokeWidth="1.5" strokeLinecap="round" fill="none" />
   </svg>
 );
 
