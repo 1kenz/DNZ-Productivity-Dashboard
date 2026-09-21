@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { useSpeechRecognition } from '@/hooks/useSpeechRecognition';
+import { useVoiceCapture } from '@/hooks/useVoiceCapture';
 import { useSpeechSynthesis } from '@/hooks/useSpeechSynthesis';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { AiModelOption } from '@/types';
@@ -169,10 +169,19 @@ export const LiveVoiceModal: React.FC<LiveVoiceModalProps> = ({
     stopListening,
     interimTranscript,
     resetTranscript,
-  } = useSpeechRecognition({
+  } = useVoiceCapture({
     language,
     continuous: true,
     interimResults: true,
+    onProcessingStart: () => {
+      // Electron path only: fired once the user stops talking and the
+      // recorded clip is being sent off for transcription -- there's no
+      // live partial transcript with that approach, so switch to the
+      // "thinking" state instead of leaving the orb stuck on "listening"
+      // with nothing visibly happening for the ~1-2s round trip.
+      if (!isOpenRef.current) return;
+      setLiveState('thinking');
+    },
     onResult: (text) => {
       if (!isOpenRef.current) return;
       latestPromptRef.current = text;
@@ -200,8 +209,15 @@ export const LiveVoiceModal: React.FC<LiveVoiceModalProps> = ({
       // give the same audible hand-back the chat-send error path uses
       // instead of only logging to the console.
       const isPermissionError = err?.error === 'not-allowed' || err?.error === 'service-not-allowed';
+      // Electron path only: the recorded-clip transcription needs an
+      // OpenAI key configured (there's no free/keyless fallback the way
+      // the browser's built-in speech engine was) -- tell the user that
+      // specifically instead of a generic "try again".
+      const isMissingApiKey = err?.error === 'no-api-key';
       const errorText = isPermissionError
         ? (t('ai.micPermissionDenied') || 'Microphone access is blocked.')
+        : isMissingApiKey
+        ? (t('ai.voiceNoApiKey') || 'Voice transcription needs an OpenAI API key -- add one in API Key Settings.')
         : (t('ai.voiceRecognitionError') || 'Voice recognition error. Please try again.');
       setLastReply(errorText);
       setLiveState('speaking');
