@@ -56,7 +56,7 @@ export const TaskDetailDrawer: React.FC<TaskDetailDrawerProps> = ({ todo, isOpen
       priority,
       projectId: projectId || undefined,
       sectionId: sectionId || undefined,
-      deadline: deadline ? new Date(deadline) : undefined,
+      deadline: deadline ? new Date(deadline) : null,
       status,
       targetCount: targetCount ? Math.max(0, parseInt(targetCount, 10) || 0) : undefined,
       currentCount: targetCount ? Math.max(0, parseInt(currentCount, 10) || 0) : undefined,

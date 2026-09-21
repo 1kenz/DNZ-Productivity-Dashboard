@@ -189,7 +189,7 @@ export const TaskRow: React.FC<TaskRowProps> = ({
   };
 
   const handleClearDate = () => {
-    updateTodo(todo.id, { deadline: undefined });
+    updateTodo(todo.id, { deadline: null });
     setDateInputValue('');
     setIsDateEditing(false);
   };
