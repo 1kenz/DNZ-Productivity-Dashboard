@@ -88,7 +88,10 @@ export const KanbanBoard: React.FC = () => {
               onDragOver={handleDragOver}
               onDrop={(e) => handleDrop(e, column.id)}
             >
-              <div className={styles.columnHeader}>
+              <div
+                className={styles.columnHeader}
+                style={{ background: `color-mix(in srgb, ${column.color} 12%, var(--color-bg-secondary))` }}
+              >
                 <span
                   className={styles.columnPill}
                   style={{ color: column.color, background: `color-mix(in srgb, ${column.color} 16%, transparent)` }}

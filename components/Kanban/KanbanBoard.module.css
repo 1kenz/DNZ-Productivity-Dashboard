@@ -28,6 +28,21 @@
   gap: var(--space-2);
   padding: var(--space-3);
   border-bottom: 1px solid var(--color-border);
+  /* Keeps each column's status header (To Do / In Progress / Following /
+     Done + count) visible while the page scrolls, so it's always clear
+     which column you're looking at -- the whole app scrolls as one page
+     (see the .board comment above), not each column independently, so
+     `top: 0` pins it to the very top of the viewport. `overflow: hidden`
+     on .column is deliberately NOT used to round off its corner here --
+     that would make .column itself the sticky positioning container
+     instead of the viewport, breaking the stick-on-page-scroll effect
+     entirely. border-radius on just the top corners keeps the header's
+     own corners visually in step with the column below it instead. */
+  border-top-left-radius: var(--radius-lg);
+  border-top-right-radius: var(--radius-lg);
+  position: sticky;
+  top: 0;
+  z-index: 2;
 }
 
 .columnPill {

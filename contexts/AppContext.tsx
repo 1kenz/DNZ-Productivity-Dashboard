@@ -157,7 +157,7 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 const DEFAULT_KANBAN_COLUMNS: KanbanColumn[] = [
   { id: 'todo', name: 'To Do', color: '#6366f1', order: 0 },
   { id: 'in-progress', name: 'In Progress', color: '#f59e0b', order: 1 },
-  { id: 'following', name: 'Following', color: '#8b5cf6', order: 2 },
+  { id: 'following', name: 'Following', color: '#ec4899', order: 2 },
   { id: 'done', name: 'Done', color: '#10b981', order: 3 },
 ];
 

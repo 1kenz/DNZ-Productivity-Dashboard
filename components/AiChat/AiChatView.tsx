@@ -40,7 +40,11 @@ export const AiChatView: React.FC = () => {
   const [messages, setMessages] = useState<AiMessage[]>([]);
   const [inputPrompt, setInputPrompt] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedModel, setSelectedModel] = useState<AiModelOption>(AI_MODELS[0]);
+  // Defaults to OpenAI's "Luna" model on a fresh/cold start -- falls back
+  // to the first listed model only if Luna isn't found in AI_MODELS.
+  const [selectedModel, setSelectedModel] = useState<AiModelOption>(
+    AI_MODELS.find((m) => m.id === 'gpt-5.6-luna') || AI_MODELS[0]
+  );
   const [aiSettings, setAiSettings] = useState<AiSettings | null>(null);
 
   const [isConfigOpen, setIsConfigOpen] = useState(false);
@@ -72,7 +76,12 @@ export const AiChatView: React.FC = () => {
   useEffect(() => {
     getAiSettings().then((s) => {
       setAiSettings(s);
-      if (s.defaultModel) {
+      // 'gemini-3.8-flash' was the original hardcoded fallback and there's
+      // no settings UI to actually choose a default model, so a stored
+      // value of exactly that is just leftover, never an intentional
+      // pick -- skip it so the Luna default above isn't silently
+      // overwritten by it on load.
+      if (s.defaultModel && s.defaultModel !== 'gemini-3.8-flash') {
         const found = AI_MODELS.find((m) => m.id === s.defaultModel);
         if (found) setSelectedModel(found);
       }

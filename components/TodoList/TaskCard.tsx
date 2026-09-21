@@ -62,13 +62,14 @@ export interface TaskCardProps {
 // disclosure that flattens the task's subtree in place. Kanban renders it
 // small and in status columns; Grid renders it large in a wrapping grid.
 export const TaskCard: React.FC<TaskCardProps> = ({ todo, size = 'compact', draggable, onDragStart, onDragEnd, onClick }) => {
-  const { todos, projects } = useApp();
+  const { todos, projects, kanbanColumns } = useApp();
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
   const [openSubtask, setOpenSubtask] = useState<Todo | null>(null);
 
   const subtaskCountOf = (id: string) => todos.filter((t) => t.parentTodoId === id).length;
   const project = projects.find((p) => p.id === todo.projectId);
+  const statusColumn = kanbanColumns.find((c) => c.id === todo.status);
   const taskSubtaskCount = subtaskCountOf(todo.id);
   const isOverdue = Boolean(todo.deadline) && !todo.completed && new Date(todo.deadline as Date) < new Date(new Date().toDateString());
   const priorityMeta = PRIORITY_META[todo.priority];
@@ -98,8 +99,27 @@ export const TaskCard: React.FC<TaskCardProps> = ({ todo, size = 'compact', drag
             onClick ? onClick() : setIsDetailOpen(true);
           }
         }}
+        // A colored left edge in the task's status color -- shown in both
+        // the Kanban board and the Grid view so a task's status reads at a
+        // glance even in Grid, where cards aren't already grouped by
+        // column the way Kanban's are.
+        style={statusColumn ? { borderLeftColor: statusColumn.color, borderLeftWidth: 3 } : undefined}
       >
         <div className={styles.title}>{todo.title}</div>
+
+        {/* Grid view has no column grouping to convey status by position
+           like Kanban does, so it gets an explicit status badge; Kanban
+           skips it to avoid repeating what the column header already
+           says. */}
+        {size === 'large' && statusColumn && (
+          <span
+            className={styles.statusTag}
+            style={{ color: statusColumn.color, background: `color-mix(in srgb, ${statusColumn.color} 16%, transparent)` }}
+          >
+            <span className={styles.statusDot} style={{ backgroundColor: statusColumn.color }} />
+            {statusColumn.name}
+          </span>
+        )}
 
         {project && (
           <span className={styles.projectTag} style={{ color: project.color }}>
