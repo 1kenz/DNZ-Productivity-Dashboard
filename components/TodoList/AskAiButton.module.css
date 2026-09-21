@@ -37,9 +37,8 @@
   color: var(--color-primary);
 }
 
-.robotEmoji {
-  font-size: 0.85em;
-  line-height: 1;
+.robotIcon {
+  flex-shrink: 0;
 }
 
 .popover {

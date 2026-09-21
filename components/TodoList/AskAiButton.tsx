@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useApp } from '@/contexts/AppContext';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { AiAssistantTabIcon } from '@/components/ui/TabIcons';
 import styles from './AskAiButton.module.css';
 
 interface AskAiButtonProps {
@@ -49,7 +50,7 @@ export const AskAiButton: React.FC<AskAiButtonProps> = ({ taskTitle, compact }) 
         }}
         title={t('tasks.askAi') || 'Ask AI'}
       >
-        <span className={styles.robotEmoji}>🤖</span>
+        <AiAssistantTabIcon size={compact ? 16 : 14} className={styles.robotIcon} />
         {!compact && <span>{t('tasks.askAi') || 'Ask AI'}</span>}
       </button>
 

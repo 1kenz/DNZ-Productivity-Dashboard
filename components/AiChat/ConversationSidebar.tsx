@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { AiConversation, AI_MODELS } from '@/types';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { AiAssistantTabIcon } from '@/components/ui/TabIcons';
 import styles from './ConversationSidebar.module.css';
 
 interface ConversationSidebarProps {
@@ -56,9 +57,9 @@ export const ConversationSidebar: React.FC<ConversationSidebarProps> = ({
     return c.title.toLowerCase().includes(search.trim().toLowerCase());
   });
 
-  const getModelIcon = (modelId: string) => {
+  const getModelIcon = (modelId: string): React.ReactNode => {
     const found = AI_MODELS.find((m) => m.id === modelId);
-    return found?.icon || '🤖';
+    return found?.icon || <AiAssistantTabIcon size={12} />;
   };
 
   const formatChatTitle = (title: string) => {
