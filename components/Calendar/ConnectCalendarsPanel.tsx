@@ -92,17 +92,24 @@ export const ConnectCalendarsPanel: React.FC<Props> = ({ status, calendars, onCh
             <div className={styles.accountList}>
               {googleAccounts.map((account) => (
                 <div key={account.id} className={styles.accountEntry}>
-                  <span className={styles.badge}>{account.label}</span>
-                  <button
-                    type="button"
-                    className={styles.disconnectBtn}
-                    onClick={() => handleDisconnectGoogle(account.id, account.label)}
-                    disabled={disconnectingId === account.id}
-                    title={t('calendar.disconnect')}
-                    aria-label={t('calendar.disconnect')}
-                  >
-                    ✕
-                  </button>
+                  <div className={styles.accountEntryRow}>
+                    <span className={styles.badge}>{account.label}</span>
+                    <button
+                      type="button"
+                      className={styles.disconnectBtn}
+                      onClick={() => handleDisconnectGoogle(account.id, account.label)}
+                      disabled={disconnectingId === account.id}
+                      title={t('calendar.disconnect')}
+                      aria-label={t('calendar.disconnect')}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                  {account.syncError && (
+                    <p className={styles.syncErrorText} title={account.syncError}>
+                      ⚠ {t('calendar.syncErrorHint')}
+                    </p>
+                  )}
                 </div>
               ))}
             </div>
@@ -126,17 +133,24 @@ export const ConnectCalendarsPanel: React.FC<Props> = ({ status, calendars, onCh
             <div className={styles.accountList}>
               {appleAccounts.map((account) => (
                 <div key={account.id} className={styles.accountEntry}>
-                  <span className={styles.badge}>{account.label}</span>
-                  <button
-                    type="button"
-                    className={styles.disconnectBtn}
-                    onClick={() => handleDisconnectApple(account.id, account.label)}
-                    disabled={disconnectingId === account.id}
-                    title={t('calendar.disconnect')}
-                    aria-label={t('calendar.disconnect')}
-                  >
-                    ✕
-                  </button>
+                  <div className={styles.accountEntryRow}>
+                    <span className={styles.badge}>{account.label}</span>
+                    <button
+                      type="button"
+                      className={styles.disconnectBtn}
+                      onClick={() => handleDisconnectApple(account.id, account.label)}
+                      disabled={disconnectingId === account.id}
+                      title={t('calendar.disconnect')}
+                      aria-label={t('calendar.disconnect')}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                  {account.syncError && (
+                    <p className={styles.syncErrorText} title={account.syncError}>
+                      ⚠ {t('calendar.syncErrorHint')}
+                    </p>
+                  )}
                 </div>
               ))}
             </div>

@@ -23,8 +23,10 @@ import styles from './CalendarView.module.css';
 const HOUR_HEIGHT = 48; // px per hour row in the day/week grid
 const DAY_START_HOUR = 0;
 const DAY_END_HOUR = 24;
-const WORK_HOURS_START = 7; // default scroll position: 07:00 at the top --
-// the full 0-24h grid is still there, just scrolled past the night hours.
+const WORK_HOURS_START = 6; // default scroll position: 06:00 at the top,
+// paired with .timeGridScroll's max-height so 06:00-18:00 is the default
+// visible window without scrolling -- the full 0-24h grid is still there,
+// just scrolled past the night hours.
 
 function minutesSinceMidnight(date: Date): number {
   return date.getHours() * 60 + date.getMinutes();
@@ -58,10 +60,14 @@ export const CalendarView: React.FC = () => {
   const loadCalendars = useCallback(async () => {
     setIsLoadingCalendars(true);
     try {
-      const [cals, st] = await Promise.all([
-        calendarActions.listAllCalendars(),
-        calendarActions.getConnectedCalendarAccountsStatus(),
-      ]);
+      // A single combined call -- see getCalendarsAndStatus() -- instead
+      // of listAllCalendars() + getConnectedCalendarAccountsStatus() side
+      // by side, which duplicated every connected account's Google/Apple
+      // API attempt. It also carries a per-account syncError so a token/
+      // scope problem on one account shows up as a warning in Manage
+      // Calendars instead of that account's calendars just silently never
+      // appearing in the visibility toggle list.
+      const { calendars: cals, status: st } = await calendarActions.getCalendarsAndStatus();
       setCalendars(cals);
       setStatus(st);
     } catch (err) {

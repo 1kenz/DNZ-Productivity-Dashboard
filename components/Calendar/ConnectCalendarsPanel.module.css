@@ -56,14 +56,30 @@
 
 .accountEntry {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-2);
+  flex-direction: column;
+  gap: 2px;
   padding: var(--space-1) var(--space-2);
   background: var(--color-bg-secondary);
   border-radius: var(--radius-sm);
   font-size: var(--font-size-xs);
   color: var(--color-text-secondary);
+}
+
+.accountEntryRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+/* Shown under an account whose calendars failed to load (expired token,
+   missing Calendar API scope/enablement, etc.) -- without this the
+   account just connects fine but its calendars silently never show up in
+   .calendarList below, with no explanation. */
+.syncErrorText {
+  font-size: var(--font-size-xs);
+  color: var(--color-error);
+  line-height: var(--line-height-normal);
 }
 
 .disconnectBtn {
@@ -146,8 +162,14 @@
   cursor: pointer;
 }
 
+/* Was `flex: 1`, which stretched to fill the row and shoved
+   .calendarProvider all the way to the far right edge -- for a short name
+   like "My Calendar" that left the provider/account label stranded well
+   away from it. Bounding the name instead (grow: 0) keeps it and the
+   provider label sitting right next to each other, with any leftover
+   space simply staying empty on the right. */
 .calendarName {
-  flex: 1;
+  flex: 0 1 200px;
   font-size: var(--font-size-sm);
   color: var(--color-text-primary);
   overflow: hidden;
@@ -156,6 +178,7 @@
 }
 
 .calendarProvider {
+  flex: none;
   font-size: var(--font-size-xs);
   color: var(--color-text-secondary);
 }

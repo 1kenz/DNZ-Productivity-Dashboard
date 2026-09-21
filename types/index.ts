@@ -281,6 +281,11 @@ export interface UnifiedCalendarEvent {
 export interface ConnectedCalendarAccount {
   id: string;
   label: string; // email (Google) or Apple ID (Apple)
+  // Set when this account's calendars could not be fetched on the last
+  // load (expired token, missing API scope/enablement, etc.) -- surfaced
+  // as an inline warning in ConnectCalendarsPanel instead of that
+  // account's calendars just silently not appearing in the toggle list.
+  syncError?: string;
 }
 
 // Now a list per provider rather than a single connected/email pair --

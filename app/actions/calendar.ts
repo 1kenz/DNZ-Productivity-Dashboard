@@ -6,7 +6,7 @@ import { revalidatePath } from 'next/cache';
 import { isGoogleDriveConfigured, getValidAccessToken } from '@/lib/googleDrive';
 import { listGoogleCalendars, getGoogleEvents, createGoogleEvent, NewEventInput } from '@/lib/googleCalendar';
 import { createAppleClient, listAppleCalendars, getAppleEvents, createAppleEvent } from '@/lib/appleCalendar';
-import { CalendarInfo, CalendarProvider, ConnectedCalendarAccountsStatus, UnifiedCalendarEvent } from '@/types';
+import { CalendarInfo, CalendarProvider, ConnectedCalendarAccount, ConnectedCalendarAccountsStatus, UnifiedCalendarEvent } from '@/types';
 
 // The built-in fallback calendar -- always present in listAllCalendars()
 // so a person can add an event before connecting Google/Apple at all (or
@@ -114,44 +114,53 @@ async function getAppleAccounts(): Promise<AppleCalendarAccountRow[]> {
   return db.appleCalendarAccount.findMany({ orderBy: { createdAt: 'asc' } });
 }
 
-/** Merges each connected account's live calendar list with this app's
- * stored visibility/color preferences, creating a preference row for any
- * calendar seen for the first time (default: visible, provider's own
- * color). Every calendar from every connected Google/Apple account is
- * included, tagged with which account it came from. */
-export async function listAllCalendars(): Promise<CalendarInfo[]> {
-  const results: CalendarInfo[] = [];
+interface GoogleAccountRow {
+  id: string;
+  email: string | null;
+}
 
-  const googleAccounts = await db.googleDriveAuth.findMany({ orderBy: { createdAt: 'asc' } });
-  for (const account of googleAccounts) {
-    try {
-      const accessToken = await getValidAccessToken(account.id);
-      const googleCals = await listGoogleCalendars(accessToken);
-      results.push(
-        ...googleCals.map((c) => ({ ...c, accountId: account.id, accountLabel: account.email || undefined }))
-      );
-    } catch (err) {
-      console.error(`[calendar] listAllCalendars: Google fetch failed for account ${account.id}:`, err);
-    }
+interface ProviderFetchResult {
+  calendars: CalendarInfo[];
+  error?: string;
+}
+
+/** Isolates one Google account's calendar-list fetch so a token/scope/API
+ * problem on ONE account never breaks the others -- the failure is
+ * returned as `error` instead of just being swallowed, so the caller can
+ * decide whether to surface it (see getCalendarsAndStatus()) or ignore it
+ * (see listAllCalendars(), used for the event grid where a bare console
+ * warning is enough). */
+async function fetchGoogleAccountCalendars(account: GoogleAccountRow): Promise<ProviderFetchResult> {
+  try {
+    const accessToken = await getValidAccessToken(account.id);
+    const googleCals = await listGoogleCalendars(accessToken);
+    return {
+      calendars: googleCals.map((c) => ({ ...c, accountId: account.id, accountLabel: account.email || undefined })),
+    };
+  } catch (err) {
+    console.error(`[calendar] Google calendar fetch failed for account ${account.id}:`, err);
+    return { calendars: [], error: err instanceof Error ? err.message : String(err) };
   }
+}
 
-  const appleAccounts = await getAppleAccounts();
-  for (const account of appleAccounts) {
-    try {
-      const client = await createAppleClient(account.appleId, account.appPassword);
-      const appleCals = await listAppleCalendars(client);
-      results.push(...appleCals.map((c) => ({ ...c, accountId: account.id, accountLabel: account.appleId })));
-    } catch (err) {
-      console.error(`[calendar] listAllCalendars: Apple fetch failed for account ${account.id}:`, err);
-    }
+/** Same isolation as fetchGoogleAccountCalendars(), for one Apple account. */
+async function fetchAppleAccountCalendars(account: AppleCalendarAccountRow): Promise<ProviderFetchResult> {
+  try {
+    const client = await createAppleClient(account.appleId, account.appPassword);
+    const appleCals = await listAppleCalendars(client);
+    return { calendars: appleCals.map((c) => ({ ...c, accountId: account.id, accountLabel: account.appleId })) };
+  } catch (err) {
+    console.error(`[calendar] Apple calendar fetch failed for account ${account.id}:`, err);
+    return { calendars: [], error: err instanceof Error ? err.message : String(err) };
   }
+}
 
-  // Appended last (not first) so a connected Google/Apple calendar keeps
-  // priority as EventModal's default selection -- "My Calendar" is only
-  // ever the fallback, never a surprise default once something real is
-  // connected.
-  results.push({ ...LOCAL_CALENDAR_DEFAULTS });
-
+/** Merges a raw calendar list with this app's stored visibility/color
+ * preferences, creating a preference row for any calendar seen for the
+ * first time (default: visible, provider's own color). Shared by
+ * listAllCalendars() and getCalendarsAndStatus() so the upsert-missing-
+ * preferences logic only lives in one place. */
+async function mergeCalendarPreferences(results: CalendarInfo[]): Promise<CalendarInfo[]> {
   const prefs: CalendarPreferenceRow[] = await db.calendarPreference.findMany({
     where: {
       OR: results.map((c) => ({ provider: c.provider, accountId: c.accountId ?? null, calendarId: c.id })),
@@ -194,6 +203,78 @@ export async function listAllCalendars(): Promise<CalendarInfo[]> {
       ? { ...c, name: pref.name, color: pref.color, visible: pref.visible, writable: pref.writable }
       : c;
   });
+}
+
+/** Every calendar from every connected Google/Apple account, tagged with
+ * which account it came from, merged with this app's stored visibility/
+ * color preferences. Used internally (getEventsInRange) and by EventModal;
+ * a per-account fetch failure is only logged here, not surfaced -- see
+ * getCalendarsAndStatus() for the UI-facing version that reports it. */
+export async function listAllCalendars(): Promise<CalendarInfo[]> {
+  const results: CalendarInfo[] = [];
+
+  const googleAccounts: GoogleAccountRow[] = await db.googleDriveAuth.findMany({ orderBy: { createdAt: 'asc' } });
+  for (const account of googleAccounts) {
+    results.push(...(await fetchGoogleAccountCalendars(account)).calendars);
+  }
+
+  const appleAccounts = await getAppleAccounts();
+  for (const account of appleAccounts) {
+    results.push(...(await fetchAppleAccountCalendars(account)).calendars);
+  }
+
+  // Appended last (not first) so a connected Google/Apple calendar keeps
+  // priority as EventModal's default selection -- "My Calendar" is only
+  // ever the fallback, never a surprise default once something real is
+  // connected.
+  results.push({ ...LOCAL_CALENDAR_DEFAULTS });
+
+  return mergeCalendarPreferences(results);
+}
+
+/** Same data as listAllCalendars() + getConnectedCalendarAccountsStatus()
+ * combined into a single round of Google/Apple account fetches (instead of
+ * CalendarView calling both separately, which duplicated every account's
+ * API attempt), and additionally carries a per-account `syncError` when
+ * that account's calendars couldn't be fetched. Without this, an account
+ * with an expired token, a missing Calendar API scope/enablement, etc.
+ * would connect successfully (it shows up in "Manage Calendars") but its
+ * calendars would just silently never appear in the visibility toggle
+ * list, with nothing telling the person why. */
+export async function getCalendarsAndStatus(): Promise<{
+  calendars: CalendarInfo[];
+  status: ConnectedCalendarAccountsStatus;
+}> {
+  const results: CalendarInfo[] = [];
+
+  const googleAccountsRaw: GoogleAccountRow[] = await db.googleDriveAuth.findMany({
+    orderBy: { createdAt: 'asc' },
+  });
+  const googleAccounts: ConnectedCalendarAccount[] = [];
+  for (const account of googleAccountsRaw) {
+    const { calendars, error } = await fetchGoogleAccountCalendars(account);
+    results.push(...calendars);
+    googleAccounts.push({ id: account.id, label: account.email || account.id, syncError: error });
+  }
+
+  const appleAccountsRaw = await getAppleAccounts();
+  const appleAccounts: ConnectedCalendarAccount[] = [];
+  for (const account of appleAccountsRaw) {
+    const { calendars, error } = await fetchAppleAccountCalendars(account);
+    results.push(...calendars);
+    appleAccounts.push({ id: account.id, label: account.appleId, syncError: error });
+  }
+
+  results.push({ ...LOCAL_CALENDAR_DEFAULTS });
+  const calendars = await mergeCalendarPreferences(results);
+
+  return {
+    calendars,
+    status: {
+      google: { configured: isGoogleDriveConfigured(), accounts: googleAccounts },
+      apple: { configured: true, accounts: appleAccounts },
+    },
+  };
 }
 
 export async function updateCalendarPreference(
