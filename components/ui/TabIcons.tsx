@@ -119,32 +119,32 @@ export const AnalyticsTabIcon: React.FC<IconProps> = ({ size = 16, className }) 
 
 // Friendly robot-head mark for the AI Assistant -- used both as this
 // tab's icon and as the assistant's avatar on its chat bubbles (see
-// MessageBubble.tsx). Deliberately painted with theme tokens rather than
-// a fixed brand gradient (unlike this file's other tab icons): a solid
-// black head would disappear against a dark background, so the head/ears/
-// antenna use --color-text-primary (flips light/dark automatically) and
-// the eyes/mouth punch through in --color-bg-secondary with a
-// --color-primary pupil accent.
+// MessageBubble.tsx). Proportions are traced from the reference robot
+// mascot artwork the user supplied (rounded square head, thick top/bottom
+// screen bezel with thin side bezels, round ear bumps, ball antenna).
+// The plastic body (head/ears/antenna) uses --color-primary so it stays
+// on-brand and adapts across themes, while the screen stays a fixed dark
+// tone with pure-white eyes/mouth -- matching the reference art and
+// keeping the face legible at small tab-icon sizes in either theme.
 export const AiAssistantTabIcon: React.FC<IconProps> = ({ size = 16, className }) => (
   <svg
     width={size}
     height={size}
-    viewBox="0 0 24 24"
+    viewBox="0 0 32 32"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
     className={className}
     style={{ flexShrink: 0 }}
   >
-    <line x1="12" y1="1.5" x2="12" y2="4.2" stroke="var(--color-text-primary)" strokeWidth="1.6" strokeLinecap="round" />
-    <circle cx="12" cy="1.4" r="1.3" fill="var(--color-text-primary)" />
-    <rect x="0.8" y="9" width="2.6" height="6.5" rx="1.3" fill="var(--color-text-primary)" />
-    <rect x="20.6" y="9" width="2.6" height="6.5" rx="1.3" fill="var(--color-text-primary)" />
-    <rect x="3.8" y="4" width="16.4" height="15.5" rx="5.5" fill="var(--color-text-primary)" />
-    <circle cx="9" cy="11.8" r="2" fill="var(--color-bg-secondary)" />
-    <circle cx="9" cy="11.8" r="0.9" fill="var(--color-primary)" />
-    <circle cx="15" cy="11.8" r="2" fill="var(--color-bg-secondary)" />
-    <circle cx="15" cy="11.8" r="0.9" fill="var(--color-primary)" />
-    <path d="M9 16 Q12 18.2 15 16" stroke="var(--color-bg-secondary)" strokeWidth="1.5" strokeLinecap="round" fill="none" />
+    <rect x="1.6" y="14.1" width="4.3" height="7.7" rx="2.15" fill="var(--color-primary)" />
+    <rect x="26.1" y="14.1" width="4.3" height="7.7" rx="2.15" fill="var(--color-primary)" />
+    <line x1="16.17" y1="7.9" x2="16.17" y2="8.6" stroke="var(--color-primary)" strokeWidth="1.1" strokeLinecap="round" />
+    <circle cx="16.17" cy="5.6" r="2.35" fill="var(--color-primary)" />
+    <rect x="4.7" y="8.3" width="23" height="20" rx="5.3" fill="var(--color-primary)" />
+    <rect x="5.5" y="11.6" width="21.2" height="13" rx="3" fill="#181b24" />
+    <ellipse cx="11.9" cy="17.1" rx="1.45" ry="1.75" fill="#ffffff" />
+    <ellipse cx="20.35" cy="17.05" rx="1.45" ry="1.75" fill="#ffffff" />
+    <path d="M12 21 Q16.17 23 20.3 21" stroke="#ffffff" strokeWidth="1.1" strokeLinecap="round" fill="none" />
   </svg>
 );
 
