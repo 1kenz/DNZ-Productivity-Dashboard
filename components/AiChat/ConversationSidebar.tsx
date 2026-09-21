@@ -12,6 +12,7 @@ interface ConversationSidebarProps {
   onNewChat: () => void;
   onDeleteConversation: (id: string) => void;
   onTogglePin: (id: string, currentPin: boolean) => void;
+  onRenameConversation: (id: string, newTitle: string) => void;
   onOpenSettings: () => void;
   onOpenLiveVoice: () => void;
 }
@@ -23,11 +24,32 @@ export const ConversationSidebar: React.FC<ConversationSidebarProps> = ({
   onNewChat,
   onDeleteConversation,
   onTogglePin,
+  onRenameConversation,
   onOpenSettings,
   onOpenLiveVoice,
 }) => {
   const { t, language } = useLanguage();
   const [search, setSearch] = useState('');
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editValue, setEditValue] = useState('');
+
+  const startRename = (chat: AiConversation) => {
+    setEditingId(chat.id);
+    setEditValue(formatChatTitle(chat.title));
+  };
+
+  const commitRename = () => {
+    if (editingId) {
+      onRenameConversation(editingId, editValue);
+    }
+    setEditingId(null);
+    setEditValue('');
+  };
+
+  const cancelRename = () => {
+    setEditingId(null);
+    setEditValue('');
+  };
 
   const filtered = conversations.filter((c) => {
     if (!search.trim()) return true;
@@ -106,9 +128,30 @@ export const ConversationSidebar: React.FC<ConversationSidebarProps> = ({
               <div className={styles.chatContent}>
                 <div className={styles.chatTitleRow}>
                   <span className={styles.modelIcon}>{getModelIcon(chat.model)}</span>
-                  <span className={styles.chatTitle} title={formatChatTitle(chat.title)}>
-                    {formatChatTitle(chat.title)}
-                  </span>
+                  {editingId === chat.id ? (
+                    <input
+                      type="text"
+                      className={styles.titleInput}
+                      value={editValue}
+                      autoFocus
+                      onClick={(e) => e.stopPropagation()}
+                      onChange={(e) => setEditValue(e.target.value)}
+                      onBlur={commitRename}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          commitRename();
+                        } else if (e.key === 'Escape') {
+                          e.preventDefault();
+                          cancelRename();
+                        }
+                      }}
+                    />
+                  ) : (
+                    <span className={styles.chatTitle} title={formatChatTitle(chat.title)}>
+                      {formatChatTitle(chat.title)}
+                    </span>
+                  )}
                 </div>
                 <span className={styles.chatDate}>
                   {new Date(chat.updatedAt).toLocaleDateString(locale, {
@@ -122,6 +165,17 @@ export const ConversationSidebar: React.FC<ConversationSidebarProps> = ({
                 className={`${styles.chatActions} ${chat.pinned ? styles.hasPinned : ''}`}
                 onClick={(e) => e.stopPropagation()}
               >
+                <button
+                  type="button"
+                  className={styles.iconBtn}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    startRename(chat);
+                  }}
+                  title={t('ai.renameChat') || 'Rename chat'}
+                >
+                  ✏️
+                </button>
                 <button
                   type="button"
                   className={`${styles.iconBtn} ${chat.pinned ? styles.pinnedBtn : ''}`}

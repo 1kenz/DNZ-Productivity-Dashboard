@@ -150,6 +150,19 @@
   color: #71717a;
 }
 
+.titleInput {
+  font-size: 0.82rem;
+  font-weight: 500;
+  width: 100%;
+  min-width: 0;
+  padding: 1px 4px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid #6366f1;
+  color: #ffffff;
+  outline: none;
+}
+
 .chatActions {
   display: flex;
   align-items: center;
@@ -260,6 +273,12 @@
 }
 
 :global([data-theme="light"]) .chatTitle {
+  color: #0f172a;
+}
+
+:global([data-theme="light"]) .titleInput {
+  background: #ffffff;
+  border-color: #6366f1;
   color: #0f172a;
 }
 

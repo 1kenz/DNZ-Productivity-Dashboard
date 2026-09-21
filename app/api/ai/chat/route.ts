@@ -226,23 +226,44 @@ export async function POST(req: NextRequest) {
       // regular chat model this app actually lists in its picker -- so this
       // call goes through Responses instead, which supports real web search
       // across the full range of GA chat models.
-      const res = await fetch('https://api.openai.com/v1/responses', {
+      const openAiBody: { model: string; input: typeof openAiInput; temperature?: number; tools: Array<{ type: string }> } = {
+        model: openAiModel,
+        input: openAiInput,
+        temperature: 0.7,
+        tools: [{ type: 'web_search' }],
+      };
+
+      let res = await fetch('https://api.openai.com/v1/responses', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${apiKey}`,
         },
-        body: JSON.stringify({
-          model: openAiModel,
-          input: openAiInput,
-          temperature: 0.7,
-          tools: [{ type: 'web_search' }],
-        }),
+        body: JSON.stringify(openAiBody),
       });
 
       if (!res.ok) {
         const errJson = await res.json().catch(() => ({}));
-        throw new Error(errJson?.error?.message || `OpenAI API Error: ${res.status} ${res.statusText}`);
+        const errMsg: string = errJson?.error?.message || '';
+        // Newer "reasoning" style OpenAI models (the o-series, and some
+        // GPT-5 family tiers such as the economical "Luna" model) reject a
+        // custom `temperature` value outright -- only the API default is
+        // allowed. Retry once without it instead of failing the whole turn.
+        if (/temperature/i.test(errMsg) && /not supported/i.test(errMsg)) {
+          delete openAiBody.temperature;
+          res = await fetch('https://api.openai.com/v1/responses', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${apiKey}`,
+            },
+            body: JSON.stringify(openAiBody),
+          });
+        }
+        if (!res.ok) {
+          const retryErrJson = await res.json().catch(() => ({}));
+          throw new Error(retryErrJson?.error?.message || errMsg || `OpenAI API Error: ${res.status} ${res.statusText}`);
+        }
       }
 
       const data = await res.json();

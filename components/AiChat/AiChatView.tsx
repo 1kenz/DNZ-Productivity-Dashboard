@@ -192,6 +192,20 @@ export const AiChatView: React.FC = () => {
     }
   };
 
+  const handleRenameChat = async (id: string, newTitle: string) => {
+    const trimmed = newTitle.trim();
+    if (!trimmed) return;
+
+    setConversations((prev) => prev.map((c) => (c.id === id ? { ...c, title: trimmed } : c)));
+    setActiveConversation((prev) => (prev && prev.id === id ? { ...prev, title: trimmed } : prev));
+
+    try {
+      await updateAiConversation(id, { title: trimmed });
+    } catch (e) {
+      console.error('Rename chat error:', e);
+    }
+  };
+
   const handleSendMessage = async (customPrompt?: string) => {
     const textToSend = (customPrompt !== undefined ? customPrompt : inputPrompt).trim();
     if (!textToSend || isLoading) return;
@@ -585,6 +599,7 @@ Lütfen şu şablonla Apple tarzı, net ve ilham verici bir rapor üret:
         }}
         onDeleteConversation={handleDeleteChat}
         onTogglePin={handleTogglePin}
+        onRenameConversation={handleRenameChat}
         onOpenSettings={() => setIsConfigOpen(true)}
         onOpenLiveVoice={() => setIsLiveVoiceOpen(true)}
       />

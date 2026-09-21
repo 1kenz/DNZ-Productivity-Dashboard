@@ -47,6 +47,34 @@ export const LiveVoiceModal: React.FC<LiveVoiceModalProps> = ({
     defaultLanguage: language,
   });
 
+  // Speaks `text` with the currently selected voice, then resumes listening
+  // once playback finishes -- shared by both a real reply and an error
+  // message, so a failed turn still gets the same audible hand-back to the
+  // user instead of silently reopening the mic with no explanation.
+  const speakAndResumeListening = (text: string) => {
+    let rate = 1.0;
+    let pitch = 1.0;
+    if (typeof window !== 'undefined') {
+      const r = localStorage.getItem('dnz_ai_voice_rate');
+      if (r) rate = parseFloat(r) || 1.0;
+      const p = localStorage.getItem('dnz_ai_voice_pitch');
+      if (p) pitch = parseFloat(p) || 1.0;
+    }
+
+    const presetId = selectedVoiceName?.startsWith('preset:') ? selectedVoiceName.replace('preset:', '') : undefined;
+    const directVoice = !selectedVoiceName?.startsWith('preset:') ? selectedVoiceName : undefined;
+
+    speak(text, language, directVoice, presetId, rate, pitch, () => {
+      if (isOpenRef.current) {
+        latestPromptRef.current = '';
+        resetTranscript();
+        setCurrentPrompt('');
+        setLiveState('listening');
+        startListening();
+      }
+    });
+  };
+
   const handleSendVoicePrompt = async (explicitText?: string) => {
     const textToSend = (explicitText || latestPromptRef.current || currentPrompt).trim();
     if (!textToSend || !isOpenRef.current) {
@@ -98,6 +126,17 @@ export const LiveVoiceModal: React.FC<LiveVoiceModalProps> = ({
       }
 
       const data = await res.json();
+
+      // The route returns HTTP 500 + { error } (no `content`) whenever the
+      // provider call itself fails (bad/missing key, rate limit, a
+      // rejected parameter like temperature, etc.) -- this used to go
+      // unnoticed here and get replaced by a generic "No response", so a
+      // real, actionable error was silently thrown away. Surface it the
+      // same way the text chat does.
+      if (!res.ok || data?.error) {
+        throw new Error(data?.error || `${res.status} ${res.statusText}`);
+      }
+
       const reply = data?.content || (t('ai.errorOccurred') || 'No response');
 
       if (!isOpenRef.current) return;
@@ -109,37 +148,18 @@ export const LiveVoiceModal: React.FC<LiveVoiceModalProps> = ({
         onNewMessage(textToSend, reply);
       }
 
-      // Read custom speed/pitch
-      let rate = 1.0;
-      let pitch = 1.0;
-      if (typeof window !== 'undefined') {
-        const r = localStorage.getItem('dnz_ai_voice_rate');
-        if (r) rate = parseFloat(r) || 1.0;
-        const p = localStorage.getItem('dnz_ai_voice_pitch');
-        if (p) pitch = parseFloat(p) || 1.0;
-      }
-
       // Speak response with user selected voice (neural AI or high-res system voice)
-      const presetId = selectedVoiceName?.startsWith('preset:') ? selectedVoiceName.replace('preset:', '') : undefined;
-      const directVoice = !selectedVoiceName?.startsWith('preset:') ? selectedVoiceName : undefined;
-      
-      speak(reply, language, directVoice, presetId, rate, pitch, () => {
-        if (isOpenRef.current) {
-          latestPromptRef.current = '';
-          resetTranscript();
-          setCurrentPrompt('');
-          setLiveState('listening');
-          startListening();
-        }
-      });
+      speakAndResumeListening(reply);
     } catch (err: any) {
       if (err?.name === 'AbortError' || !isOpenRef.current) {
         return;
       }
       console.error('Live voice error:', err);
       if (isOpenRef.current) {
-        setLiveState('listening');
-        startListening();
+        const errorText = `${t('ai.errorOccurred') || 'Bir hata oluştu'}: ${err?.message || 'Yapay zeka ile iletişim kurulamadı.'}`;
+        setLastReply(errorText);
+        setLiveState('speaking');
+        speakAndResumeListening(errorText);
       }
     }
   };

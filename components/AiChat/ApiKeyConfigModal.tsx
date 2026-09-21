@@ -176,7 +176,7 @@ export const ApiKeyConfigModal: React.FC<ApiKeyConfigModalProps> = ({
 
         <div className={styles.modalBody}>
           {saveSuccess && (
-            <div style={{ padding: '10px 14px', borderRadius: '8px', background: 'rgba(16, 185, 129, 0.2)', border: '1px solid #10b981', color: '#6ee7b7', fontSize: '0.85rem' }}>
+            <div className={styles.successBanner}>
               ✓ {t('ai.savedSuccess') || 'API keys and voice preferences saved successfully!'}
             </div>
           )}
@@ -200,7 +200,7 @@ export const ApiKeyConfigModal: React.FC<ApiKeyConfigModalProps> = ({
               </button>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '8px' }}>
+            <div className={styles.personaGrid}>
               {CHATGPT_VOICE_PRESETS.map((p) => {
                 const isSelected = selectedPreset === p.id;
                 return (
@@ -212,27 +212,16 @@ export const ApiKeyConfigModal: React.FC<ApiKeyConfigModalProps> = ({
                       setSelectedVoice('');
                       handleTestVoice(p.id);
                     }}
-                    style={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'flex-start',
-                      padding: '10px',
-                      borderRadius: '10px',
-                      background: isSelected ? 'rgba(99, 102, 241, 0.18)' : 'rgba(255, 255, 255, 0.04)',
-                      border: isSelected ? '1.5px solid #818cf8' : '1px solid rgba(255, 255, 255, 0.08)',
-                      cursor: 'pointer',
-                      textAlign: 'left',
-                      transition: 'all 0.15s ease',
-                    }}
+                    className={`${styles.personaCard} ${isSelected ? styles.personaCardSelected : ''}`}
                   >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', width: '100%', marginBottom: '4px' }}>
-                      <span style={{ fontSize: '1.1rem' }}>{p.avatar}</span>
-                      <strong style={{ fontSize: '0.82rem', color: isSelected ? '#ffffff' : '#e4e4e7' }}>
+                    <div className={styles.personaCardHead}>
+                      <span className={styles.personaAvatar}>{p.avatar}</span>
+                      <strong className={`${styles.personaName} ${isSelected ? styles.personaNameSelected : ''}`}>
                         {p.name.split(' ')[1] || p.name}
                       </strong>
-                      {isSelected && <span style={{ marginLeft: 'auto', color: '#818cf8', fontSize: '0.8rem' }}>✓</span>}
+                      {isSelected && <span className={styles.personaCheck}>✓</span>}
                     </div>
-                    <span style={{ fontSize: '0.7rem', color: '#a1a1aa', lineHeight: 1.3 }}>
+                    <span className={styles.personaDesc}>
                       {p.description.split('(')[0]}
                     </span>
                   </button>
@@ -281,7 +270,7 @@ export const ApiKeyConfigModal: React.FC<ApiKeyConfigModalProps> = ({
             </div>
           </div>
 
-          <hr style={{ border: 'none', borderTop: '1px solid rgba(255, 255, 255, 0.08)', margin: '4px 0' }} />
+          <hr className={styles.divider} />
 
           {/* API Keys */}
           <div className={styles.formGroup}>

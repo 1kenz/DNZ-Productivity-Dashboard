@@ -63,3 +63,22 @@ export function shiftAnchor(view: 'day' | 'week' | 'month', anchor: Date, direct
   if (view === 'week') return addDays(anchor, 7 * direction);
   return new Date(anchor.getFullYear(), anchor.getMonth() + direction, 1);
 }
+
+/** ISO 8601 week number (weeks start Monday, week 1 is the week containing
+ * the year's first Thursday) -- matches the Monday-start weeks used
+ * throughout this file, unlike the US-style Sunday-start week numbering
+ * some libraries default to. */
+export function getIsoWeekNumber(date: Date): number {
+  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  const dayNum = d.getUTCDay() || 7; // Mon=1..Sun=7
+  d.setUTCDate(d.getUTCDate() + 4 - dayNum); // shift to this week's Thursday
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  return Math.ceil(((d.getTime() - yearStart.getTime()) / 86400000 + 1) / 7);
+}
+
+/** 1-indexed day-of-year (Jan 1 = 1). */
+export function getDayOfYear(date: Date): number {
+  const yearStart = startOfDay(new Date(date.getFullYear(), 0, 1));
+  const diffDays = Math.round((startOfDay(date).getTime() - yearStart.getTime()) / 86400000);
+  return diffDays + 1;
+}

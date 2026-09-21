@@ -10,6 +10,8 @@ import { CalendarInfo, CalendarViewMode, ConnectedCalendarAccountsStatus, Unifie
 import {
   addDays,
   endOfDay,
+  getDayOfYear,
+  getIsoWeekNumber,
   getRangeForView,
   isSameDay,
   shiftAnchor,
@@ -151,6 +153,15 @@ export const CalendarView: React.FC<Props> = ({ autoOpenManage }) => {
     return anchor.toLocaleDateString(locale, { month: 'long', year: 'numeric' });
   }, [view, anchor, locale]);
 
+  // Week-of-year (Day view) / day-of-year (Week view) sublabel -- Month
+  // view has no single well-defined "Nth of the year" number, so it's left
+  // out there.
+  const headerSubLabel = useMemo(() => {
+    if (view === 'week') return t('calendar.weekOfYear', { n: getIsoWeekNumber(anchor) });
+    if (view === 'day') return t('calendar.dayOfYear', { n: getDayOfYear(anchor) });
+    return null;
+  }, [view, anchor, t]);
+
   const hourRows = useMemo(
     () => Array.from({ length: DAY_END_HOUR - DAY_START_HOUR }, (_, i) => DAY_START_HOUR + i),
     []
@@ -177,6 +188,7 @@ export const CalendarView: React.FC<Props> = ({ autoOpenManage }) => {
         <div className={styles.toolbarLeft}>
           <CalendarTabIcon size={20} />
           <h2 className={styles.headerLabel}>{headerLabel}</h2>
+          {headerSubLabel && <span className={styles.headerSubLabel}>{headerSubLabel}</span>}
         </div>
         <div className={styles.toolbarRight}>
           <Button variant="ghost" size="sm" onClick={() => setAnchor(new Date())}>

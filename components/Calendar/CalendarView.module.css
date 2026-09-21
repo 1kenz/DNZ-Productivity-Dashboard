@@ -43,6 +43,14 @@
   text-transform: capitalize;
 }
 
+.headerSubLabel {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-tertiary);
+  margin-left: var(--space-1);
+  white-space: nowrap;
+}
+
 .toolbarRight {
   display: flex;
   align-items: center;
