@@ -517,6 +517,8 @@ export const LiveVoiceModal: React.FC<LiveVoiceModalProps> = ({
           }}
         >
           mod: {isElectronApp() ? 'electron' : 'browser'}
+          {' | build: '}
+          {process.env.NEXT_PUBLIC_BUILD_ID || 'dev'}
           {debugStatus ? ` | ${debugStatus}` : ''}
         </span>
       </div>

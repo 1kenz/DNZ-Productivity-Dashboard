@@ -12,7 +12,16 @@ echo "🧬 [2/6] Generating Prisma client (native macOS engine)..."
 npx prisma generate
 
 echo "🏗  [3/6] Building the Next.js app (standalone output)..."
-npm run build
+# Baked into the client bundle (NEXT_PUBLIC_*) so the Live Voice debug
+# badge can show exactly which build is actually running on screen --
+# this whole desktop-app debugging effort has repeatedly turned out to be
+# "the fix is right but the .dmg/Applications copy being tested predates
+# it", discovered only after a lot of back-and-forth. This removes the
+# guesswork going forward: the badge's build id should always match the
+# git short SHA you just built from.
+BUILD_ID="$(git rev-parse --short HEAD 2>/dev/null || echo unknown)-$(date +%H%M)"
+echo "   Build id for on-screen debug badge: $BUILD_ID"
+NEXT_PUBLIC_BUILD_ID="$BUILD_ID" npm run build
 
 echo "🧹 [4/6] Assembling desktop app resources..."
 rm -rf desktop/resources

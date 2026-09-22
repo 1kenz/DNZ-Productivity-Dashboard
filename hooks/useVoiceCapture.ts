@@ -155,6 +155,14 @@ function useElectronAudioCapture({
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const vadIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  // Independent watchdog, NOT driven by the 100ms VAD tick interval --
+  // a real-world case (reported: frozen on "dinleniyor..." for 40-50s+,
+  // well past the 20s MAX_RECORDING_MS the tick loop is supposed to
+  // enforce) showed the tick-based cap alone is not reliable enough,
+  // whether from interval throttling or some other stall in that loop.
+  // This setTimeout fires on the wall clock regardless of whether the
+  // tick interval is running at all, and force-recovers the cycle.
+  const hardStopTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const speechStartedRef = useRef(false);
   const cycleStartRef = useRef(0);
   const lastLoudTimeRef = useRef(0);
@@ -194,8 +202,16 @@ function useElectronAudioCapture({
     analyserRef.current = null;
   }, []);
 
+  const clearHardStopWatchdog = useCallback(() => {
+    if (hardStopTimeoutRef.current !== null) {
+      clearTimeout(hardStopTimeoutRef.current);
+      hardStopTimeoutRef.current = null;
+    }
+  }, []);
+
   const teardownStream = useCallback(() => {
     cancelVadLoop();
+    clearHardStopWatchdog();
     if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
       try {
         mediaRecorderRef.current.stop();
@@ -206,7 +222,7 @@ function useElectronAudioCapture({
       mediaStreamRef.current.getTracks().forEach((t) => t.stop());
       mediaStreamRef.current = null;
     }
-  }, [cancelVadLoop]);
+  }, [cancelVadLoop, clearHardStopWatchdog]);
 
   const transcribeBlob = useCallback(async (blob: Blob) => {
     setDebugStatus(`ses gönderiliyor (${blob.size}B)`);
@@ -354,6 +370,7 @@ function useElectronAudioCapture({
 
       recorder.onstop = () => {
         cancelVadLoop();
+        clearHardStopWatchdog();
         const wasExplicit = explicitStopRef.current;
         explicitStopRef.current = false;
         const blob = new Blob(chunksRef.current, { type: recorder.mimeType || 'audio/webm' });
@@ -381,6 +398,30 @@ function useElectronAudioCapture({
       cycleStartRef.current = Date.now();
       lastLoudTimeRef.current = Date.now();
       runVadLoop();
+
+      clearHardStopWatchdog();
+      hardStopTimeoutRef.current = setTimeout(() => {
+        hardStopTimeoutRef.current = null;
+        if (!shouldListenRef.current) return;
+        const currentRecorder = mediaRecorderRef.current;
+        if (!currentRecorder) return;
+        if (currentRecorder.state === 'recording') {
+          // The 100ms tick loop should have stopped this on its own well
+          // before now -- it didn't (throttled, stalled, or never armed).
+          // Force it directly; onstop still runs the normal retry/
+          // transcribe path from here.
+          setDebugStatus('sert zaman aşımı (watchdog), kayıt zorla durduruluyor');
+          try {
+            currentRecorder.stop();
+          } catch (_) {}
+        } else if (currentRecorder.state === 'inactive') {
+          // Already stopped/dead with nothing having restarted the cycle
+          // (e.g. the tick loop's own recovery path also failed to).
+          // Full fresh restart rather than reusing whatever's left.
+          setDebugStatus('sert zaman aşımı (watchdog): kayıt hareketsiz, yeniden başlatılıyor');
+          beginRecordingCycleRef.current();
+        }
+      }, MAX_RECORDING_MS + 3000);
     } catch (e) {
       console.warn('Failed to start audio capture cycle:', e);
       setDebugStatus(`ses yakalama hatası: ${e instanceof Error ? e.message : String(e)}`);
@@ -389,7 +430,7 @@ function useElectronAudioCapture({
       }
       setIsListening(false);
     }
-  }, [cancelVadLoop, runVadLoop, transcribeBlob]);
+  }, [cancelVadLoop, clearHardStopWatchdog, runVadLoop, transcribeBlob]);
 
   beginRecordingCycleRef.current = beginRecordingCycle;
 
@@ -426,6 +467,7 @@ function useElectronAudioCapture({
     shouldListenRef.current = false;
     explicitStopRef.current = true;
     cancelVadLoop();
+    clearHardStopWatchdog();
     if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
       try {
         mediaRecorderRef.current.stop();
@@ -433,7 +475,7 @@ function useElectronAudioCapture({
     }
     setIsListening(false);
     if (onEndRef.current) onEndRef.current();
-  }, [cancelVadLoop]);
+  }, [cancelVadLoop, clearHardStopWatchdog]);
 
   const resetTranscript = useCallback(() => {
     setTranscriptState('');
