@@ -389,10 +389,25 @@ function useElectronAudioCapture({
 
       if (elapsedSinceStart >= NOISE_CALIBRATION_MS) {
         if (rms > activeThreshold) {
-          lastLoudTimeRef.current = now;
           if (loudStreakStartRef.current === null) loudStreakStartRef.current = now;
-          if (!speechStartedRef.current && now - loudStreakStartRef.current >= SPEECH_CONFIRM_MS) {
-            speechStartedRef.current = true;
+          // Reported directly ("boşluğu yakalayamıyor, hep dinleme modunda
+          // kalıyor" -- a real recording that ran well past 900ms of the
+          // user reporting silence, with the debug badge's own rms readout
+          // sitting under the threshold at every sampled instant): the bug
+          // was here. lastLoudTimeRef used to advance on ANY single 100ms
+          // tick above threshold, so one lone spike (real ambient noise,
+          // mic self-noise, a stray click) fully reset the silence clock
+          // back to zero even during genuine silence -- if that happens
+          // every so often, 900ms of *uninterrupted* quiet can never
+          // accumulate and the recording never stops on its own. Now
+          // lastLoudTimeRef only advances once the loudness has been
+          // sustained for SPEECH_CONFIRM_MS, exactly like the
+          // speech-start latch below -- an isolated blip can no longer
+          // push the silence clock back out, only real sustained sound
+          // (i.e. actual continued speech) can.
+          if (now - loudStreakStartRef.current >= SPEECH_CONFIRM_MS) {
+            lastLoudTimeRef.current = now;
+            if (!speechStartedRef.current) speechStartedRef.current = true;
           }
         } else {
           loudStreakStartRef.current = null;
