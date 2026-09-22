@@ -599,6 +599,18 @@ function useElectronAudioCapture({
     if (!mediaRecorderRef.current) return;
     if (mediaRecorderRef.current.state === 'recording') {
       setDebugStatus('elle durduruldu, gönderiliyor…');
+      // Race condition fix: MediaRecorder.stop() flips `.state` to
+      // 'inactive' SYNCHRONOUSLY, but the 'stop' event (which does the
+      // actual blob/transcription work in onstop) fires ASYNCHRONOUSLY
+      // a moment later. If the 100ms VAD tick loop is still running, it
+      // can fire in that gap, see state !== 'recording', and mistake this
+      // deliberate stop for an unexpected-death scenario (the recovery
+      // logic from an earlier fix) -- immediately starting a brand new
+      // recording cycle and clobbering the pending onstop callback before
+      // it gets a chance to run. Tear the VAD loop (and its watchdog) down
+      // FIRST, synchronously, so nothing can race in during that gap.
+      cancelVadLoop();
+      clearHardStopWatchdog();
       // Deliberately does NOT set explicitStopRef -- that flag makes
       // onstop skip transcription entirely (the cancel/close path). This
       // should behave exactly like the VAD detecting silence on its own,
@@ -607,7 +619,7 @@ function useElectronAudioCapture({
         mediaRecorderRef.current.stop();
       } catch (_) {}
     }
-  }, []);
+  }, [cancelVadLoop, clearHardStopWatchdog]);
 
   const resetTranscript = useCallback(() => {
     setTranscriptState('');
