@@ -70,6 +70,51 @@ const MAX_RECORDING_MS = 20000;
 // a cough) rather than real speech -- skip transcribing them.
 const MIN_BLOB_BYTES = 4000;
 
+// How long to wait for navigator.mediaDevices.getUserMedia() before giving
+// up. In a packaged, unsigned macOS app, getUserMedia's promise can hang
+// forever -- neither resolving nor rejecting -- if macOS never actually
+// shows (or silently drops) the OS-level microphone permission prompt.
+// Without a timeout that leaves the UI stuck on "Listening..." forever
+// with no error surfaced anywhere. Racing it against a hard deadline turns
+// that silent hang into a clear, actionable error instead.
+const GET_USER_MEDIA_TIMEOUT_MS = 8000;
+
+function getUserMediaWithTimeout(constraints: MediaStreamConstraints): Promise<MediaStream> {
+  return new Promise((resolve, reject) => {
+    let settled = false;
+    const timer = setTimeout(() => {
+      if (settled) return;
+      settled = true;
+      reject(
+        new DOMException(
+          'Timed out waiting for microphone access.',
+          'TimeoutError'
+        )
+      );
+    }, GET_USER_MEDIA_TIMEOUT_MS);
+
+    navigator.mediaDevices
+      .getUserMedia(constraints)
+      .then((stream) => {
+        if (settled) {
+          // We already timed out and told the caller it failed -- release
+          // this late-arriving stream instead of leaking it.
+          stream.getTracks().forEach((t) => t.stop());
+          return;
+        }
+        settled = true;
+        clearTimeout(timer);
+        resolve(stream);
+      })
+      .catch((err) => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timer);
+        reject(err);
+      });
+  });
+}
+
 function useElectronAudioCapture({
   language = 'tr-TR',
   onResult,
@@ -295,15 +340,19 @@ function useElectronAudioCapture({
     const start = async () => {
       try {
         if (!mediaStreamRef.current) {
-          mediaStreamRef.current = await navigator.mediaDevices.getUserMedia({ audio: true });
+          mediaStreamRef.current = await getUserMediaWithTimeout({ audio: true });
         }
         beginRecordingCycle();
       } catch (err) {
         console.warn('Microphone access failed:', err);
         shouldListenRef.current = false;
         setIsListening(false);
+        const isTimeout = err instanceof DOMException && err.name === 'TimeoutError';
         if (onErrorRef.current) {
-          onErrorRef.current({ error: 'not-allowed', message: err instanceof Error ? err.message : String(err) });
+          onErrorRef.current({
+            error: isTimeout ? 'mic-timeout' : 'not-allowed',
+            message: err instanceof Error ? err.message : String(err),
+          });
         }
       }
     };

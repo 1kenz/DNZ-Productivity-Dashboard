@@ -859,21 +859,81 @@ Lütfen şu şablonla Apple tarzı, net ve ilham verici bir rapor üret:
         language={aiSettings?.voiceLanguage || 'tr-TR'}
         initialSpokenText={denizSpeechIntro}
         customSystemPrompt={denizCustomSystemPrompt || getLiveDenizSystemPrompt()}
-        onNewMessage={(userText, replyText) => {
-          if (activeConversationId) {
-            addAiMessage({
-              conversationId: activeConversationId,
-              role: 'user',
-              content: userText,
-            });
-            addAiMessage({
-              conversationId: activeConversationId,
-              role: 'assistant',
-              content: replyText,
-              model: selectedModel.id,
-            });
-            refreshConversations();
+        onNewMessage={async (userText, replyText) => {
+          // Mirrors handleSendMessage's "no conversation yet -- create one"
+          // logic above. Before this, a Live Voice turn that started with
+          // no chat selected (e.g. opened straight from the mic button, or
+          // from the SITREP/task-voice entry points) silently no-op'd here
+          // -- activeConversationId was null, so the whole block was
+          // skipped and the exchange was never saved anywhere and no new
+          // chat ever appeared in the sidebar.
+          let targetConvId = activeConversationId;
+          const isNewConversation = !targetConvId;
+
+          if (!targetConvId) {
+            try {
+              const titleDraft = userText.slice(0, 30) + '...';
+              const created = await createAiConversation({
+                title: titleDraft,
+                provider: selectedModel.provider,
+                model: selectedModel.id,
+              });
+              targetConvId = created.id;
+              setConversations((prev) => [created, ...prev]);
+              skipNextMessagesLoadRef.current = true;
+              setActiveConversationId(created.id);
+            } catch (e) {
+              console.warn('DB conversation creation failed in live voice, using local ID:', e);
+              const fallbackId = 'conv-' + Date.now();
+              targetConvId = fallbackId;
+              const fallbackConv: AiConversation = {
+                id: fallbackId,
+                title: userText.slice(0, 30) + '...',
+                provider: selectedModel.provider,
+                model: selectedModel.id,
+                pinned: false,
+                messages: [],
+                createdAt: new Date(),
+                updatedAt: new Date(),
+              };
+              setConversations((prev) => [fallbackConv, ...prev]);
+              skipNextMessagesLoadRef.current = true;
+              setActiveConversationId(fallbackId);
+            }
           }
+
+          const userMsg: AiMessage = {
+            id: 'temp-' + Date.now(),
+            conversationId: targetConvId,
+            role: 'user',
+            content: userText,
+            createdAt: new Date(),
+          };
+          const assistantMsg: AiMessage = {
+            id: 'temp-' + (Date.now() + 1),
+            conversationId: targetConvId,
+            role: 'assistant',
+            content: replyText,
+            model: selectedModel.id,
+            createdAt: new Date(),
+          };
+          // A brand-new conversation starts this turn's messages fresh;
+          // an existing one appends to whatever's already on screen.
+          setMessages((prev) => (isNewConversation ? [userMsg, assistantMsg] : [...prev, userMsg, assistantMsg]));
+
+          addAiMessage({
+            conversationId: targetConvId,
+            role: 'user',
+            content: userText,
+          }).catch((e) => console.warn('addAiMessage (live voice, user) skipped/warn:', e));
+          addAiMessage({
+            conversationId: targetConvId,
+            role: 'assistant',
+            content: replyText,
+            model: selectedModel.id,
+          }).catch((e) => console.warn('addAiMessage (live voice, assistant) skipped/warn:', e));
+
+          refreshConversations();
         }}
       />
 

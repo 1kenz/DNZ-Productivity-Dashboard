@@ -209,6 +209,13 @@ export const LiveVoiceModal: React.FC<LiveVoiceModalProps> = ({
       // give the same audible hand-back the chat-send error path uses
       // instead of only logging to the console.
       const isPermissionError = err?.error === 'not-allowed' || err?.error === 'service-not-allowed';
+      // Electron path only: getUserMedia can hang forever instead of
+      // resolving/rejecting in a packaged, unsigned macOS app when the OS
+      // never actually shows (or silently drops) the mic permission
+      // prompt -- useVoiceCapture races it against a timeout so that case
+      // reaches us as its own error code instead of leaving the UI stuck
+      // on "Listening..." forever with nothing to tell the user.
+      const isMicTimeout = err?.error === 'mic-timeout';
       // Electron path only: the recorded-clip transcription needs an
       // OpenAI key configured (there's no free/keyless fallback the way
       // the browser's built-in speech engine was) -- tell the user that
@@ -216,6 +223,8 @@ export const LiveVoiceModal: React.FC<LiveVoiceModalProps> = ({
       const isMissingApiKey = err?.error === 'no-api-key';
       const errorText = isPermissionError
         ? (t('ai.micPermissionDenied') || 'Microphone access is blocked.')
+        : isMicTimeout
+        ? (t('ai.micTimeout') || 'Microphone request timed out -- check System Settings > Privacy & Security > Microphone.')
         : isMissingApiKey
         ? (t('ai.voiceNoApiKey') || 'Voice transcription needs an OpenAI API key -- add one in API Key Settings.')
         : (t('ai.voiceRecognitionError') || 'Voice recognition error. Please try again.');
