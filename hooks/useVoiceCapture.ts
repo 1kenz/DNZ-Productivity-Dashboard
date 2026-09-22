@@ -596,8 +596,17 @@ function useElectronAudioCapture({
   }, [cancelVadLoop, clearHardStopWatchdog]);
 
   const forceStop = useCallback(() => {
-    if (!mediaRecorderRef.current) return;
-    if (mediaRecorderRef.current.state === 'recording') {
+    const recorder = mediaRecorderRef.current;
+    // Unconditional, immediate, un-throttled feedback the instant this is
+    // called -- regardless of recorder state. If the button click were
+    // being silently swallowed by an early return (recorder missing, or
+    // state not 'recording' at the exact instant of the click, e.g. mid
+    // cycle-transition), the old version left NO trace at all, which is
+    // indistinguishable from "the click never reached this function".
+    // This line alone proves whether forceStop() is even invoked.
+    setDebugStatus(`buton tıklandı (recorder:${recorder ? recorder.state : 'yok'})`);
+    if (!recorder) return;
+    if (recorder.state === 'recording') {
       setDebugStatus('elle durduruldu, gönderiliyor…');
       // Race condition fix: MediaRecorder.stop() flips `.state` to
       // 'inactive' SYNCHRONOUSLY, but the 'stop' event (which does the
@@ -616,7 +625,7 @@ function useElectronAudioCapture({
       // should behave exactly like the VAD detecting silence on its own,
       // just triggered by the user instead of the volume analysis.
       try {
-        mediaRecorderRef.current.stop();
+        recorder.stop();
       } catch (_) {}
     }
   }, [cancelVadLoop, clearHardStopWatchdog]);

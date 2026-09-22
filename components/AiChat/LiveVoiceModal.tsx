@@ -56,6 +56,16 @@ export const LiveVoiceModal: React.FC<LiveVoiceModalProps> = ({
     return () => clearInterval(id);
   }, [isOpen]);
 
+  // Independent click counter for the "Bitti, Gönder" button, with ZERO
+  // dependency on forceStop's internals -- same instrumentation logic as
+  // the heartbeat above. If this number climbs on click but the badge's
+  // debugStatus never shows "buton tıklandı", the click IS reaching React
+  // but something about the forceStop closure itself is broken. If this
+  // number never climbs at all, the click isn't reaching this handler in
+  // the first place (event capture/propagation issue), which is a very
+  // different bug to chase.
+  const [doneButtonClicks, setDoneButtonClicks] = useState(0);
+
   useEffect(() => {
     isOpenRef.current = isOpen;
   }, [isOpen]);
@@ -518,7 +528,10 @@ export const LiveVoiceModal: React.FC<LiveVoiceModalProps> = ({
               {liveState === 'listening' && forceStop && (
                 <button
                   type="button"
-                  onClick={() => forceStop()}
+                  onClick={() => {
+                    setDoneButtonClicks((n) => n + 1);
+                    forceStop();
+                  }}
                   style={{
                     background: 'linear-gradient(135deg, #10b981, #059669)',
                     border: 'none',
@@ -573,6 +586,8 @@ export const LiveVoiceModal: React.FC<LiveVoiceModalProps> = ({
           {' | canlı: '}
           {heartbeat}
           s
+          {' | tık: '}
+          {doneButtonClicks}
           {debugStatus ? ` | ${debugStatus}` : ''}
         </span>
       </div>
