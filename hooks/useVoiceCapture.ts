@@ -92,8 +92,17 @@ interface VoiceCaptureApi {
 // it's mis-tuned for a given mic.
 const SPEECH_VOLUME_THRESHOLD = 0.02;
 // How long the volume has to stay below the threshold, after speech was
-// detected, before we treat the utterance as finished.
-const SILENCE_MS = 900;
+// detected, before we treat the utterance as finished. Reported directly
+// ("konuşmalarımı kaliteli algılamıyor, konuşma bitmeden cevap vermeye
+// çalışıyor" -- cuts the user off and starts responding before they've
+// actually finished talking): 900ms is shorter than a completely normal
+// mid-sentence pause (a breath, gathering the next thought, a brief
+// hesitation), so those pauses were being mistaken for the end of the
+// utterance and the recording was stopped -- and sent off for
+// transcription/response -- while the user was still mid-thought.
+// Raised to give natural speech pauses real room without adding
+// noticeable delay after someone genuinely finishes talking.
+const SILENCE_MS = 1500;
 // Hard cap so a stuck/misdetected recording can't run forever.
 const MAX_RECORDING_MS = 20000;
 // Recordings shorter than this are almost certainly a false start (a click,
