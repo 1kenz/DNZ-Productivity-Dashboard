@@ -260,8 +260,35 @@ function useElectronAudioCapture({
     const data = new Uint8Array(analyser.fftSize);
 
     const tick = () => {
-      if (!analyserRef.current || !mediaRecorderRef.current || mediaRecorderRef.current.state !== 'recording') {
+      const recorder = mediaRecorderRef.current;
+      const analyserNode = analyserRef.current;
+      if (!analyserNode || !recorder || recorder.state !== 'recording') {
+        // A normal, expected teardown (stopListening()/unmount, or the
+        // cycle already moved on) always nulls mediaRecorderRef.current
+        // first via teardownStream -- so if we still have a recorder
+        // reference here but it's not in the 'recording' state, that's
+        // unexpected: Electron/Chromium has been observed silently
+        // auto-pausing/ending MediaRecorder on an occluded or
+        // backgrounded window (a MediaRecorder-specific behavior, not
+        // covered by the timer-throttling switches in main.js). Without
+        // this branch that left the VAD loop dead with nothing left to
+        // ever call recorder.stop() -- the UI froze on "dinleniyor..."
+        // forever, well short of the MAX_RECORDING_MS hard cap, with no
+        // error and no way to recover short of closing the modal.
+        const stillListening = shouldListenRef.current;
         cancelVadLoop();
+        if (stillListening && recorder) {
+          setDebugStatus(`VAD döngüsü beklenmedik durdu (durum: ${recorder.state}), yeniden başlatılıyor`);
+          if (recorder.state === 'inactive') {
+            beginRecordingCycleRef.current();
+          } else {
+            try {
+              recorder.stop();
+            } catch (_) {
+              beginRecordingCycleRef.current();
+            }
+          }
+        }
         return;
       }
       analyser.getByteTimeDomainData(data);
