@@ -168,3 +168,72 @@ WHERE "ctid" NOT IN (
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS "CalendarPreference_provider_accountId_calendarId_key" ON "CalendarPreference"("provider", "accountId", "calendarId");
+
+-- --- ViewPreferences.lastDueDateModalShownAt: added so the Due Dates
+-- modal only auto-opens once per calendar day on launch instead of every
+-- reload (see lib/dueDates.ts). Existing installs never got this column,
+-- so every read/write against ViewPreferences (which also carries
+-- taskView/linkView/groupBy/calendarView) was failing outright with
+-- "column does not exist" until this runs.
+ALTER TABLE "ViewPreferences" ADD COLUMN IF NOT EXISTS "lastDueDateModalShownAt" TIMESTAMP(3);
+
+-- --- AI Chat feature: AiConversation, AiMessage, AiSettings ---
+-- These three tables back the whole AI Chat / Live Voice feature
+-- (components/AiChat/*, app/actions/ai.ts, app/api/ai/*). They were added
+-- to schema.prisma well after this desktop app's incremental-migration
+-- story existed, and never got added here -- so on every existing
+-- install, AiSettings/AiConversation/AiMessage simply didn't exist at
+-- all. That silently broke several things at once: reading/saving the AI
+-- provider API keys (Settings > API Key Settings), every "new chat"
+-- conversation (which fell back to a client-only, never-persisted
+-- conversation -- see the fallback path in components/AiChat/AiChatView.tsx),
+-- and Live Voice's server-side transcription route (app/api/ai/stt/route.ts)
+-- silently losing access to a saved OpenAI key, which could produce a
+-- 'no-api-key' error even for a user who had entered one in Settings.
+CREATE TABLE IF NOT EXISTS "AiConversation" (
+    "id" TEXT NOT NULL,
+    "title" TEXT NOT NULL,
+    "provider" TEXT NOT NULL,
+    "model" TEXT NOT NULL,
+    "systemPrompt" TEXT,
+    "pinned" BOOLEAN NOT NULL DEFAULT false,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "AiConversation_pkey" PRIMARY KEY ("id")
+);
+
+CREATE INDEX IF NOT EXISTS "AiConversation_provider_idx" ON "AiConversation"("provider");
+
+CREATE TABLE IF NOT EXISTS "AiMessage" (
+    "id" TEXT NOT NULL,
+    "conversationId" TEXT NOT NULL,
+    "role" TEXT NOT NULL,
+    "content" TEXT NOT NULL,
+    "tokens" INTEGER,
+    "model" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "AiMessage_pkey" PRIMARY KEY ("id")
+);
+
+CREATE INDEX IF NOT EXISTS "AiMessage_conversationId_idx" ON "AiMessage"("conversationId");
+
+DO $$ BEGIN
+  ALTER TABLE "AiMessage" ADD CONSTRAINT "AiMessage_conversationId_fkey"
+    FOREIGN KEY ("conversationId") REFERENCES "AiConversation"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+
+CREATE TABLE IF NOT EXISTS "AiSettings" (
+    "id" TEXT NOT NULL DEFAULT 'default',
+    "anthropicApiKey" TEXT,
+    "geminiApiKey" TEXT,
+    "openaiApiKey" TEXT,
+    "defaultProvider" TEXT NOT NULL DEFAULT 'gemini',
+    "defaultModel" TEXT NOT NULL DEFAULT 'gemini-3.8-flash',
+    "voiceLanguage" TEXT NOT NULL DEFAULT 'tr-TR',
+    "autoSpeak" BOOLEAN NOT NULL DEFAULT false,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "AiSettings_pkey" PRIMARY KEY ("id")
+);
