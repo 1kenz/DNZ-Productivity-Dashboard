@@ -224,6 +224,20 @@ function useElectronAudioCapture({
   // loop (this exact bug) is visible at a glance next time instead of
   // just looking like a frozen "dinleniyor..." again.
   const consecutiveShortRetriesRef = useRef(0);
+  // True from the instant ANY code path here calls mediaRecorderRef.current
+  // .stop() (silence detected, the hard-stop watchdog, or the user's
+  // forceStop() button) until onstop actually runs. MediaRecorder flips
+  // .state to 'inactive' SYNCHRONOUSLY on stop(), but the 'stop' event
+  // (onstop) fires ASYNCHRONOUSLY a moment later -- and the still-running
+  // 100ms tick loop can land in exactly that gap. This flag is what lets
+  // tick() tell "we just told it to stop, onstop is legitimately pending"
+  // apart from "the recorder actually died unexpectedly" (Electron/
+  // Chromium silently killing MediaRecorder on an occluded/backgrounded
+  // window, the original reason the guard-fail recovery below exists at
+  // all) -- previously tick() could not distinguish the two and treated
+  // every single deliberate stop as an unexpected death, restarting a
+  // brand new cycle that raced the real onstop for the shared chunksRef.
+  const stopRequestedRef = useRef(false);
   const languageRef = useRef(language);
   languageRef.current = language;
 
@@ -351,6 +365,19 @@ function useElectronAudioCapture({
         // error and no way to recover short of closing the modal.
         const stillListening = shouldListenRef.current;
         cancelVadLoop();
+        if (stopRequestedRef.current) {
+          // We asked for this stop ourselves moments ago (silence
+          // detection, the hard-stop watchdog, or forceStop()) and onstop
+          // just hasn't run yet. Trust it to finish the job -- restarting
+          // from here would create a second, overlapping recording cycle
+          // that shares (and corrupts) chunksRef with the real onstop
+          // handler, discarding whatever was actually captured. This was
+          // the root cause behind "buton çalışmıyor" (the button's own
+          // stop kept losing this exact race) and almost certainly the
+          // original "hep dinleme modunda kalıyor" symptom too, since a
+          // perfectly normal silence-triggered stop hit the same race.
+          return;
+        }
         if (stillListening && recorder) {
           setDebugStatus(`VAD döngüsü beklenmedik durdu (durum: ${recorder.state}), yeniden başlatılıyor`);
           if (recorder.state === 'inactive') {
@@ -442,6 +469,7 @@ function useElectronAudioCapture({
         elapsedSinceStart > MAX_RECORDING_MS
       ) {
         if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+          stopRequestedRef.current = true;
           mediaRecorderRef.current.stop();
         }
       }
@@ -482,6 +510,7 @@ function useElectronAudioCapture({
       recorder.onstop = () => {
         cancelVadLoop();
         clearHardStopWatchdog();
+        stopRequestedRef.current = false;
         const wasExplicit = explicitStopRef.current;
         explicitStopRef.current = false;
         const blob = new Blob(chunksRef.current, { type: recorder.mimeType || 'audio/webm' });
@@ -530,6 +559,7 @@ function useElectronAudioCapture({
           // transcribe path from here.
           setDebugStatus('sert zaman aşımı (watchdog), kayıt zorla durduruluyor');
           try {
+            stopRequestedRef.current = true;
             currentRecorder.stop();
           } catch (_) {}
         } else if (currentRecorder.state === 'inactive') {
@@ -620,6 +650,7 @@ function useElectronAudioCapture({
       // FIRST, synchronously, so nothing can race in during that gap.
       cancelVadLoop();
       clearHardStopWatchdog();
+      stopRequestedRef.current = true;
       // Deliberately does NOT set explicitStopRef -- that flag makes
       // onstop skip transcription entirely (the cancel/close path). This
       // should behave exactly like the VAD detecting silence on its own,
