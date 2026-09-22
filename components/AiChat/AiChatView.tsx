@@ -558,9 +558,11 @@ Lütfen şu şablonla Apple tarzı, net ve ilham verici bir rapor üret:
   };
 
   const handleDeleteMessage = async (messageId: string) => {
-    const confirmMsg = t('ai.deleteMessageConfirm') || 'Bu mesajı silmek istediğinize emin misiniz?';
-    if (!window.confirm(confirmMsg)) return;
-
+    // No confirm() here -- MessageBubble.handleDelete (the only caller,
+    // wired in via the onDelete prop below) already shows the "are you
+    // sure" dialog itself and only calls this once the user confirms.
+    // Both places confirming produced two identical "Are you sure you
+    // want to delete this message?" dialogs back to back.
     setMessages((prev) => prev.filter((m) => m.id !== messageId));
     if (activeConversationId) {
       setConversations((prev) =>
