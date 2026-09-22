@@ -168,6 +168,53 @@
   white-space: pre-wrap;
 }
 
+/* Lightweight markdown rendering for assistant replies (headings, bold,
+   bullet lists) -- reports like the DNZ SITREP briefing are generated
+   with real markdown (#, ##, **bold**, - items) but were previously
+   shown as raw text with the literal symbols still in it. Sized to sit
+   comfortably inside a chat bubble rather than a full document. */
+.mdH1 {
+  font-size: 1.05rem;
+  font-weight: 800;
+  margin: 10px 0 6px;
+  line-height: 1.35;
+}
+
+.mdH2 {
+  font-size: 0.96rem;
+  font-weight: 700;
+  margin: 12px 0 4px;
+  line-height: 1.35;
+  opacity: 0.95;
+}
+
+.mdH3 {
+  font-size: 0.9rem;
+  font-weight: 700;
+  margin: 8px 0 4px;
+  line-height: 1.35;
+  opacity: 0.9;
+}
+
+.mdParagraph {
+  margin: 4px 0;
+  line-height: 1.55;
+  word-break: break-word;
+}
+
+.mdList {
+  margin: 4px 0 10px;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mdListItem {
+  line-height: 1.5;
+  word-break: break-word;
+}
+
 .codeBlock {
   background: #09090b;
   border: 1px solid rgba(255, 255, 255, 0.12);

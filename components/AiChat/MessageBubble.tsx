@@ -207,7 +207,95 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
     }
   };
 
-  // Render markdown-like blocks: code blocks ``` vs regular text
+  // Inline **bold** within a single line of markdown-lite text.
+  const renderInlineMarkdown = (line: string): React.ReactNode[] => {
+    const segments = line.split(/(\*\*[^*]+\*\*)/g);
+    return segments.map((seg, i) =>
+      seg.startsWith('**') && seg.endsWith('**') && seg.length > 4 ? (
+        <strong key={i}>{seg.slice(2, -2)}</strong>
+      ) : (
+        <React.Fragment key={i}>{seg}</React.Fragment>
+      )
+    );
+  };
+
+  // Small, dependency-free markdown renderer for the non-code-block
+  // portions of a message: #/##/### headings, **bold**, and -/* bullet
+  // lists. Reports like the DNZ SITREP briefing are generated as real
+  // markdown but were previously shown as raw text (literal #, **, -
+  // characters still in it) -- this is just enough structure to make
+  // that readable without pulling in a full markdown library.
+  const renderMarkdownLite = (text: string, keyPrefix: string): React.ReactNode[] => {
+    const lines = text.split('\n');
+    const blocks: React.ReactNode[] = [];
+    let listBuffer: string[] = [];
+    let paraBuffer: string[] = [];
+
+    const flushList = () => {
+      if (listBuffer.length === 0) return;
+      blocks.push(
+        <ul key={`${keyPrefix}-ul-${blocks.length}`} className={styles.mdList}>
+          {listBuffer.map((item, i) => (
+            <li key={i} className={styles.mdListItem}>
+              {renderInlineMarkdown(item)}
+            </li>
+          ))}
+        </ul>
+      );
+      listBuffer = [];
+    };
+
+    const flushPara = () => {
+      if (paraBuffer.length === 0) return;
+      blocks.push(
+        <p key={`${keyPrefix}-p-${blocks.length}`} className={styles.mdParagraph}>
+          {paraBuffer.map((l, i) => (
+            <React.Fragment key={i}>
+              {renderInlineMarkdown(l)}
+              {i < paraBuffer.length - 1 && <br />}
+            </React.Fragment>
+          ))}
+        </p>
+      );
+      paraBuffer = [];
+    };
+
+    for (const rawLine of lines) {
+      const line = rawLine.trimEnd();
+      const headingMatch = line.match(/^(#{1,3})\s+(.*)$/);
+      const listMatch = line.match(/^[-*]\s+(.*)$/);
+
+      if (headingMatch) {
+        flushList();
+        flushPara();
+        const level = headingMatch[1].length;
+        const cls = level === 1 ? styles.mdH1 : level === 2 ? styles.mdH2 : styles.mdH3;
+        const headingKey = `${keyPrefix}-h-${blocks.length}`;
+        const headingContent = renderInlineMarkdown(headingMatch[2]);
+        if (level === 1) {
+          blocks.push(<h4 key={headingKey} className={cls}>{headingContent}</h4>);
+        } else if (level === 2) {
+          blocks.push(<h5 key={headingKey} className={cls}>{headingContent}</h5>);
+        } else {
+          blocks.push(<h6 key={headingKey} className={cls}>{headingContent}</h6>);
+        }
+      } else if (listMatch) {
+        flushPara();
+        listBuffer.push(listMatch[1]);
+      } else if (line.trim() === '') {
+        flushList();
+        flushPara();
+      } else {
+        flushList();
+        paraBuffer.push(line);
+      }
+    }
+    flushList();
+    flushPara();
+    return blocks;
+  };
+
+  // Render markdown-like blocks: code blocks ``` vs regular (markdown-lite) text
   const renderContent = () => {
     const text = message.content;
     const parts = text.split(/(```[\s\S]*?```)/g);
@@ -240,7 +328,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
 
       return (
         <div key={index} className={styles.content}>
-          {part}
+          {renderMarkdownLite(part, `md-${index}`)}
         </div>
       );
     });
