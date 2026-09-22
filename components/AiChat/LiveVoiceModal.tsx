@@ -44,6 +44,36 @@ export const LiveVoiceModal: React.FC<LiveVoiceModalProps> = ({
     { role: 'user' | 'assistant'; text: string }[]
   >([]);
   const historyEndRef = useRef<HTMLDivElement | null>(null);
+  // The yellow diagnostic badge + scrolling log panel below were built
+  // as a temporary tool for chasing the VAD/mic bugs, not meant to stay
+  // on screen permanently -- hidden by default, toggled with the 🐞
+  // button in the header or Cmd/Ctrl+Shift+D, and remembered per device.
+  const [debugMode, setDebugMode] = useState(false);
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    setDebugMode(localStorage.getItem('dnz_ai_voice_debug') === '1');
+  }, []);
+  const toggleDebugMode = () => {
+    setDebugMode((prev) => {
+      const next = !prev;
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('dnz_ai_voice_debug', next ? '1' : '0');
+      }
+      return next;
+    });
+  };
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      const mod = e.metaKey || e.ctrlKey;
+      if (mod && e.shiftKey && (e.key === 'd' || e.key === 'D')) {
+        e.preventDefault();
+        toggleDebugMode();
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [isOpen]);
   
   const silenceTimerRef = useRef<NodeJS.Timeout | null>(null);
   const isOpenRef = useRef(isOpen);
@@ -487,6 +517,26 @@ export const LiveVoiceModal: React.FC<LiveVoiceModalProps> = ({
           </select>
         </div>
 
+        <button
+          type="button"
+          onClick={toggleDebugMode}
+          title={
+            (t('ai.toggleDebug') || 'Toggle debug info') + ' (Cmd/Ctrl+Shift+D)'
+          }
+          style={{
+            background: debugMode ? 'rgba(250, 204, 21, 0.18)' : 'transparent',
+            border: '1px solid rgba(255, 255, 255, 0.15)',
+            borderRadius: '6px',
+            color: debugMode ? '#facc15' : '#a1a1aa',
+            padding: '4px 8px',
+            fontSize: '0.8rem',
+            cursor: 'pointer',
+            lineHeight: 1,
+          }}
+        >
+          🐞
+        </button>
+
         <button type="button" className={styles.closeBtn} onClick={handleClose} title={t('common.close')}>
           ✕
         </button>
@@ -657,6 +707,7 @@ export const LiveVoiceModal: React.FC<LiveVoiceModalProps> = ({
           packaged desktop app, none of the Electron-only mic fixes above
           are in play at all, which is the single most important thing to
           rule out before chasing anything else. */}
+      {debugMode && (
       <div style={{ textAlign: 'center', marginTop: '-8px', marginBottom: '8px' }}>
         <span
           style={{
@@ -686,8 +737,9 @@ export const LiveVoiceModal: React.FC<LiveVoiceModalProps> = ({
           {debugStatus ? ` | ${debugStatus}` : ''}
         </span>
       </div>
+      )}
 
-      {debugHistory && debugHistory.length > 0 && (
+      {debugMode && debugHistory && debugHistory.length > 0 && (
         <div
           style={{
             maxWidth: '640px',

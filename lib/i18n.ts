@@ -485,6 +485,7 @@ export const DICTIONARIES = {
     'ai.newQuestionBtn': 'Ask New Question',
     'ai.endChatBtn': 'End Chat',
     'ai.voiceLabel': 'Voice:',
+    'ai.toggleDebug': 'Toggle debug info',
     'ai.aiSettingsTitle': 'AI Models & Voice Settings',
     'ai.keysBanner': 'Your API keys are stored securely on your device and database. You can freely switch between Claude, Gemini, and OpenAI models.',
     'ai.voicePersona': 'AI Voice Persona',
@@ -515,6 +516,7 @@ export const DICTIONARIES = {
     'shortcuts.aiVoice': 'AI & Voice',
     'shortcuts.sendMessage': 'Send Message',
     'shortcuts.newLine': 'New Line',
+    'shortcuts.toggleVoiceDebug': 'Toggle Live Voice Debug Info',
 
     'palette.searchPlaceholder': 'Search commands, find tasks, or choose action...',
     'palette.noResults': 'No results found.',
@@ -1015,6 +1017,7 @@ export const DICTIONARIES = {
     'ai.newQuestionBtn': 'Yeni Soru Başlat',
     'ai.endChatBtn': 'Sohbeti Bitir',
     'ai.voiceLabel': 'Ses:',
+    'ai.toggleDebug': 'Hata ayıklama bilgisini aç/kapat',
     'ai.aiSettingsTitle': 'AI Modelleri & Ses Ayarları',
     'ai.keysBanner': 'API anahtarlarınız tarayıcınızda ve veritabanınızda güvenle saklanır. Claude, Gemini ve OpenAI modelleri arasında dilediğiniz gibi geçiş yapabilirsiniz.',
     'ai.voicePersona': 'Yapay Zeka Ses Karakteri',
@@ -1045,6 +1048,7 @@ export const DICTIONARIES = {
     'shortcuts.aiVoice': 'Yapay Zeka & Ses',
     'shortcuts.sendMessage': 'Mesajı Gönder',
     'shortcuts.newLine': 'Yeni Satıra Geç',
+    'shortcuts.toggleVoiceDebug': 'Canlı Ses Hata Ayıklama Bilgisini Aç/Kapat',
 
     'palette.searchPlaceholder': 'Komut ara, görev bul veya eylem seç...',
     'palette.noResults': 'Sonuç bulunamadı.',
@@ -1545,6 +1549,7 @@ export const DICTIONARIES = {
     'ai.newQuestionBtn': 'Neue Frage stellen',
     'ai.endChatBtn': 'Chat beenden',
     'ai.voiceLabel': 'Stimme:',
+    'ai.toggleDebug': 'Debug-Info umschalten',
     'ai.aiSettingsTitle': 'KI-Modelle & Spracheinstellungen',
     'ai.keysBanner': 'Ihre API-Schlüssel werden lokal und in der Datenbank sicher gespeichert. Sie können frei zwischen Claude-, Gemini- und OpenAI-Modellen wechseln.',
     'ai.voicePersona': 'KI-Sprachpersona',
@@ -1575,6 +1580,7 @@ export const DICTIONARIES = {
     'shortcuts.aiVoice': 'KI & Sprache',
     'shortcuts.sendMessage': 'Nachricht senden',
     'shortcuts.newLine': 'Neue Zeile',
+    'shortcuts.toggleVoiceDebug': 'Live-Sprach-Debug-Info umschalten',
 
     'palette.searchPlaceholder': 'Befehle suchen, Aufgaben finden oder Aktion wählen...',
     'palette.noResults': 'Keine Ergebnisse gefunden.',

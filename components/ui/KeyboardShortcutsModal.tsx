@@ -88,6 +88,14 @@ export const KeyboardShortcutsModal: React.FC = () => {
               <kbd className={styles.key}>Enter</kbd>
             </div>
           </div>
+          <div className={styles.shortcutRow}>
+            <span>{t('shortcuts.toggleVoiceDebug')}</span>
+            <div className={styles.keys}>
+              <kbd className={styles.key}>Cmd/Ctrl</kbd>
+              <kbd className={styles.key}>Shift</kbd>
+              <kbd className={styles.key}>D</kbd>
+            </div>
+          </div>
         </div>
       </div>
     </div>
