@@ -34,6 +34,16 @@ export const LiveVoiceModal: React.FC<LiveVoiceModalProps> = ({
   const [currentPrompt, setCurrentPrompt] = useState('');
   const [lastReply, setLastReply] = useState('');
   const [selectedVoiceName, setSelectedVoiceName] = useState<string>('');
+  // Full running transcript of the conversation (both sides), requested
+  // directly by the user so they can see what they said and what the AI
+  // replied throughout the call -- currentPrompt/lastReply above only
+  // ever hold the SINGLE most recent exchange and get overwritten on
+  // every new turn, so nothing earlier stays visible once the
+  // conversation moves on.
+  const [conversationHistory, setConversationHistory] = useState<
+    { role: 'user' | 'assistant'; text: string }[]
+  >([]);
+  const historyEndRef = useRef<HTMLDivElement | null>(null);
   
   const silenceTimerRef = useRef<NodeJS.Timeout | null>(null);
   const isOpenRef = useRef(isOpen);
@@ -55,6 +65,10 @@ export const LiveVoiceModal: React.FC<LiveVoiceModalProps> = ({
     const id = setInterval(() => setHeartbeat((n) => n + 1), 1000);
     return () => clearInterval(id);
   }, [isOpen]);
+
+  useEffect(() => {
+    historyEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+  }, [conversationHistory]);
 
   // Independent click counter for the "Bitti, Gönder" button, with ZERO
   // dependency on forceStop's internals -- same instrumentation logic as
@@ -169,6 +183,11 @@ export const LiveVoiceModal: React.FC<LiveVoiceModalProps> = ({
       if (!isOpenRef.current) return;
 
       setLastReply(reply);
+      setConversationHistory((prev) => [
+        ...prev,
+        { role: 'user', text: textToSend },
+        { role: 'assistant', text: reply },
+      ]);
       setLiveState('speaking');
 
       if (onNewMessage) {
@@ -295,6 +314,11 @@ export const LiveVoiceModal: React.FC<LiveVoiceModalProps> = ({
       }
       latestPromptRef.current = '';
       setCurrentPrompt('');
+      setConversationHistory(
+        initialSpokenText && initialSpokenText.trim()
+          ? [{ role: 'assistant', text: initialSpokenText }]
+          : []
+      );
 
       if (initialSpokenText && initialSpokenText.trim()) {
         setLastReply(initialSpokenText);
@@ -501,6 +525,57 @@ export const LiveVoiceModal: React.FC<LiveVoiceModalProps> = ({
             {liveState === 'speaking' && (t('ai.speakingHint') || 'Tap the orb to interrupt or ask a new question.')}
           </div>
         </div>
+
+        {conversationHistory.length > 0 && (
+          <div
+            style={{
+              width: '100%',
+              maxWidth: '640px',
+              margin: '0 auto 10px',
+              maxHeight: '220px',
+              overflowY: 'auto',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '8px',
+              padding: '10px 4px',
+            }}
+          >
+            {conversationHistory.map((turn, idx) => (
+              <div
+                key={idx}
+                style={{
+                  alignSelf: turn.role === 'user' ? 'flex-end' : 'flex-start',
+                  maxWidth: '85%',
+                  background:
+                    turn.role === 'user'
+                      ? 'linear-gradient(135deg, #2563eb, #1d4ed8)'
+                      : 'rgba(255, 255, 255, 0.08)',
+                  color: '#ffffff',
+                  borderRadius: '14px',
+                  padding: '8px 12px',
+                  fontSize: '0.88rem',
+                  lineHeight: 1.45,
+                  textAlign: 'left',
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: '0.68rem',
+                    fontWeight: 700,
+                    opacity: 0.7,
+                    marginBottom: '2px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.02em',
+                  }}
+                >
+                  {turn.role === 'user' ? (t('ai.you') || 'You') : selectedModel.name}
+                </div>
+                {turn.text}
+              </div>
+            ))}
+            <div ref={historyEndRef} />
+          </div>
+        )}
 
         <div className={styles.transcriptBox}>
           {currentPrompt ? (
