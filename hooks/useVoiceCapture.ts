@@ -104,6 +104,16 @@ const MIN_RECORDING_BEFORE_STOP_MS = 600;
 // single-tick transient while still being short enough not to add
 // noticeable delay to real speech onset.
 const SPEECH_CONFIRM_MS = 200;
+// How long (from the very start of each recording cycle) to sample
+// ambient noise before testing for speech at all -- see the comment at
+// the calibration site in tick() for why this was added.
+const NOISE_CALIBRATION_MS = 400;
+// This cycle's effective speech threshold is the peak ambient RMS
+// sampled during calibration times this multiplier (never lower than
+// SPEECH_VOLUME_THRESHOLD). 2.5x gives real speech (typically several
+// times louder than a room's/laptop's own noise floor) clear separation
+// without requiring the user to speak unnaturally loudly.
+const NOISE_FLOOR_MULTIPLIER = 2.5;
 
 // How long to wait for navigator.mediaDevices.getUserMedia() before giving
 // up. In a packaged, unsigned macOS app, getUserMedia's promise can hang
@@ -192,6 +202,11 @@ function useElectronAudioCapture({
   // Tracks when the current above-threshold streak began (null when not
   // currently above threshold) -- see SPEECH_CONFIRM_MS above.
   const loudStreakStartRef = useRef<number | null>(null);
+  // This cycle's peak RMS observed during the NOISE_CALIBRATION_MS
+  // window (ambient-noise sample), and the resulting effective threshold
+  // once calibration ends (null while still calibrating).
+  const cycleNoiseFloorRef = useRef(0);
+  const effectiveThresholdRef = useRef<number | null>(null);
   // How many consecutive cycles in a row have been thrown away as
   // too-short. Surfaced in the debug badge so a fast false-start retry
   // loop (this exact bug) is visible at a glance next time instead of
@@ -346,24 +361,50 @@ function useElectronAudioCapture({
       }
       const rms = Math.sqrt(sumSquares / data.length);
       const now = Date.now();
+      const elapsedSinceStart = now - cycleStartRef.current;
 
-      if (rms > SPEECH_VOLUME_THRESHOLD) {
-        lastLoudTimeRef.current = now;
-        if (loudStreakStartRef.current === null) loudStreakStartRef.current = now;
-        if (!speechStartedRef.current && now - loudStreakStartRef.current >= SPEECH_CONFIRM_MS) {
-          speechStartedRef.current = true;
+      // Ambient-noise calibration, added after live telemetry (a real
+      // debug-badge test) showed the fixed SPEECH_VOLUME_THRESHOLD alone
+      // still wasn't enough: "konuşma:evet" kept latching with the
+      // *current* RMS sitting well under the threshold, meaning this
+      // mic/room's ambient noise floor sits close enough to 0.02 that it
+      // crosses it for stretches long enough to satisfy even the 200ms
+      // SPEECH_CONFIRM_MS streak on its own -- a laptop fan, HVAC hum, or
+      // just this specific mic's self-noise, not the user's voice. For
+      // the first NOISE_CALIBRATION_MS of every cycle we sample the peak
+      // RMS as this cycle's ambient floor instead of testing for speech,
+      // then require real speech to clear that floor by a real margin
+      // (NOISE_FLOOR_MULTIPLIER), never lower than the fixed constant.
+      // This adapts per-cycle/per-machine instead of guessing one static
+      // number that has to work for every room and every Mac.
+      if (elapsedSinceStart < NOISE_CALIBRATION_MS) {
+        if (rms > cycleNoiseFloorRef.current) cycleNoiseFloorRef.current = rms;
+      } else if (effectiveThresholdRef.current === null) {
+        effectiveThresholdRef.current = Math.max(
+          SPEECH_VOLUME_THRESHOLD,
+          cycleNoiseFloorRef.current * NOISE_FLOOR_MULTIPLIER
+        );
+      }
+      const activeThreshold = effectiveThresholdRef.current ?? SPEECH_VOLUME_THRESHOLD;
+
+      if (elapsedSinceStart >= NOISE_CALIBRATION_MS) {
+        if (rms > activeThreshold) {
+          lastLoudTimeRef.current = now;
+          if (loudStreakStartRef.current === null) loudStreakStartRef.current = now;
+          if (!speechStartedRef.current && now - loudStreakStartRef.current >= SPEECH_CONFIRM_MS) {
+            speechStartedRef.current = true;
+          }
+        } else {
+          loudStreakStartRef.current = null;
         }
-      } else {
-        loudStreakStartRef.current = null;
       }
 
-      const elapsedSinceStart = now - cycleStartRef.current;
       const silenceElapsed = now - lastLoudTimeRef.current;
 
       if (now - lastLiveDebugUpdateRef.current > 1000) {
         lastLiveDebugUpdateRef.current = now;
         setDebugStatus(
-          `dinleniyor… (rms:${rms.toFixed(3)}, t:${(elapsedSinceStart / 1000).toFixed(1)}s, konuşma:${speechStartedRef.current ? 'evet' : 'hayır'})`
+          `dinleniyor… (rms:${rms.toFixed(3)}, eşik:${activeThreshold.toFixed(3)}, t:${(elapsedSinceStart / 1000).toFixed(1)}s, konuşma:${speechStartedRef.current ? 'evet' : 'hayır'}, deneme:#${consecutiveShortRetriesRef.current})`
         );
       }
 
@@ -443,6 +484,8 @@ function useElectronAudioCapture({
 
       speechStartedRef.current = false;
       loudStreakStartRef.current = null;
+      cycleNoiseFloorRef.current = 0;
+      effectiveThresholdRef.current = null;
       cycleStartRef.current = Date.now();
       lastLoudTimeRef.current = Date.now();
       runVadLoop();
