@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useVoiceCapture } from '@/hooks/useVoiceCapture';
 import { useSpeechSynthesis } from '@/hooks/useSpeechSynthesis';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { isElectronApp } from '@/lib/electron';
 import { AiModelOption } from '@/types';
 import styles from './LiveVoiceModal.module.css';
 
@@ -490,20 +491,26 @@ export const LiveVoiceModal: React.FC<LiveVoiceModalProps> = ({
         </div>
       </div>
 
-      {debugStatus && (
-        <div
-          style={{
-            textAlign: 'center',
-            fontSize: '0.7rem',
-            opacity: 0.55,
-            marginTop: '-8px',
-            marginBottom: '8px',
-            fontFamily: 'monospace',
-          }}
-        >
-          {debugStatus}
-        </div>
-      )}
+      {/* Always rendered (not just when debugStatus is set) so which
+          capture path is active -- the Electron MediaRecorder pipeline vs.
+          the browser's Web Speech API -- is never ambiguous from the
+          screen alone. If this ever reads "mod: browser" inside the
+          packaged desktop app, none of the Electron-only mic fixes above
+          are in play at all, which is the single most important thing to
+          rule out before chasing anything else. */}
+      <div
+        style={{
+          textAlign: 'center',
+          fontSize: '0.7rem',
+          opacity: 0.55,
+          marginTop: '-8px',
+          marginBottom: '8px',
+          fontFamily: 'monospace',
+        }}
+      >
+        mod: {isElectronApp() ? 'electron' : 'browser'}
+        {debugStatus ? ` | ${debugStatus}` : ''}
+      </div>
 
       <div className={styles.controlsRow}>
         <button type="button" className={styles.controlBtn} onClick={handleInterrupt}>
