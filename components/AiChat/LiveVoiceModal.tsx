@@ -117,7 +117,7 @@ export const LiveVoiceModal: React.FC<LiveVoiceModalProps> = ({
       silenceTimerRef.current = null;
     }
 
-    stopListening();
+    stopListening('handleSendVoicePrompt:gönderiliyor');
     setLiveState('thinking');
 
     try {
@@ -332,7 +332,7 @@ export const LiveVoiceModal: React.FC<LiveVoiceModalProps> = ({
         chatAbortRef.current.abort();
         chatAbortRef.current = null;
       }
-      stopListening();
+      stopListening('effect:isOpen-false-dalı');
       stopSpeaking();
       setLiveState('idle');
       if (silenceTimerRef.current) {
@@ -342,11 +342,24 @@ export const LiveVoiceModal: React.FC<LiveVoiceModalProps> = ({
     }
 
     return () => {
+      // THIS is the prime suspect for the "stopListening() firing mid-
+      // speech, roughly a few seconds into every cycle" pattern the debug
+      // history keeps showing (onstop with wasExplicit:true, right around
+      // when the VAD confirms speech). A cleanup function runs on EVERY
+      // dependency change, not just real unmount/close -- and this
+      // effect depends on startListening, stopListening, stopSpeaking,
+      // resetTranscript, and speak, ALL function references. If any one
+      // of those isn't perfectly stable across renders (most likely
+      // `speak`/`stopSpeaking` from useSpeechSynthesis, or an unstable
+      // options object passed into useVoiceCapture on each render), this
+      // cleanup fires and kills the live recording even though nothing
+      // the user did changed anything. The tagged reason string is what
+      // will finally prove or rule this out from the on-screen history.
       if (chatAbortRef.current) {
         chatAbortRef.current.abort();
         chatAbortRef.current = null;
       }
-      stopListening();
+      stopListening('effect:cleanup(dep-değişti-veya-unmount)');
       stopSpeaking();
     };
   }, [isOpen, initialSpokenText, language, startListening, stopListening, stopSpeaking, resetTranscript, speak]);
@@ -376,7 +389,7 @@ export const LiveVoiceModal: React.FC<LiveVoiceModalProps> = ({
       chatAbortRef.current = null;
     }
     stopSpeaking();
-    stopListening();
+    stopListening('handleInterrupt');
     latestPromptRef.current = '';
     resetTranscript();
     setCurrentPrompt('');
@@ -394,7 +407,7 @@ export const LiveVoiceModal: React.FC<LiveVoiceModalProps> = ({
       chatAbortRef.current = null;
     }
     stopSpeaking();
-    stopListening();
+    stopListening('handleClose');
     setLiveState('idle');
     onClose();
   };

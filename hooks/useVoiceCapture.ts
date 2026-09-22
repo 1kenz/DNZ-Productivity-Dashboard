@@ -51,7 +51,7 @@ interface VoiceCaptureApi {
   interimTranscript: string;
   isSupported: boolean;
   startListening: () => void;
-  stopListening: () => void;
+  stopListening: (reason?: string) => void;
   resetTranscript: () => void;
   setTranscript: (t: string) => void;
   // Electron path only. A short, human-readable trace of what the mic
@@ -648,7 +648,8 @@ function useElectronAudioCapture({
     start();
   }, [beginRecordingCycle]);
 
-  const stopListening = useCallback(() => {
+  const stopListening = useCallback((reason?: string) => {
+    logStatus(`stopListening() çağrıldı (sebep: ${reason || 'belirtilmedi'})`);
     shouldListenRef.current = false;
     explicitStopRef.current = true;
     cancelVadLoop();
