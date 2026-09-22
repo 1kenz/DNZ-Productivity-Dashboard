@@ -62,6 +62,18 @@ interface VoiceCaptureApi {
   // gives the same visibility directly on screen instead. Always
   // undefined on the browser (Web Speech) path.
   debugStatus?: string;
+  // Electron path only. Manually ends the CURRENT recording cycle right
+  // now, as if silence had just been detected, instead of waiting for
+  // the VAD's own silence timer -- goes through the normal onstop path
+  // (discard-if-too-short / transcribe), unlike stopListening() which
+  // intentionally skips transcription (that one's for cancel/close). A
+  // safety valve for the whole class of VAD-tuning problems this file's
+  // history is full of (a noisy room, a quiet mic, a threshold that's
+  // never quite right for every machine): whatever the auto-detection
+  // gets wrong, the user can always just say "done" themselves. Always
+  // undefined on the browser (Web Speech) path, which has no separate
+  // stop-vs-cancel distinction to begin with.
+  forceStop?: () => void;
 }
 
 // Volume (RMS, roughly 0-1) above which we consider the user to be
@@ -583,6 +595,20 @@ function useElectronAudioCapture({
     if (onEndRef.current) onEndRef.current();
   }, [cancelVadLoop, clearHardStopWatchdog]);
 
+  const forceStop = useCallback(() => {
+    if (!mediaRecorderRef.current) return;
+    if (mediaRecorderRef.current.state === 'recording') {
+      setDebugStatus('elle durduruldu, gönderiliyor…');
+      // Deliberately does NOT set explicitStopRef -- that flag makes
+      // onstop skip transcription entirely (the cancel/close path). This
+      // should behave exactly like the VAD detecting silence on its own,
+      // just triggered by the user instead of the volume analysis.
+      try {
+        mediaRecorderRef.current.stop();
+      } catch (_) {}
+    }
+  }, []);
+
   const resetTranscript = useCallback(() => {
     setTranscriptState('');
   }, []);
@@ -609,6 +635,7 @@ function useElectronAudioCapture({
     resetTranscript,
     setTranscript,
     debugStatus,
+    forceStop,
   };
 }
 

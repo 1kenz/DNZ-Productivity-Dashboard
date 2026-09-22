@@ -194,6 +194,13 @@ export const LiveVoiceModal: React.FC<LiveVoiceModalProps> = ({
     // Always undefined on the browser (Web Speech) path, so it renders
     // nothing there.
     debugStatus,
+    // Electron path only -- see hooks/useVoiceCapture.ts. A manual
+    // escape hatch for the whole class of VAD/silence-detection tuning
+    // problems (noisy room, quiet mic, a threshold that's never quite
+    // right for every machine): lets the user end the current recording
+    // and send it right now instead of waiting on auto-detection to
+    // notice they've stopped talking.
+    forceStop,
   } = useVoiceCapture({
     language,
     continuous: true,
@@ -500,9 +507,37 @@ export const LiveVoiceModal: React.FC<LiveVoiceModalProps> = ({
               <strong>{selectedModel.name}:</strong> {lastReply}
             </div>
           ) : (
-            <span className={styles.interim}>
-              🎙️ {t('ai.startSpeakingPrompt') || 'Start speaking...'}
-            </span>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', alignItems: 'center' }}>
+              <span className={styles.interim}>
+                🎙️ {t('ai.startSpeakingPrompt') || 'Start speaking...'}
+              </span>
+              {/* Manual escape hatch for the whole VAD/silence-detection
+                  tuning saga -- forceStop is only defined on the Electron
+                  path (see hooks/useVoiceCapture.ts), so this renders
+                  nothing on the browser build, which doesn't need it. */}
+              {liveState === 'listening' && forceStop && (
+                <button
+                  type="button"
+                  onClick={() => forceStop()}
+                  style={{
+                    background: 'linear-gradient(135deg, #10b981, #059669)',
+                    border: 'none',
+                    borderRadius: '9999px',
+                    color: '#ffffff',
+                    padding: '4px 14px',
+                    fontSize: '0.78rem',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    boxShadow: '0 2px 8px rgba(16, 185, 129, 0.4)',
+                  }}
+                >
+                  ✅ {t('ai.doneSpeakingBtn') || 'Bitti, Gönder'}
+                </button>
+              )}
+            </div>
           )}
         </div>
       </div>
