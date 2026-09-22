@@ -40,6 +40,22 @@ export const LiveVoiceModal: React.FC<LiveVoiceModalProps> = ({
   const chatAbortRef = useRef<AbortController | null>(null);
   const latestPromptRef = useRef('');
 
+  // Independent heartbeat, deliberately with ZERO connection to
+  // useVoiceCapture's internals (no shared refs, no shared timers) -- its
+  // only job is to answer one question when the debug badge looks frozen:
+  // is this renderer's JS/React event loop actually still alive at all
+  // right now, or is the whole page genuinely stuck? If this number is
+  // still climbing while the voice-capture debugStatus text isn't
+  // changing, the freeze is specific to that hook's own state/closures --
+  // not a renderer-wide stall (Electron backgroundThrottling, a stuck
+  // native dialog eating the event loop, etc.).
+  const [heartbeat, setHeartbeat] = useState(0);
+  useEffect(() => {
+    if (!isOpen) return;
+    const id = setInterval(() => setHeartbeat((n) => n + 1), 1000);
+    return () => clearInterval(id);
+  }, [isOpen]);
+
   useEffect(() => {
     isOpenRef.current = isOpen;
   }, [isOpen]);
@@ -519,6 +535,9 @@ export const LiveVoiceModal: React.FC<LiveVoiceModalProps> = ({
           mod: {isElectronApp() ? 'electron' : 'browser'}
           {' | build: '}
           {process.env.NEXT_PUBLIC_BUILD_ID || 'dev'}
+          {' | canlı: '}
+          {heartbeat}
+          s
           {debugStatus ? ` | ${debugStatus}` : ''}
         </span>
       </div>

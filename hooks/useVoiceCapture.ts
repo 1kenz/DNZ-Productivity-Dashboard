@@ -163,6 +163,14 @@ function useElectronAudioCapture({
   // This setTimeout fires on the wall clock regardless of whether the
   // tick interval is running at all, and force-recovers the cycle.
   const hardStopTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Throttle for the live RMS/elapsed readout below -- updated once a
+  // second (not every 100ms tick) so this stays readable and doesn't spam
+  // re-renders, but still proves conclusively, on the next real test,
+  // whether tick() is running at all and whether the mic track is
+  // delivering any real signal (RMS should visibly fluctuate with room
+  // noise even in silence; a flat 0.000 forever means the track itself is
+  // dead, not that timers are stuck).
+  const lastLiveDebugUpdateRef = useRef(0);
   const speechStartedRef = useRef(false);
   const cycleStartRef = useRef(0);
   const lastLoudTimeRef = useRef(0);
@@ -323,6 +331,13 @@ function useElectronAudioCapture({
 
       const elapsedSinceStart = now - cycleStartRef.current;
       const silenceElapsed = now - lastLoudTimeRef.current;
+
+      if (now - lastLiveDebugUpdateRef.current > 1000) {
+        lastLiveDebugUpdateRef.current = now;
+        setDebugStatus(
+          `dinleniyor… (rms:${rms.toFixed(3)}, t:${(elapsedSinceStart / 1000).toFixed(1)}s, konuşma:${speechStartedRef.current ? 'evet' : 'hayır'})`
+        );
+      }
 
       if (
         (speechStartedRef.current &&
