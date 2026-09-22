@@ -169,6 +169,14 @@ export const LiveVoiceModal: React.FC<LiveVoiceModalProps> = ({
     stopListening,
     interimTranscript,
     resetTranscript,
+    // Electron path only (see hooks/useVoiceCapture.ts) -- a live,
+    // human-readable trace of what the mic pipeline is doing right now.
+    // Rendered as a small caption below so mic issues on the packaged
+    // macOS app can be diagnosed straight off the screen, since getting
+    // real console/DevTools output out of that app has proven unreliable.
+    // Always undefined on the browser (Web Speech) path, so it renders
+    // nothing there.
+    debugStatus,
   } = useVoiceCapture({
     language,
     continuous: true,
@@ -481,6 +489,21 @@ export const LiveVoiceModal: React.FC<LiveVoiceModalProps> = ({
           )}
         </div>
       </div>
+
+      {debugStatus && (
+        <div
+          style={{
+            textAlign: 'center',
+            fontSize: '0.7rem',
+            opacity: 0.55,
+            marginTop: '-8px',
+            marginBottom: '8px',
+            fontFamily: 'monospace',
+          }}
+        >
+          {debugStatus}
+        </div>
+      )}
 
       <div className={styles.controlsRow}>
         <button type="button" className={styles.controlBtn} onClick={handleInterrupt}>

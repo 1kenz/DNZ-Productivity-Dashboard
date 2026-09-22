@@ -54,6 +54,14 @@ interface VoiceCaptureApi {
   stopListening: () => void;
   resetTranscript: () => void;
   setTranscript: (t: string) => void;
+  // Electron path only. A short, human-readable trace of what the mic
+  // capture pipeline is doing right now (requesting the mic, recording,
+  // discarding a too-short clip, uploading for transcription, an error
+  // message, ...). This exists because getting real console/DevTools
+  // output out of the packaged macOS app has proven unreliable -- this
+  // gives the same visibility directly on screen instead. Always
+  // undefined on the browser (Web Speech) path.
+  debugStatus?: string;
 }
 
 // Volume (RMS, roughly 0-1) above which we consider the user to be
@@ -69,6 +77,18 @@ const MAX_RECORDING_MS = 20000;
 // Recordings shorter than this are almost certainly a false start (a click,
 // a cough) rather than real speech -- skip transcribing them.
 const MIN_BLOB_BYTES = 4000;
+// The silence-based auto-stop is ignored for this long at the start of
+// every recording cycle. Without this, a brief encoder/mic startup
+// transient (a lot of real-world mic + MediaRecorder combinations produce
+// one right as recording begins) can register as "speech", immediately
+// followed by silence once it settles -- triggering an almost-instant
+// stop with a near-empty clip that gets thrown away by MIN_BLOB_BYTES,
+// which then restarts the cycle and repeats. That loop can run fast
+// enough to never give real speech a chance to be captured at all, while
+// still outwardly looking like "Listening..." forever with nothing ever
+// reaching transcription. The hard MAX_RECORDING_MS cap below is NOT
+// gated by this -- it always applies.
+const MIN_RECORDING_BEFORE_STOP_MS = 600;
 
 // How long to wait for navigator.mediaDevices.getUserMedia() before giving
 // up. In a packaged, unsigned macOS app, getUserMedia's promise can hang
@@ -125,6 +145,7 @@ function useElectronAudioCapture({
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscriptState] = useState('');
   const [isSupported, setIsSupported] = useState(false);
+  const [debugStatus, setDebugStatus] = useState('');
 
   const shouldListenRef = useRef(false);
   const explicitStopRef = useRef(false);
@@ -188,6 +209,7 @@ function useElectronAudioCapture({
   }, [cancelVadLoop]);
 
   const transcribeBlob = useCallback(async (blob: Blob) => {
+    setDebugStatus(`ses gönderiliyor (${blob.size}B)`);
     if (onProcessingStartRef.current) onProcessingStartRef.current();
     try {
       const form = new FormData();
@@ -206,11 +228,15 @@ function useElectronAudioCapture({
 
       const text = ((data?.text as string) || '').trim();
       if (text) {
+        setDebugStatus(`transkript alındı: "${text.slice(0, 40)}"`);
         setTranscriptState(text);
         if (onResultRef.current) onResultRef.current(text, true);
+      } else {
+        setDebugStatus('boş transkript alındı, tekrar dinleniyor');
       }
     } catch (err) {
       const code = err instanceof Error && err.message === 'no-api-key' ? 'no-api-key' : 'transcription-failed';
+      setDebugStatus(`transkripsiyon hatası: ${err instanceof Error ? err.message : String(err)}`);
       console.warn('Voice transcription failed:', err);
       if (onErrorRef.current) {
         onErrorRef.current({ error: code, message: err instanceof Error ? err.message : String(err) });
@@ -256,7 +282,9 @@ function useElectronAudioCapture({
       const silenceElapsed = now - lastLoudTimeRef.current;
 
       if (
-        (speechStartedRef.current && silenceElapsed > SILENCE_MS) ||
+        (speechStartedRef.current &&
+          elapsedSinceStart > MIN_RECORDING_BEFORE_STOP_MS &&
+          silenceElapsed > SILENCE_MS) ||
         elapsedSinceStart > MAX_RECORDING_MS
       ) {
         if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
@@ -309,6 +337,8 @@ function useElectronAudioCapture({
           return;
         }
         if (blob.size < MIN_BLOB_BYTES) {
+          const elapsedMs = Date.now() - cycleStartRef.current;
+          setDebugStatus(`kayıt çok kısa (${blob.size}B / ${elapsedMs}ms), yeniden deneniyor`);
           beginRecordingCycle();
           return;
         }
@@ -318,6 +348,7 @@ function useElectronAudioCapture({
       mediaRecorderRef.current = recorder;
       recorder.start();
       setIsListening(true);
+      setDebugStatus('dinleniyor…');
 
       speechStartedRef.current = false;
       cycleStartRef.current = Date.now();
@@ -325,6 +356,7 @@ function useElectronAudioCapture({
       runVadLoop();
     } catch (e) {
       console.warn('Failed to start audio capture cycle:', e);
+      setDebugStatus(`ses yakalama hatası: ${e instanceof Error ? e.message : String(e)}`);
       if (onErrorRef.current) {
         onErrorRef.current({ error: 'audio-capture', message: e instanceof Error ? e.message : String(e) });
       }
@@ -340,7 +372,9 @@ function useElectronAudioCapture({
     const start = async () => {
       try {
         if (!mediaStreamRef.current) {
+          setDebugStatus('mikrofon isteniyor…');
           mediaStreamRef.current = await getUserMediaWithTimeout({ audio: true });
+          setDebugStatus('mikrofon alındı');
         }
         beginRecordingCycle();
       } catch (err) {
@@ -348,6 +382,7 @@ function useElectronAudioCapture({
         shouldListenRef.current = false;
         setIsListening(false);
         const isTimeout = err instanceof DOMException && err.name === 'TimeoutError';
+        setDebugStatus(`mikrofon hatası: ${isTimeout ? 'zaman aşımı' : (err instanceof Error ? err.message : String(err))}`);
         if (onErrorRef.current) {
           onErrorRef.current({
             error: isTimeout ? 'mic-timeout' : 'not-allowed',
@@ -398,6 +433,7 @@ function useElectronAudioCapture({
     stopListening,
     resetTranscript,
     setTranscript,
+    debugStatus,
   };
 }
 
