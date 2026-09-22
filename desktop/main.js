@@ -296,6 +296,20 @@ function createWindow() {
     webPreferences: {
       contextIsolation: true,
       preload: path.join(__dirname, 'preload.js'),
+      // Separate from (and NOT covered by) the disable-background-*
+      // Chromium command-line switches above -- this is Electron's own,
+      // independent throttling of timers/animations for a "backgrounded"
+      // WebContents (defaults to true). It has been the real culprit
+      // behind Live Voice's VAD loop (and even a wall-clock setTimeout
+      // watchdog meant to be immune to exactly this) going completely
+      // silent for 40-60s+ at a time: the command-line switches disable
+      // Chromium's background *tab* throttling, but Electron applies this
+      // additional layer on top regardless of those, whenever it
+      // considers the window occluded/not-key -- which can happen even
+      // while the window is still visibly on screen (briefly losing key
+      // window status, an overlapping system dialog, a Space transition,
+      // etc.). Explicitly false so mic capture timers never stall.
+      backgroundThrottling: false,
     },
   });
   session.defaultSession.clearCache().finally(() => {
