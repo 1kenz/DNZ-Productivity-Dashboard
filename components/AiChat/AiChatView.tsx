@@ -224,9 +224,16 @@ export const AiChatView: React.FC<AiChatViewProps> = ({ pendingRequest, onPendin
     }
   };
 
-  const handleSendMessage = async (customPrompt?: string) => {
+  const handleSendMessage = async (customPrompt?: string, displayText?: string) => {
     const textToSend = (customPrompt !== undefined ? customPrompt : inputPrompt).trim();
     if (!textToSend || isLoading) return;
+    // What actually shows in the chat bubble (and gets saved to the DB)
+    // for the user's turn -- normally identical to textToSend, but a
+    // caller like the DNZ SITREP button can pass a short, friendly label
+    // instead of the full data-stuffed instruction prompt it's actually
+    // sending the model, so the user isn't confronted with their own
+    // internal system prompt in the conversation.
+    const shownText = (displayText !== undefined ? displayText : textToSend).trim() || textToSend;
 
     let targetConvId = activeConversationId;
 
@@ -267,7 +274,7 @@ export const AiChatView: React.FC<AiChatViewProps> = ({ pendingRequest, onPendin
       id: 'temp-' + Date.now(),
       conversationId: targetConvId,
       role: 'user',
-      content: textToSend,
+      content: shownText,
       createdAt: new Date(),
     };
 
@@ -280,12 +287,12 @@ export const AiChatView: React.FC<AiChatViewProps> = ({ pendingRequest, onPendin
       await addAiMessage({
         conversationId: targetConvId,
         role: 'user',
-        content: textToSend,
+        content: shownText,
       }).catch((e) => console.warn('addAiMessage skipped/warn:', e));
 
       // Update title if it was first message
       if (messages.length === 0) {
-        const smartTitle = textToSend.slice(0, 32);
+        const smartTitle = shownText.slice(0, 32);
         updateAiConversation(targetConvId, { title: smartTitle }).catch(() => {});
         setConversations((prev) =>
           prev.map((c) => (c.id === targetConvId ? { ...c, title: smartTitle } : c))
@@ -297,6 +304,14 @@ export const AiChatView: React.FC<AiChatViewProps> = ({ pendingRequest, onPendin
         role: m.role,
         content: m.content,
       }));
+      // The model still needs the FULL prompt (task data and all) for
+      // this turn, even though the bubble/DB only show shownText.
+      if (conversationHistory.length > 0) {
+        conversationHistory[conversationHistory.length - 1] = {
+          role: 'user',
+          content: textToSend,
+        };
+      }
 
       const clientApiKeys = typeof window !== 'undefined' ? {
         gemini: localStorage.getItem('dnz_ai_gemini_key') || undefined,
@@ -493,7 +508,7 @@ Bitte erstellen Sie einen eleganten Lagebericht mit folgender Vorlage:
 ## 3. ⏱️ Zeitmanagement & Empfohlene Pomodoro-Reihenfolge
 ## 4. 💡 Strategische Notiz von Deniz & Motivation`;
     } else if (language === 'en') {
-      writtenPrompt = `You are Deniz, the Executive Personal AI Assistant for DNZ Productivity OS.
+      writtenPrompt = `You are Deniz, the Executive Personal AI Assistant for DNZ Productivity.
 Analyze my task status for today and generate a crisp, motivating, prioritized DNZ SITREP (Daily Executive Situation Report) in English.
 
 📊 CURRENT SYSTEM DATA:
@@ -528,8 +543,17 @@ Lütfen şu şablonla Apple tarzı, net ve ilham verici bir rapor üret:
 ## 4. 💡 Deniz Stratejik Notu & Motivasyon`;
     }
 
-    // Send written request into chat conversation
-    handleSendMessage(writtenPrompt);
+    // Send the full, data-stuffed instruction prompt to the model, but
+    // show a short, friendly label in the chat bubble instead -- the
+    // user asked not to see their own raw internal prompt in the
+    // conversation when they click this button.
+    const sitrepDisplayLabel =
+      language === 'de'
+        ? '📊 DNZ SITREP — Tagesbericht anfordern'
+        : language === 'en'
+        ? '📊 DNZ SITREP — Request daily briefing'
+        : '📊 DNZ SITREP — Günlük durum raporu iste';
+    handleSendMessage(writtenPrompt, sitrepDisplayLabel);
 
     // 2. Interactive Spoken Greeting for Deniz Live Voice Assistant
     const voiceLang = aiSettings?.voiceLanguage || 'tr-TR';
