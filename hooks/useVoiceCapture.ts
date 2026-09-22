@@ -62,6 +62,16 @@ interface VoiceCaptureApi {
   // gives the same visibility directly on screen instead. Always
   // undefined on the browser (Web Speech) path.
   debugStatus?: string;
+  // Electron path only. The last several debugStatus messages, oldest
+  // first, each with a "Ns" timestamp relative to when this hook
+  // instance was created. debugStatus alone only ever shows the LATEST
+  // message -- if something overwrites it a moment later (exactly the
+  // failure mode behind several bugs in this file already), the previous
+  // message is gone with no way to see what actually happened. This is
+  // the same problem the on-screen badge exists to solve for DevTools
+  // access, one level up: a full timeline instead of a single frozen
+  // frame.
+  debugHistory?: string[];
   // Electron path only. Manually ends the CURRENT recording cycle right
   // now, as if silence had just been detected, instead of waiting for
   // the VAD's own silence timer -- goes through the normal onstop path
@@ -183,6 +193,20 @@ function useElectronAudioCapture({
   const [transcript, setTranscriptState] = useState('');
   const [isSupported, setIsSupported] = useState(false);
   const [debugStatus, setDebugStatus] = useState('');
+  const [debugHistory, setDebugHistory] = useState<string[]>([]);
+  const debugSessionStartRef = useRef(Date.now());
+  // Every debug message in this file should go through this instead of
+  // setDebugStatus directly, so it lands in both the single-line badge
+  // AND the running history -- see debugHistory above for why the
+  // history exists.
+  const logStatus = useCallback((msg: string) => {
+    setDebugStatus(msg);
+    setDebugHistory((prev) => {
+      const elapsedS = ((Date.now() - debugSessionStartRef.current) / 1000).toFixed(1);
+      const next = [...prev, `${elapsedS}s ${msg}`];
+      return next.length > 14 ? next.slice(next.length - 14) : next;
+    });
+  }, []);
 
   const shouldListenRef = useRef(false);
   const explicitStopRef = useRef(false);
@@ -297,7 +321,7 @@ function useElectronAudioCapture({
   }, [cancelVadLoop, clearHardStopWatchdog]);
 
   const transcribeBlob = useCallback(async (blob: Blob) => {
-    setDebugStatus(`ses gönderiliyor (${blob.size}B)`);
+    logStatus(`ses gönderiliyor (${blob.size}B)`);
     if (onProcessingStartRef.current) onProcessingStartRef.current();
     try {
       const form = new FormData();
@@ -316,15 +340,15 @@ function useElectronAudioCapture({
 
       const text = ((data?.text as string) || '').trim();
       if (text) {
-        setDebugStatus(`transkript alındı: "${text.slice(0, 40)}"`);
+        logStatus(`transkript alındı: "${text.slice(0, 40)}"`);
         setTranscriptState(text);
         if (onResultRef.current) onResultRef.current(text, true);
       } else {
-        setDebugStatus('boş transkript alındı, tekrar dinleniyor');
+        logStatus('boş transkript alındı, tekrar dinleniyor');
       }
     } catch (err) {
       const code = err instanceof Error && err.message === 'no-api-key' ? 'no-api-key' : 'transcription-failed';
-      setDebugStatus(`transkripsiyon hatası: ${err instanceof Error ? err.message : String(err)}`);
+      logStatus(`transkripsiyon hatası: ${err instanceof Error ? err.message : String(err)}`);
       console.warn('Voice transcription failed:', err);
       if (onErrorRef.current) {
         onErrorRef.current({ error: code, message: err instanceof Error ? err.message : String(err) });
@@ -344,7 +368,10 @@ function useElectronAudioCapture({
   // scheduling at all, which this audio-level check has no need of.
   const runVadLoop = useCallback(() => {
     const analyser = analyserRef.current;
-    if (!analyser) return;
+    if (!analyser) {
+      logStatus('VAD döngüsü başlatılamadı: analyser yok');
+      return;
+    }
     const data = new Uint8Array(analyser.fftSize);
 
     const tick = () => {
@@ -376,10 +403,11 @@ function useElectronAudioCapture({
           // stop kept losing this exact race) and almost certainly the
           // original "hep dinleme modunda kalıyor" symptom too, since a
           // perfectly normal silence-triggered stop hit the same race.
+          logStatus('VAD: durdurma isteğimiz var, onstop bekleniyor');
           return;
         }
         if (stillListening && recorder) {
-          setDebugStatus(`VAD döngüsü beklenmedik durdu (durum: ${recorder.state}), yeniden başlatılıyor`);
+          logStatus(`VAD döngüsü beklenmedik durdu (durum: ${recorder.state}), yeniden başlatılıyor`);
           if (recorder.state === 'inactive') {
             beginRecordingCycleRef.current();
           } else {
@@ -457,7 +485,7 @@ function useElectronAudioCapture({
 
       if (now - lastLiveDebugUpdateRef.current > 1000) {
         lastLiveDebugUpdateRef.current = now;
-        setDebugStatus(
+        logStatus(
           `dinleniyor… (rms:${rms.toFixed(3)}, eşik:${activeThreshold.toFixed(3)}, t:${(elapsedSinceStart / 1000).toFixed(1)}s, konuşma:${speechStartedRef.current ? 'evet' : 'hayır'}, deneme:#${consecutiveShortRetriesRef.current})`
         );
       }
@@ -479,7 +507,13 @@ function useElectronAudioCapture({
   }, [cancelVadLoop]);
 
   const beginRecordingCycle = useCallback(() => {
-    if (!shouldListenRef.current || !mediaStreamRef.current) return;
+    if (!shouldListenRef.current || !mediaStreamRef.current) {
+      logStatus(
+        `döngü başlatılamadı (shouldListen:${shouldListenRef.current}, stream:${mediaStreamRef.current ? 'var' : 'yok'})`
+      );
+      return;
+    }
+    logStatus('yeni kayıt döngüsü başlıyor');
     const stream = mediaStreamRef.current;
 
     try {
@@ -515,6 +549,9 @@ function useElectronAudioCapture({
         explicitStopRef.current = false;
         const blob = new Blob(chunksRef.current, { type: recorder.mimeType || 'audio/webm' });
         chunksRef.current = [];
+        logStatus(
+          `onstop tetiklendi (blob:${blob.size}B, wasExplicit:${wasExplicit}, shouldListen:${shouldListenRef.current})`
+        );
 
         if (wasExplicit || !shouldListenRef.current) {
           setIsListening(false);
@@ -523,7 +560,7 @@ function useElectronAudioCapture({
         if (blob.size < MIN_BLOB_BYTES) {
           const elapsedMs = Date.now() - cycleStartRef.current;
           consecutiveShortRetriesRef.current += 1;
-          setDebugStatus(
+          logStatus(
             `kayıt çok kısa (${blob.size}B / ${elapsedMs}ms), yeniden deneniyor (deneme #${consecutiveShortRetriesRef.current})`
           );
           beginRecordingCycle();
@@ -536,7 +573,7 @@ function useElectronAudioCapture({
       mediaRecorderRef.current = recorder;
       recorder.start();
       setIsListening(true);
-      setDebugStatus('dinleniyor…');
+      logStatus('dinleniyor…');
 
       speechStartedRef.current = false;
       loudStreakStartRef.current = null;
@@ -557,7 +594,7 @@ function useElectronAudioCapture({
           // before now -- it didn't (throttled, stalled, or never armed).
           // Force it directly; onstop still runs the normal retry/
           // transcribe path from here.
-          setDebugStatus('sert zaman aşımı (watchdog), kayıt zorla durduruluyor');
+          logStatus('sert zaman aşımı (watchdog), kayıt zorla durduruluyor');
           try {
             stopRequestedRef.current = true;
             currentRecorder.stop();
@@ -566,13 +603,13 @@ function useElectronAudioCapture({
           // Already stopped/dead with nothing having restarted the cycle
           // (e.g. the tick loop's own recovery path also failed to).
           // Full fresh restart rather than reusing whatever's left.
-          setDebugStatus('sert zaman aşımı (watchdog): kayıt hareketsiz, yeniden başlatılıyor');
+          logStatus('sert zaman aşımı (watchdog): kayıt hareketsiz, yeniden başlatılıyor');
           beginRecordingCycleRef.current();
         }
       }, MAX_RECORDING_MS + 3000);
     } catch (e) {
       console.warn('Failed to start audio capture cycle:', e);
-      setDebugStatus(`ses yakalama hatası: ${e instanceof Error ? e.message : String(e)}`);
+      logStatus(`ses yakalama hatası: ${e instanceof Error ? e.message : String(e)}`);
       if (onErrorRef.current) {
         onErrorRef.current({ error: 'audio-capture', message: e instanceof Error ? e.message : String(e) });
       }
@@ -588,9 +625,9 @@ function useElectronAudioCapture({
     const start = async () => {
       try {
         if (!mediaStreamRef.current) {
-          setDebugStatus('mikrofon isteniyor…');
+          logStatus('mikrofon isteniyor…');
           mediaStreamRef.current = await getUserMediaWithTimeout({ audio: true });
-          setDebugStatus('mikrofon alındı');
+          logStatus('mikrofon alındı');
         }
         beginRecordingCycle();
       } catch (err) {
@@ -598,7 +635,7 @@ function useElectronAudioCapture({
         shouldListenRef.current = false;
         setIsListening(false);
         const isTimeout = err instanceof DOMException && err.name === 'TimeoutError';
-        setDebugStatus(`mikrofon hatası: ${isTimeout ? 'zaman aşımı' : (err instanceof Error ? err.message : String(err))}`);
+        logStatus(`mikrofon hatası: ${isTimeout ? 'zaman aşımı' : (err instanceof Error ? err.message : String(err))}`);
         if (onErrorRef.current) {
           onErrorRef.current({
             error: isTimeout ? 'mic-timeout' : 'not-allowed',
@@ -634,10 +671,10 @@ function useElectronAudioCapture({
     // cycle-transition), the old version left NO trace at all, which is
     // indistinguishable from "the click never reached this function".
     // This line alone proves whether forceStop() is even invoked.
-    setDebugStatus(`buton tıklandı (recorder:${recorder ? recorder.state : 'yok'})`);
+    logStatus(`buton tıklandı (recorder:${recorder ? recorder.state : 'yok'})`);
     if (!recorder) return;
     if (recorder.state === 'recording') {
-      setDebugStatus('elle durduruldu, gönderiliyor…');
+      logStatus('elle durduruldu, gönderiliyor…');
       // Race condition fix: MediaRecorder.stop() flips `.state` to
       // 'inactive' SYNCHRONOUSLY, but the 'stop' event (which does the
       // actual blob/transcription work in onstop) fires ASYNCHRONOUSLY
@@ -687,6 +724,7 @@ function useElectronAudioCapture({
     resetTranscript,
     setTranscript,
     debugStatus,
+    debugHistory,
     forceStop,
   };
 }

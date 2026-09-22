@@ -204,6 +204,13 @@ export const LiveVoiceModal: React.FC<LiveVoiceModalProps> = ({
     // Always undefined on the browser (Web Speech) path, so it renders
     // nothing there.
     debugStatus,
+    // Same as debugStatus, but the last ~14 messages instead of just the
+    // latest one -- debugStatus alone only ever shows a single frozen
+    // frame, and something overwriting it a moment later (the exact
+    // failure mode behind several of the bugs chased in this file
+    // already) leaves no trace of what actually happened before that.
+    // Rendered as a small scrolling log under the badge below.
+    debugHistory,
     // Electron path only -- see hooks/useVoiceCapture.ts. A manual
     // escape hatch for the whole class of VAD/silence-detection tuning
     // problems (noisy room, quiet mic, a threshold that's never quite
@@ -591,6 +598,30 @@ export const LiveVoiceModal: React.FC<LiveVoiceModalProps> = ({
           {debugStatus ? ` | ${debugStatus}` : ''}
         </span>
       </div>
+
+      {debugHistory && debugHistory.length > 0 && (
+        <div
+          style={{
+            maxWidth: '640px',
+            margin: '0 auto 8px',
+            maxHeight: '110px',
+            overflowY: 'auto',
+            background: 'rgba(0, 0, 0, 0.55)',
+            border: '1px solid rgba(250, 204, 21, 0.4)',
+            borderRadius: '4px',
+            padding: '4px 8px',
+            fontSize: '0.66rem',
+            fontFamily: 'monospace',
+            color: '#e5e7eb',
+            textAlign: 'left',
+            lineHeight: 1.5,
+          }}
+        >
+          {debugHistory.map((line, idx) => (
+            <div key={idx}>{line}</div>
+          ))}
+        </div>
+      )}
 
       <div className={styles.controlsRow}>
         <button type="button" className={styles.controlBtn} onClick={handleInterrupt}>
