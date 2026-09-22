@@ -498,18 +498,27 @@ export const LiveVoiceModal: React.FC<LiveVoiceModalProps> = ({
           packaged desktop app, none of the Electron-only mic fixes above
           are in play at all, which is the single most important thing to
           rule out before chasing anything else. */}
-      <div
-        style={{
-          textAlign: 'center',
-          fontSize: '0.7rem',
-          opacity: 0.55,
-          marginTop: '-8px',
-          marginBottom: '8px',
-          fontFamily: 'monospace',
-        }}
-      >
-        mod: {isElectronApp() ? 'electron' : 'browser'}
-        {debugStatus ? ` | ${debugStatus}` : ''}
+      <div style={{ textAlign: 'center', marginTop: '-8px', marginBottom: '8px' }}>
+        <span
+          style={{
+            fontSize: '0.72rem',
+            fontFamily: 'monospace',
+            fontWeight: 700,
+            // High-contrast on purpose (not just a dimmed opacity) -- a
+            // subtle gray-on-dark caption here previously blended into the
+            // modal's own dark background closely enough to be
+            // effectively invisible on a real screen/screenshot, even
+            // though it was rendering correctly the whole time.
+            color: '#0a0a0a',
+            background: '#facc15',
+            padding: '2px 8px',
+            borderRadius: '4px',
+            display: 'inline-block',
+          }}
+        >
+          mod: {isElectronApp() ? 'electron' : 'browser'}
+          {debugStatus ? ` | ${debugStatus}` : ''}
+        </span>
       </div>
 
       <div className={styles.controlsRow}>
