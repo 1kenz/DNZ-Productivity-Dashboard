@@ -581,6 +581,10 @@ function useElectronAudioCapture({
       effectiveThresholdRef.current = null;
       cycleStartRef.current = Date.now();
       lastLoudTimeRef.current = Date.now();
+      // Safety net for the explicitStopRef staleness bug: a fresh cycle
+      // should never inherit a leftover "explicit stop" flag from
+      // whatever happened before it started.
+      explicitStopRef.current = false;
       runVadLoop();
 
       clearHardStopWatchdog();
@@ -651,10 +655,14 @@ function useElectronAudioCapture({
   const stopListening = useCallback((reason?: string) => {
     logStatus(`stopListening() çağrıldı (sebep: ${reason || 'belirtilmedi'})`);
     shouldListenRef.current = false;
-    explicitStopRef.current = true;
     cancelVadLoop();
     clearHardStopWatchdog();
     if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+      // Only mark this as an explicit stop when there's actually an
+      // active recording being stopped -- see the comment above this
+      // function for why setting this unconditionally is what caused
+      // the flag to get permanently stuck.
+      explicitStopRef.current = true;
       try {
         mediaRecorderRef.current.stop();
       } catch (_) {}
