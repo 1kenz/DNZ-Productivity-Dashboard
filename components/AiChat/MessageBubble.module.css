@@ -389,3 +389,47 @@
   border-color: rgba(239, 68, 68, 0.4);
   color: #fca5a5;
 }
+
+
+/* ==========================================================================
+   Light Mode Overrides
+   ========================================================================== */
+/* Reported directly: the action toolbar (Sesli Dinle / Kopyala / Kasaya
+   Kaydet / Göreve Aktar / Notlara Kaydet) was styled with hardcoded
+   white-based rgba() values only -- fine on the dark background these
+   were designed against, but nearly invisible on light theme's white
+   background, and the hover state (color: #ffffff) made the label
+   disappear completely instead of standing out. */
+:global([data-theme="light"]) .actionsToolbar {
+  border-top-color: rgba(0, 0, 0, 0.08);
+}
+
+:global([data-theme="light"]) .actionBtn {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+  color: #475569;
+}
+
+:global([data-theme="light"]) .actionBtn:hover {
+  background: #e2e8f0;
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+
+:global([data-theme="light"]) .actionBtn.speaking {
+  background: #fee2e2;
+  border-color: #fca5a5;
+  color: #dc2626;
+}
+
+:global([data-theme="light"]) .deleteActionBtn {
+  color: #dc2626;
+  background: rgba(239, 68, 68, 0.08);
+  border-color: rgba(239, 68, 68, 0.25);
+}
+
+:global([data-theme="light"]) .deleteActionBtn:hover {
+  background: rgba(239, 68, 68, 0.16);
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #dc2626;
+}
