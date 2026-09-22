@@ -89,6 +89,21 @@ const MIN_BLOB_BYTES = 4000;
 // reaching transcription. The hard MAX_RECORDING_MS cap below is NOT
 // gated by this -- it always applies.
 const MIN_RECORDING_BEFORE_STOP_MS = 600;
+// Real evidence from a live test (debug badge showing a live RMS/elapsed
+// readout) proved MIN_RECORDING_BEFORE_STOP_MS alone doesn't fix the
+// false-start loop described above -- it only delays the inevitable stop,
+// it doesn't stop a single loud tick (e.g. exactly the startup transient
+// warned about above) from permanently flagging speechStartedRef = true
+// for the rest of that cycle. Every cycle then reliably times out via the
+// silence branch ~1.5s after start regardless of whether the user is
+// actually mid-utterance, producing a near-empty blob that gets thrown
+// away and restarts the cycle -- outwardly indistinguishable from being
+// frozen on "Listening...", repeating every few seconds, forever. Now
+// speechStartedRef only latches true once the volume has stayed above
+// SPEECH_VOLUME_THRESHOLD continuously for this long, filtering out a
+// single-tick transient while still being short enough not to add
+// noticeable delay to real speech onset.
+const SPEECH_CONFIRM_MS = 200;
 
 // How long to wait for navigator.mediaDevices.getUserMedia() before giving
 // up. In a packaged, unsigned macOS app, getUserMedia's promise can hang
@@ -174,6 +189,14 @@ function useElectronAudioCapture({
   const speechStartedRef = useRef(false);
   const cycleStartRef = useRef(0);
   const lastLoudTimeRef = useRef(0);
+  // Tracks when the current above-threshold streak began (null when not
+  // currently above threshold) -- see SPEECH_CONFIRM_MS above.
+  const loudStreakStartRef = useRef<number | null>(null);
+  // How many consecutive cycles in a row have been thrown away as
+  // too-short. Surfaced in the debug badge so a fast false-start retry
+  // loop (this exact bug) is visible at a glance next time instead of
+  // just looking like a frozen "dinleniyor..." again.
+  const consecutiveShortRetriesRef = useRef(0);
   const languageRef = useRef(language);
   languageRef.current = language;
 
@@ -326,7 +349,12 @@ function useElectronAudioCapture({
 
       if (rms > SPEECH_VOLUME_THRESHOLD) {
         lastLoudTimeRef.current = now;
-        speechStartedRef.current = true;
+        if (loudStreakStartRef.current === null) loudStreakStartRef.current = now;
+        if (!speechStartedRef.current && now - loudStreakStartRef.current >= SPEECH_CONFIRM_MS) {
+          speechStartedRef.current = true;
+        }
+      } else {
+        loudStreakStartRef.current = null;
       }
 
       const elapsedSinceStart = now - cycleStartRef.current;
@@ -397,10 +425,14 @@ function useElectronAudioCapture({
         }
         if (blob.size < MIN_BLOB_BYTES) {
           const elapsedMs = Date.now() - cycleStartRef.current;
-          setDebugStatus(`kayıt çok kısa (${blob.size}B / ${elapsedMs}ms), yeniden deneniyor`);
+          consecutiveShortRetriesRef.current += 1;
+          setDebugStatus(
+            `kayıt çok kısa (${blob.size}B / ${elapsedMs}ms), yeniden deneniyor (deneme #${consecutiveShortRetriesRef.current})`
+          );
           beginRecordingCycle();
           return;
         }
+        consecutiveShortRetriesRef.current = 0;
         transcribeBlob(blob);
       };
 
@@ -410,6 +442,7 @@ function useElectronAudioCapture({
       setDebugStatus('dinleniyor…');
 
       speechStartedRef.current = false;
+      loudStreakStartRef.current = null;
       cycleStartRef.current = Date.now();
       lastLoudTimeRef.current = Date.now();
       runVadLoop();
