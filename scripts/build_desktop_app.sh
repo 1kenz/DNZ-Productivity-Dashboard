@@ -64,6 +64,14 @@ cp prisma/incremental.sql desktop/resources/prisma-schema/incremental.sql
 
 cp public/icons/icon-512.png desktop/resources/icon.png
 
+# macOS menu bar ("Tray") icon -- small downsized copies of the same
+# source icon. trayIcon@2x.png is picked up automatically by Electron's
+# nativeImage for Retina displays, purely by its "@2x" filename suffix
+# (see desktop/main.js's createTray()). sips ships with macOS, so this
+# needs no extra dependency.
+sips -z 20 20 public/icons/icon-512.png --out desktop/resources/trayIcon.png >/dev/null
+sips -z 40 40 public/icons/icon-512.png --out desktop/resources/trayIcon@2x.png >/dev/null
+
 echo "📦 [5/6] Installing Electron + electron-builder..."
 cd desktop
 npm install

@@ -1,4 +1,4 @@
-const { app, BrowserWindow, shell, dialog, session, ipcMain } = require('electron');
+const { app, BrowserWindow, shell, dialog, session, ipcMain, Tray, Menu, nativeImage } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const http = require('http');
@@ -36,6 +36,7 @@ const APP_SERVER_DIR = path.join(resourcesPath, 'app-server');
 const INIT_SQL_PATH = path.join(resourcesPath, 'prisma-schema', 'init.sql');
 const INCREMENTAL_SQL_PATH = path.join(resourcesPath, 'prisma-schema', 'incremental.sql');
 const ICON_PATH = path.join(resourcesPath, 'icon.png');
+const TRAY_ICON_PATH = path.join(resourcesPath, 'trayIcon.png');
 
 // Must match desktop/package.json's "productName" (electron-builder names
 // its bundled Helper apps "<productName> Helper.app").
@@ -82,7 +83,22 @@ const DATA_DIR = path.join(app.getPath('userData'), 'pgdata');
 let embeddedPg;
 let serverProcess;
 let mainWindow;
+let tray;
 let shuttingDown = false;
+// Closing the window (red traffic-light button) just hides it now -- see
+// createWindow()'s 'close' handler -- so the app (and its Tray icon) keeps
+// running, matching how most macOS menu-bar-equipped apps behave. Only a
+// real quit (Tray menu's Quit, Cmd+Q, or the app menu) should let the
+// window actually close/destroy; this flag is how the 'close' handler
+// tells the two apart.
+let isQuitting = false;
+// Whether the current window's renderer has mounted and called
+// window.electronAPI.notifyReady() (see preload.js/AppContext.tsx) -- a
+// Tray action sent before that would be silently dropped (Electron IPC
+// isn't queued/replayed), so sendTrayAction() queues into
+// pendingTrayAction instead until this flips true.
+let rendererReady = false;
+let pendingTrayAction = null;
 
 const LOG_PATH = path.join(app.getPath('userData'), 'desktop-app.log');
 function log(...args) {
@@ -283,7 +299,81 @@ function configureMediaPermissions() {
   });
 }
 
+// Brings the main window to front, (re)creating it if it was fully
+// destroyed (shouldn't normally happen post-launch now that closing just
+// hides it -- see createWindow()'s 'close' handler -- but stays correct
+// if it ever is, e.g. a future code path that really does close it).
+function showMainWindow() {
+  if (!mainWindow || mainWindow.isDestroyed()) {
+    createWindow();
+    return;
+  }
+  if (mainWindow.isMinimized()) mainWindow.restore();
+  mainWindow.show();
+  mainWindow.focus();
+}
+
+// Shows the window and asks its renderer to perform a Tray menu action
+// (see lib/electron.ts's TrayAction / onTrayAction and
+// contexts/AppContext.tsx's listener). If the renderer isn't known to be
+// ready yet (e.g. the window was just recreated), the action is queued and
+// flushed once 'renderer-ready' arrives instead of being lost.
+function sendTrayAction(action) {
+  showMainWindow();
+  if (mainWindow && rendererReady) {
+    mainWindow.webContents.send('tray:action', action);
+  } else {
+    pendingTrayAction = action;
+  }
+}
+
+function buildTrayMenu() {
+  return Menu.buildFromTemplate([
+    {
+      label: `Open ${PRODUCT_NAME}`,
+      click: () => showMainWindow(),
+    },
+    { type: 'separator' },
+    {
+      label: 'Quick Actions…',
+      accelerator: 'Cmd+K',
+      click: () => sendTrayAction('command-palette'),
+    },
+    {
+      label: 'Time Tracker',
+      click: () => sendTrayAction('time-tracker'),
+    },
+    {
+      label: 'Quick Notes',
+      accelerator: 'Cmd+J',
+      click: () => sendTrayAction('quick-notes'),
+    },
+    { type: 'separator' },
+    {
+      label: `Quit ${PRODUCT_NAME}`,
+      click: () => {
+        isQuitting = true;
+        app.quit();
+      },
+    },
+  ]);
+}
+
+// Puts the app's icon in the macOS menu bar (in addition to its normal
+// Dock icon) so it's reachable even while the main window is hidden. Kept
+// as a module-level reference -- a local variable would get garbage
+// collected and silently vanish from the menu bar.
+function createTray() {
+  const image = fs.existsSync(TRAY_ICON_PATH)
+    ? nativeImage.createFromPath(TRAY_ICON_PATH)
+    : nativeImage.createFromPath(ICON_PATH).resize({ width: 20, height: 20 });
+  tray = new Tray(image);
+  tray.setToolTip(PRODUCT_NAME);
+  tray.setContextMenu(buildTrayMenu());
+}
+
 function createWindow() {
+  rendererReady = false;
   configureMediaPermissions();
 
   mainWindow = new BrowserWindow({
@@ -326,8 +416,23 @@ function createWindow() {
     return { action: 'allow' };
   });
 
+  // The red traffic-light button fires 'close' (not 'closed') first --
+  // intercept it and hide instead of letting the window (and its
+  // renderer/React state) get destroyed, so the app keeps running
+  // reachable from its Tray icon, same as other macOS menu-bar apps.
+  // isQuitting is only ever set true right before a real app.quit()
+  // (Tray menu's Quit, or before-quit below), so this never blocks an
+  // actual quit.
+  mainWindow.on('close', (e) => {
+    if (!isQuitting) {
+      e.preventDefault();
+      mainWindow.hide();
+    }
+  });
+
   mainWindow.on('closed', () => {
     mainWindow = null;
+    rendererReady = false;
   });
 }
 
@@ -339,6 +444,7 @@ app.whenReady().then(async () => {
     await syncDatabaseSchema();
     await startNextServer();
     createWindow();
+    createTray();
   } catch (err) {
     console.error('[desktop] Startup failed:', err);
     dialog.showErrorBox(
@@ -350,7 +456,11 @@ app.whenReady().then(async () => {
 });
 
 app.on('activate', () => {
-  if (BrowserWindow.getAllWindows().length === 0) createWindow();
+  if (BrowserWindow.getAllWindows().length === 0) {
+    createWindow();
+  } else {
+    showMainWindow();
+  }
 });
 
 // Native "choose a local file/document to attach" dialog, used by the
@@ -366,11 +476,26 @@ ipcMain.handle('dialog:pick-file', async () => {
   return result.filePaths[0];
 });
 
+// Flips rendererReady true and flushes any Tray action that was queued
+// while the window was being (re)created -- see sendTrayAction() and
+// preload.js's notifyReady().
+ipcMain.on('renderer-ready', () => {
+  rendererReady = true;
+  if (pendingTrayAction && mainWindow) {
+    const action = pendingTrayAction;
+    pendingTrayAction = null;
+    mainWindow.webContents.send('tray:action', action);
+  }
+});
+
 app.on('window-all-closed', () => {
-  app.quit();
+  if (process.platform !== 'darwin') {
+    app.quit();
+  }
 });
 
 app.on('before-quit', async (e) => {
+  isQuitting = true;
   if (shuttingDown) return;
   shuttingDown = true;
   e.preventDefault();

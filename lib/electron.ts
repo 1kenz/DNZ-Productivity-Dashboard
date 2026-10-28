@@ -5,6 +5,10 @@
 // available" when running in a plain browser (e.g. `next dev`), so nothing
 // in the web app breaks when `window.electronAPI` doesn't exist.
 
+/** Actions the macOS menu-bar (Tray) icon's dropdown menu can ask the
+ *  renderer to perform -- see desktop/main.js's buildTrayMenu(). */
+export type TrayAction = 'command-palette' | 'quick-notes' | 'time-tracker';
+
 export interface ElectronBridge {
   isElectron: true;
   /** Opens a native "Open File" dialog and resolves to the chosen absolute
@@ -14,6 +18,15 @@ export interface ElectronBridge {
    *  (Electron 32+ removed the old `File.path` shim; this goes through
    *  webUtils.getPathForFile in the preload script instead). */
   getPathForFile: (file: File) => string | null;
+  /** Subscribes to actions triggered from the macOS menu-bar Tray icon's
+   *  menu (e.g. "Quick Actions" or "Time Tracker"). Returns an unsubscribe
+   *  function. */
+  onTrayAction: (callback: (action: TrayAction) => void) => () => void;
+  /** Tells the main process the renderer has mounted and is ready to
+   *  receive 'tray:action' messages -- see desktop/main.js's
+   *  pendingTrayAction queueing (closing the window just hides it, so this
+   *  normally only fires once per app launch). */
+  notifyReady: () => void;
 }
 
 declare global {
@@ -45,6 +58,26 @@ export function getDroppedFilePath(dataTransfer: DataTransfer): string | null {
   } catch (err) {
     console.error('[electron] getPathForFile failed:', err);
     return null;
+  }
+}
+
+/** Subscribes to macOS Tray menu actions; a no-op (returning a no-op
+ *  unsubscribe) outside Electron. */
+export function onTrayAction(callback: (action: TrayAction) => void): () => void {
+  if (typeof window === 'undefined' || !window.electronAPI?.onTrayAction) {
+    return () => {};
+  }
+  return window.electronAPI.onTrayAction(callback);
+}
+
+/** Lets the Electron main process know the renderer is mounted and ready
+ *  to receive Tray actions. No-op outside Electron. */
+export function notifyRendererReady(): void {
+  if (typeof window === 'undefined' || !window.electronAPI?.notifyReady) return;
+  try {
+    window.electronAPI.notifyReady();
+  } catch (err) {
+    console.error('[electron] notifyReady failed:', err);
   }
 }
 

@@ -31,7 +31,7 @@ import styles from './page.module.css';
 type MainTab = 'dashboard' | 'time-tracker' | 'notes' | 'calendar' | 'recurring-tasks' | 'analytics' | 'ai';
 
 export default function Home() {
-  const { focusMode, pendingAiRequest, setPendingAiRequest } = useApp();
+  const { focusMode, pendingAiRequest, setPendingAiRequest, trayNavigateTo, setTrayNavigateTo } = useApp();
   const { t } = useLanguage();
   const [tab, setTab] = useState<MainTab>('dashboard');
   const [openCalendarManage, setOpenCalendarManage] = useState(false);
@@ -53,6 +53,18 @@ export default function Home() {
       setTab('ai');
     }
   }, [pendingAiRequest]);
+
+  // Hand-off from the macOS Tray ("menu bar") menu -- see AppContext's
+  // onTrayAction listener, which sets this for tab-targeted actions (the
+  // Tray's Quick Actions / Quick Notes items open their modal directly
+  // without going through this).
+  useEffect(() => {
+    if (trayNavigateTo) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setTab(trayNavigateTo as MainTab);
+      setTrayNavigateTo(null);
+    }
+  }, [trayNavigateTo, setTrayNavigateTo]);
 
   // Connecting a Google/Apple account is a full-page OAuth round trip (see
   // ConnectCalendarsPanel's <a href="/api/google/auth">), so it lands back

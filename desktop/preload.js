@@ -22,4 +22,17 @@ contextBridge.exposeInMainWorld('electronAPI', {
       return null;
     }
   },
+
+  // macOS Tray ("menu bar") menu -- see main.js's buildTrayMenu()/
+  // sendTrayAction() and lib/electron.ts's onTrayAction(). Returns an
+  // unsubscribe function so the renderer's effect can clean up properly.
+  onTrayAction: (callback) => {
+    const listener = (_event, action) => callback(action);
+    ipcRenderer.on('tray:action', listener);
+    return () => ipcRenderer.removeListener('tray:action', listener);
+  },
+
+  // Tells main.js this window's renderer has mounted and can now receive
+  // 'tray:action' messages -- see main.js's pendingTrayAction queue.
+  notifyReady: () => ipcRenderer.send('renderer-ready'),
 });

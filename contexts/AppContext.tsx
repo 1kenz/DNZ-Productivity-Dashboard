@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, ReactNode, useEffect, useState } from 'react';
+import { onTrayAction, notifyRendererReady } from '@/lib/electron';
 import {
   Todo,
   LinkGroup,
@@ -157,6 +158,14 @@ interface AppContextType {
   // tab, and AiChatView consumes+clears it once mounted there.
   pendingAiRequest: PendingAiRequest | null;
   setPendingAiRequest: (request: PendingAiRequest | null) => void;
+
+  // macOS Tray ("menu bar") menu hand-off -- the desktop app's Tray menu
+  // sends an action over IPC (see lib/electron.ts's onTrayAction); when
+  // it names a main tab to jump to, this is set so page.tsx can react
+  // (Quick Actions / Quick Notes are opened directly, without needing
+  // this, from the same listener below).
+  trayNavigateTo: string | null;
+  setTrayNavigateTo: (tab: string | null) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -208,6 +217,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const [isQuickNotesOpen, setIsQuickNotesOpen] = useState(false);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
+  const [trayNavigateTo, setTrayNavigateTo] = useState<string | null>(null);
   const [isLiveVoiceOpen, setIsLiveVoiceOpen] = useState(false);
   const [isAiSettingsOpen, setIsAiSettingsOpen] = useState(false);
   const [pendingAiRequest, setPendingAiRequest] = useState<PendingAiRequest | null>(null);
@@ -235,6 +245,26 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  // macOS Tray ("menu bar") menu -- see desktop/main.js's buildTrayMenu()
+  // and lib/electron.ts's onTrayAction. No-op outside the desktop app.
+  // notifyRendererReady() tells main.js this window can now receive
+  // 'tray:action' messages (it queues one otherwise -- see main.js's
+  // pendingTrayAction -- so a Tray click right after the window was
+  // reopened from "hidden" never gets silently dropped).
+  useEffect(() => {
+    notifyRendererReady();
+    const unsubscribe = onTrayAction((action) => {
+      if (action === 'command-palette') {
+        setIsCommandPaletteOpen(true);
+      } else if (action === 'quick-notes') {
+        setIsQuickNotesOpen(true);
+      } else if (action === 'time-tracker') {
+        setTrayNavigateTo('time-tracker');
+      }
+    });
+    return unsubscribe;
   }, []);
 
   useEffect(() => {
@@ -873,6 +903,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         setIsAiSettingsOpen,
         pendingAiRequest,
         setPendingAiRequest,
+        trayNavigateTo,
+        setTrayNavigateTo,
         isShortcutsOpen,
         setIsShortcutsOpen,
         isDueDatesOpen,
