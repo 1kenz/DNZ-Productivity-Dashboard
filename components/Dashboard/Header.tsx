@@ -7,6 +7,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useThemeCustomizer } from '@/contexts/ThemeCustomizerContext';
 import { WorldClock } from '@/components/WorldClock';
 import { SettingsModal } from '@/components/Settings';
+import { AboutModal } from '@/components/ui/AboutModal';
 import { ThemeSelectorModal } from './ThemeSelectorModal';
 import { LocalTime } from './LocalTime';
 import { DueDatesPanelTrigger } from './DueDatesPanelTrigger';
@@ -19,6 +20,7 @@ export const Header: React.FC = () => {
   const { language, setLanguage, t } = useLanguage();
   const { setIsThemeModalOpen } = useThemeCustomizer();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isAboutOpen, setIsAboutOpen] = useState(false);
 
   const activeTask = todos.find((t) => t.id === trackingTaskId);
   const activeProject = projects.find((p) => p.id === trackingProjectId);
@@ -30,7 +32,7 @@ export const Header: React.FC = () => {
           <h1 className={styles.logo}>
             <img src="/logo/DNZSecurity150px.png" alt="DNZ Security Logo" className={styles.logoIcon} />
             <span>{t('appName')}</span>
-            <span className={styles.versionBadge}>{t('versionBadge')}</span>
+            <span className={styles.versionBadge}>v{process.env.NEXT_PUBLIC_APP_VERSION}</span>
           </h1>
 
           {/* Dynamic Island Live Tracking Indicator in Header */}
@@ -150,10 +152,21 @@ export const Header: React.FC = () => {
           >
             ⚙️
           </button>
+
+          {/* About (core/standards/about-standard.md) */}
+          <button
+            className={styles.actionBtn}
+            onClick={() => setIsAboutOpen(true)}
+            aria-label={t('about.open')}
+            title={t('about.open')}
+          >
+            ℹ️
+          </button>
         </div>
       </div>
 
       <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
+      <AboutModal isOpen={isAboutOpen} onClose={() => setIsAboutOpen(false)} />
       <ThemeSelectorModal />
 
       {focusLevel === 'off' && (

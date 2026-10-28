@@ -1,0 +1,16 @@
+{
+  "name": "DNZ Productivity",
+  "purpose": {
+    "en": "Tasks, projects, quick links and focus tools in one dashboard, with an optional AI assistant.",
+    "tr": "Görevler, projeler, hızlı bağlantılar ve odak araçları tek panelde; isteğe bağlı yapay zeka asistanı ile.",
+    "de": "Aufgaben, Projekte, Schnellzugriffe und Fokus-Tools in einem Dashboard, mit optionalem KI-Assistenten."
+  },
+  "developer": "DNZ Security & Software",
+  "usesAI": true,
+  "links": {
+    "privacy": "",
+    "licenses": "",
+    "releaseNotes": "",
+    "support": ""
+  }
+}
