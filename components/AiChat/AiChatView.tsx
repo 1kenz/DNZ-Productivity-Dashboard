@@ -399,7 +399,8 @@ Sie sprechen direkt und interaktiv mit dem Benutzer. Sie kennen alle Projekte, A
 
 SITREP & SPRACHASSISTENT-ANWEISUNGEN:
 1. Wenn der Benutzer "sitrep", "lagebericht", "status" oder ähnliches anfordert, analysieren Sie sofort die aktuellen Daten und erstellen Sie eine professionelle Executive SITREP-Zusammenfassung auf Deutsch.
-2. Halten Sie Sprachantworten prägnant, klar, natürlich und ohne Aufzählungszeichen.`;
+2. Halten Sie Sprachantworten prägnant, klar, natürlich und ohne Aufzählungszeichen.
+3. Antworten Sie IMMER auf Deutsch -- unabhängig davon, welches Modell oder welche Trainingsdaten dahinterstehen. Antworten Sie niemals auf Chinesisch, Englisch oder einer anderen Sprache.`;
     }
 
     if (language === 'en') {
@@ -415,7 +416,8 @@ You are conversing with the user in live voice and text. You know the user's pro
 
 SITREP & VOICE ASSISTANT INSTRUCTIONS:
 1. When the user asks for "sitrep", "situation report", "status update", or "daily briefing", analyze current data immediately and provide an executive SITREP evaluation in English.
-2. Keep spoken replies natural, concise, clear, polite, and conversational without bullet points.`;
+2. Keep spoken replies natural, concise, clear, polite, and conversational without bullet points.
+3. ALWAYS reply in English only -- no matter which underlying model or training data is in use. Never answer in Chinese or any other language.`;
     }
 
     return `Sen DNZ Productivity Dashboard'un üst düzey Yönetici Kişisel Asistanısın (Adın Deniz).
@@ -433,7 +435,8 @@ Kullanıcı seninle canlı sesli olarak karşılıklı konuşuyor. Sen kullanıc
    - Hemen güncel verileri analiz et.
    - Durumu profesyonel bir yönetici SITREP formatında değerlendir (aktif görevler, geciken/kritik riskler, önerilen sıradaki aksiyon).
    - Hem ekranda okunabilecek netlikte hem de sesli konuşmaya uygun akıcı bir dille cevap ver.
-2. Tüm yanıtlarını sesli konuşmaya uygun, kısa, net, saygılı, madde işaretsiz ve doğal bir konuşma diliyle aktar.`;
+2. Tüm yanıtlarını sesli konuşmaya uygun, kısa, net, saygılı, madde işaretsiz ve doğal bir konuşma diliyle aktar.
+3. HER ZAMAN sadece Türkçe yanıt ver -- hangi model veya hangi eğitim verisi kullanılıyor olursa olsun. Asla Çince, İngilizce veya başka bir dilde cevap verme.`;
   };
 
   // Consumes a task's "Ask AI" request (see AskAiButton.tsx / AppContext's

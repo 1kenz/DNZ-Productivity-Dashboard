@@ -361,6 +361,15 @@ export async function POST(req: NextRequest) {
             model: ollamaModel,
             messages: ollamaMessages,
             stream: false,
+            // Reasoning models served by Ollama (Qwen3, DeepSeek-R1, etc.)
+            // run an internal "thinking" pass before the real answer. That
+            // scratch-pad is very often in Chinese -- regardless of the
+            // conversation's language, it's how these models were trained --
+            // and without `think: false` Ollama can merge it straight into
+            // `message.content`, which is what shows up as a seemingly
+            // random Chinese reply. This is a no-op for models that don't
+            // support thinking.
+            think: false,
             options: {
               temperature: 0.7,
             },
@@ -373,7 +382,13 @@ export async function POST(req: NextRequest) {
         }
 
         const data = await res.json();
-        replyText = data?.message?.content || 'Ollama boş yanıt döndürdü.';
+        // Defensive: strip a <think>...</think> block if one still slipped
+        // into content anyway (older Ollama builds / models that ignore
+        // the `think` flag above).
+        const rawOllamaContent: string = data?.message?.content || '';
+        replyText =
+          rawOllamaContent.replace(/<think>[\s\S]*?<\/think>/gi, '').trim() ||
+          'Ollama boş yanıt döndürdü.';
       } catch (err: any) {
         console.error('Ollama connection failed:', err);
         const isConnRefused = /fetch failed|ECONNREFUSED|network|ENOTFOUND/i.test(err?.message || '');
