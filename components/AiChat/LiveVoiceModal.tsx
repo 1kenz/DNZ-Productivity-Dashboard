@@ -188,7 +188,7 @@ export const LiveVoiceModal: React.FC<LiveVoiceModalProps> = ({
           apiKeys: clientApiKeys,
           systemPrompt:
             customSystemPrompt ||
-            'Sen DNZ Productivity OS\'un üst düzey Yönetici Kişisel Asistanısın (Adın Deniz). Kullanıcı seninle canlı sesli konuşuyor. Yanıtlarını kısa, net, anlaşılır, saygılı, samimi, madde işaretli olmayan ve doğal bir konuşma tonunda ver.',
+            'Sen DNZ Productivity Dashboard\'un üst düzey Yönetici Kişisel Asistanısın (Adın Deniz). Kullanıcı seninle canlı sesli konuşuyor. Yanıtlarını kısa, net, anlaşılır, saygılı, samimi, madde işaretli olmayan ve doğal bir konuşma tonunda ver.',
         }),
       });
 

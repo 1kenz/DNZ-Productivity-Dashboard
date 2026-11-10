@@ -3,7 +3,7 @@ import { Language } from '@/types';
 export const DICTIONARIES = {
   en: {
     // Navigation & App Header
-    appName: 'DNZ Productivity OS',
+    appName: 'DNZ Productivity Dashboard',
     dashboardTab: 'Dashboard',
     timeTrackerTab: 'Time Tracker',
     notesTab: 'Notes',
@@ -551,7 +551,7 @@ export const DICTIONARIES = {
 
   tr: {
     // Navigation & App Header
-    appName: 'DNZ Productivity OS',
+    appName: 'DNZ Productivity Dashboard',
     dashboardTab: 'Pano',
     timeTrackerTab: 'Zaman Takibi',
     notesTab: 'Notlar',
@@ -1099,7 +1099,7 @@ export const DICTIONARIES = {
 
   de: {
     // Navigation & App Header
-    appName: 'DNZ Productivity OS',
+    appName: 'DNZ Productivity Dashboard',
     dashboardTab: 'Dashboard',
     timeTrackerTab: 'Zeiterfassung',
     notesTab: 'Notizen',

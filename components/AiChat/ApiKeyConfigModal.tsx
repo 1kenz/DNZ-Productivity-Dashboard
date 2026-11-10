@@ -86,10 +86,10 @@ export const ApiKeyConfigModal: React.FC<ApiKeyConfigModalProps> = ({
 
     const sampleText =
       voiceLanguage.startsWith('tr')
-        ? 'Merhaba! Ben DNZ Productivity OS yapay zeka asistanınızım. Sesim nasıl geliyor?'
+        ? 'Merhaba! Ben DNZ Productivity Dashboard yapay zeka asistanınızım. Sesim nasıl geliyor?'
         : voiceLanguage.startsWith('de')
-        ? 'Hallo! Ich bin Ihr DNZ Productivity OS KI-Sprachassistent. Wie gefällt Ihnen meine Stimme?'
-        : 'Hello! I am your DNZ Productivity OS AI voice assistant. How does my voice sound to you?';
+        ? 'Hallo! Ich bin Ihr DNZ Productivity Dashboard KI-Sprachassistent. Wie gefällt Ihnen meine Stimme?'
+        : 'Hello! I am your DNZ Productivity Dashboard AI voice assistant. How does my voice sound to you?';
 
     speak(sampleText, voiceLanguage, selectedVoice || undefined, presetIdToTest);
   };
@@ -140,7 +140,7 @@ export const ApiKeyConfigModal: React.FC<ApiKeyConfigModalProps> = ({
           geminiApiKey: geminiVal || null,
           openaiApiKey: openaiVal || null,
           defaultProvider,
-          defaultModel: defaultProvider === 'anthropic' ? 'claude-opus-5' : defaultProvider === 'openai' ? 'gpt-6-astra' : 'gemini-3.8-flash',
+          defaultModel: defaultProvider === 'anthropic' ? 'claude-opus-5' : defaultProvider === 'openai' ? 'gpt-6-astra' : defaultProvider === 'ollama' ? 'llama3.2' : 'gemini-3.8-flash',
           voiceLanguage,
           autoSpeak,
           updatedAt: new Date(),
@@ -314,6 +314,30 @@ export const ApiKeyConfigModal: React.FC<ApiKeyConfigModalProps> = ({
               onChange={(e) => setOpenaiKey(e.target.value)}
             />
           </div>
+
+          {/* Ollama Local LLM Section */}
+          <div className={styles.formGroup} style={{ background: 'rgba(255, 255, 255, 0.03)', padding: '12px', borderRadius: '8px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+              <label className={styles.label} style={{ margin: 0 }}>
+                <span>🦙 Ollama Local LLM (100% Offline & Private)</span>
+              </label>
+              <span className={styles.providerHint} style={{ color: '#10b981', fontWeight: 600 }}>● API Anahtarı Gerekmez</span>
+            </div>
+            <p style={{ fontSize: '11px', color: '#94a3b8', margin: '0 0 8px 0', lineHeight: 1.4 }}>
+              Kendi bilgisayarınızda çalışan açık kaynaklı yapay zeka modelleri (Llama 3.2, Mistral, DeepSeek R1, Qwen 2.5). Verileriniz asla internete veya buluta aktarılmaz.
+            </p>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              <input
+                type="text"
+                className={styles.input}
+                style={{ flex: 1, fontFamily: 'monospace', fontSize: '12px' }}
+                value="http://127.0.0.1:11434"
+                readOnly
+              />
+              <span style={{ fontSize: '11px', color: '#64748b' }}>Yerel Ollama Portu</span>
+            </div>
+          </div>
+
 
           <label className={styles.checkboxRow}>
             <input

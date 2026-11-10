@@ -13,6 +13,7 @@ const PROVIDER_ICON: Record<AiProvider, string> = {
   anthropic: '🧠',
   gemini: '✨',
   openai: '🌐',
+  ollama: '🦙',
 };
 
 // Cost/practicality tiers -- after building each provider's model list we
@@ -203,10 +204,61 @@ export async function fetchGeminiModels(apiKey: string): Promise<AiModelOption[]
   return models;
 }
 
-export async function fetchLiveModels(provider: AiProvider, apiKey: string): Promise<AiModelOption[]> {
+// --- Ollama (Local LLM) ----------------------------------------------------
+// GET http://127.0.0.1:11434/api/tags -- returns local models installed on
+// the user machine. 100% offline, private, zero API key required.
+
+interface OllamaTagModel {
+  name: string;
+  model?: string;
+  size?: number;
+  details?: {
+    format?: string;
+    family?: string;
+    parameter_size?: string;
+    quantization_level?: string;
+  };
+}
+
+export async function fetchOllamaModels(baseUrl?: string): Promise<AiModelOption[]> {
+  const host = baseUrl || process.env.OLLAMA_BASE_URL || 'http://127.0.0.1:11434';
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 3000);
+    const res = await fetch(`${host}/api/tags`, {
+      signal: controller.signal,
+    }).finally(() => clearTimeout(timeout));
+
+    if (!res.ok) throw new Error(`Ollama tags failed: ${res.status}`);
+    const data = await res.json();
+    const entries: OllamaTagModel[] = data.models || [];
+    if (entries.length === 0) return [];
+
+    const models: AiModelOption[] = entries.map((m) => {
+      const cleanName = m.name.replace(/:latest$/, '');
+      const paramSize = m.details?.parameter_size ? ` (${m.details.parameter_size})` : '';
+      return {
+        id: m.name,
+        name: `${cleanName}${paramSize}`,
+        provider: 'ollama' as const,
+        icon: PROVIDER_ICON.ollama,
+        badge: m.details?.parameter_size ? `${m.details.parameter_size} Local` : 'Local Offline',
+        description: `Ollama ile yerel çalışan model (${m.details?.family || 'open-weights'}). 100% Çevrimdışı ve Gizli.`,
+      };
+    });
+
+    setCachedModels('ollama', models);
+    return models;
+  } catch (err) {
+    return [];
+  }
+}
+
+export async function fetchLiveModels(provider: AiProvider, apiKey: string = ''): Promise<AiModelOption[]> {
   const cached = getCachedModels(provider);
   if (cached) return cached;
   if (provider === 'anthropic') return fetchAnthropicModels(apiKey);
   if (provider === 'openai') return fetchOpenAiModels(apiKey);
+  if (provider === 'ollama') return fetchOllamaModels();
   return fetchGeminiModels(apiKey);
 }

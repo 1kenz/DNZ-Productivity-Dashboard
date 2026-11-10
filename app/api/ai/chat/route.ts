@@ -83,8 +83,8 @@ export async function POST(req: NextRequest) {
 
     let replyText = '';
 
-    // Handle when API key is missing
-    if (!apiKey) {
+    // Handle when API key is missing (Ollama does not require an API key)
+    if (!apiKey && provider !== 'ollama') {
       replyText = `⚠️ **${provider.toUpperCase()} API Anahtarı Bulunamadı.**\n\nBu modeli (${model}) kullanabilmek için lütfen **AI Ayarları (⚙️)** butonuna tıklayarak API anahtarınızı girin veya sunucu \`.env\` dosyanıza ekleyin.\n\n*Örnek: \`${provider === 'anthropic' ? 'ANTHROPIC_API_KEY' : provider === 'gemini' ? 'GEMINI_API_KEY' : 'OPENAI_API_KEY'}=...\`*`;
       
       return NextResponse.json({
@@ -336,6 +336,51 @@ export async function POST(req: NextRequest) {
       }
 
       replyText = isVoiceTurn ? rawText : appendSourcesFooter(rawText, sources);
+
+    } else if (provider === 'ollama') {
+      const ollamaModel = model || 'llama3.2';
+      const ollamaBaseUrl = process.env.OLLAMA_BASE_URL || 'http://127.0.0.1:11434';
+      const ollamaMessages: Array<{ role: string; content: string }> = [];
+
+      if (systemPrompt) {
+        ollamaMessages.push({ role: 'system', content: systemPrompt });
+      }
+
+      for (const m of messages) {
+        ollamaMessages.push({
+          role: m.role === 'assistant' ? 'assistant' : 'user',
+          content: m.content,
+        });
+      }
+
+      try {
+        const res = await fetch(`${ollamaBaseUrl}/api/chat`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            model: ollamaModel,
+            messages: ollamaMessages,
+            stream: false,
+            options: {
+              temperature: 0.7,
+            },
+          }),
+        });
+
+        if (!res.ok) {
+          const errJson = await res.json().catch(() => ({}));
+          throw new Error(errJson?.error || `Ollama API Error (${res.status}): ${res.statusText}`);
+        }
+
+        const data = await res.json();
+        replyText = data?.message?.content || 'Ollama boş yanıt döndürdü.';
+      } catch (err: any) {
+        console.error('Ollama connection failed:', err);
+        const isConnRefused = /fetch failed|ECONNREFUSED|network|ENOTFOUND/i.test(err?.message || '');
+        replyText = isConnRefused
+          ? `⚠️ **Ollama Servisine Bağlanılamadı (Local LLM)**\n\nOllama yerel makinenizde çalışmıyor veya port meşgul olabilir.\n\n- **Kontrol:** Terminalinizde \`ollama list\` veya \`ollama serve\` komutunu çalıştırın.\n- **Model İndirme:** \`${ollamaModel}\` modelini indirmek için terminalde: \`ollama run ${ollamaModel}\`\n- **Varsayılan Adres:** \`${ollamaBaseUrl}\`\n\n*Hata Detayı: ${err?.message || 'Bağlantı reddedildi'}`
+          : `⚠️ **Ollama Hatası:** ${err?.message || 'Bilinmeyen hata'}`;
+      }
     }
 
     // If conversationId is supplied, save to database

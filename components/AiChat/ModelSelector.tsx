@@ -14,11 +14,12 @@ interface ModelSelectorProps {
 // Fixed provider order (not alphabetical -- Claude/Gemini/OpenAI stays a
 // stable, predictable order across opens) with a plain display label per
 // provider for the group header.
-const PROVIDER_ORDER: AiProvider[] = ['anthropic', 'gemini', 'openai'];
+const PROVIDER_ORDER: AiProvider[] = ['gemini', 'anthropic', 'openai', 'ollama'];
 const PROVIDER_LABEL: Record<AiProvider, string> = {
-  anthropic: 'Claude',
-  gemini: 'Gemini',
-  openai: 'OpenAI',
+  gemini: 'Gemini (Google)',
+  anthropic: 'Claude (Anthropic)',
+  openai: 'OpenAI (ChatGPT)',
+  ollama: 'Ollama (Local LLM)',
 };
 
 export const ModelSelector: React.FC<ModelSelectorProps> = ({

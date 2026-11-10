@@ -387,7 +387,7 @@ export const AiChatView: React.FC<AiChatViewProps> = ({ pendingRequest, onPendin
     const completedTasks = todos.filter((t) => t.completed);
 
     if (language === 'de') {
-      return `Sie sind Deniz, der persönliche KI-Chef-Assistent von DNZ Productivity OS.
+      return `Sie sind Deniz, der persönliche KI-Chef-Assistent von DNZ Productivity Dashboard.
 Sie sprechen direkt und interaktiv mit dem Benutzer. Sie kennen alle Projekte, Aufgaben und Zeitpläne im Detail und sind loyal, professionell, respektvoll und proaktiv.
 
 📊 AKTUELLE SYSTEMDATEN:
@@ -403,7 +403,7 @@ SITREP & SPRACHASSISTENT-ANWEISUNGEN:
     }
 
     if (language === 'en') {
-      return `You are Deniz, the Executive Personal AI Assistant for DNZ Productivity OS.
+      return `You are Deniz, the Executive Personal AI Assistant for DNZ Productivity Dashboard.
 You are conversing with the user in live voice and text. You know the user's projects, tasks, and schedule thoroughly and serve as a loyal, highly professional, polite, proactive assistant.
 
 📊 CURRENT SYSTEM DATA:
@@ -418,7 +418,7 @@ SITREP & VOICE ASSISTANT INSTRUCTIONS:
 2. Keep spoken replies natural, concise, clear, polite, and conversational without bullet points.`;
     }
 
-    return `Sen DNZ Productivity OS'un üst düzey Yönetici Kişisel Asistanısın (Adın Deniz).
+    return `Sen DNZ Productivity Dashboard'un üst düzey Yönetici Kişisel Asistanısın (Adın Deniz).
 Kullanıcı seninle canlı sesli olarak karşılıklı konuşuyor. Sen kullanıcının projelerini, görevlerini ve zamanını çok iyi bilen sadık, son derece profesyonel, samimi, saygılı ve proaktif bir kişisel asistansın.
 
 📊 GÜNCEL SİSTEM VERİLERİ:
@@ -491,7 +491,7 @@ Kullanıcı seninle canlı sesli olarak karşılıklı konuşuyor. Sen kullanıc
     // 1. Detailed Written Executive Report Prompt for Chat Feed
     let writtenPrompt = '';
     if (language === 'de') {
-      writtenPrompt = `Sie sind Deniz, der persönliche KI-Chef-Assistent von DNZ Productivity OS.
+      writtenPrompt = `Sie sind Deniz, der persönliche KI-Chef-Assistent von DNZ Productivity Dashboard.
 Analysieren Sie meinen heutigen Aufgabenstatus und erstellen Sie ein klares, motivierendes DNZ SITREP (Daily Executive Situation Report) auf Deutsch.
 
 📊 AKTUELLE DATEN:
@@ -525,7 +525,7 @@ Please generate an Apple-style, inspiring briefing using this template:
 ## 3. ⏱️ Time Management & Recommended Execution Order (Pomodoro Blocks)
 ## 4. 💡 Deniz Strategic Note & Daily Motivation`;
     } else {
-      writtenPrompt = `Sen DNZ Productivity OS'un üst düzey Yönetici Kişisel Asistanısın (Adın Deniz).
+      writtenPrompt = `Sen DNZ Productivity Dashboard'un üst düzey Yönetici Kişisel Asistanısın (Adın Deniz).
 Bugünkü görev durumumu analiz et ve bana net, motive edici, önceliklendirilmiş bir DNZ SITREP (Daily Executive Situation Report) hazırla.
 
 📊 MEVCUT SİSTEM VERİLERİ:

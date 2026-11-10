@@ -15,6 +15,7 @@ const FALLBACK: ModelsByProvider = {
   anthropic: AI_MODELS.filter((m) => m.provider === 'anthropic'),
   gemini: AI_MODELS.filter((m) => m.provider === 'gemini'),
   openai: AI_MODELS.filter((m) => m.provider === 'openai'),
+  ollama: AI_MODELS.filter((m) => m.provider === 'ollama'),
 };
 
 let sharedPromise: Promise<ModelsByProvider> | null = null;
@@ -44,7 +45,7 @@ export function useAiModels(): { models: AiModelOption[]; isLoading: boolean } {
     let cancelled = false;
     loadModels().then((byProvider) => {
       if (cancelled) return;
-      const flat = [...byProvider.anthropic, ...byProvider.gemini, ...byProvider.openai];
+      const flat = [...(byProvider.anthropic || []), ...(byProvider.gemini || []), ...(byProvider.openai || []), ...(byProvider.ollama || [])];
       setModels(flat.length > 0 ? flat : [...AI_MODELS]);
       setIsLoading(false);
     });

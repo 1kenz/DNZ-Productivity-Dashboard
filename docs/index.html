@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>DNZ Productivity Dashboard | All-in-One Local-First Workspace</title>
-  <meta name="description" content="Enterprise-grade personal productivity workspace with Tasks, Projects, Kanban, Calendar, Time Tracking, and Voice AI Assistant. Local-first, private, and lightning fast.">
+  <meta name="description" content="All your Tasks, Projects, Kanban, Time Tracking, Pomodoro, Quick Notes, World Clocks, and Voice AI Assistant in one cohesive workstation. Local-first, private, and lightning fast.">
   <link rel="icon" type="image/png" href="assets/icon-512.png">
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -54,7 +54,7 @@
       background: radial-gradient(circle at 50% 0%, rgba(0, 112, 243, 0.18) 0%, transparent 60%);
     }
     .glass-card {
-      background: rgba(17, 23, 38, 0.7);
+      background: rgba(17, 23, 38, 0.75);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
       border: 1px solid rgba(255, 255, 255, 0.08);
@@ -73,6 +73,11 @@
       border: 1px solid #1e293b;
     }
     .lang-btn.active {
+      background-color: #0070f3;
+      color: #ffffff;
+      border-color: #0070f3;
+    }
+    .gallery-tab.active {
       background-color: #0070f3;
       color: #ffffff;
       border-color: #0070f3;
@@ -98,9 +103,9 @@
         </div>
       </div>
       <nav class="hidden md:flex items-center space-x-8 text-sm font-medium text-slate-300">
-        <a href="#features" class="hover:text-brand-400 transition" data-i18n="nav_features">Features</a>
-        <a href="#desktop" class="hover:text-brand-400 transition" data-i18n="nav_desktop">Desktop App</a>
-        <a href="#architecture" class="hover:text-brand-400 transition" data-i18n="nav_architecture">Architecture</a>
+        <a href="#gallery" class="hover:text-brand-400 transition" data-i18n="nav_gallery">Screenshots</a>
+        <a href="#modules" class="hover:text-brand-400 transition" data-i18n="nav_modules">Modules & Tools</a>
+        <a href="#desktop" class="hover:text-brand-400 transition" data-i18n="nav_desktop">macOS App</a>
         <a href="#security" class="hover:text-brand-400 transition" data-i18n="nav_security">Security & Privacy</a>
         <a href="#quickstart" class="hover:text-brand-400 transition" data-i18n="nav_quickstart">Get Started</a>
       </nav>
@@ -121,7 +126,7 @@
   </header>
 
   <!-- Hero Section -->
-  <section class="relative z-10 pt-20 pb-24 px-6 text-center">
+  <section class="relative z-10 pt-16 pb-20 px-6 text-center">
     <div class="max-w-4xl mx-auto">
       <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-500/10 border border-brand-500/25 text-brand-400 text-xs font-semibold mb-6 animate-pulse">
         <i class="fa-solid fa-sparkles"></i>
@@ -131,12 +136,12 @@
         Master Your Day With Absolute Focus and <span class="text-gradient">Zero Cloud Lock-in</span>.
       </h1>
       <p class="text-lg sm:text-xl text-slate-300 mb-10 leading-relaxed font-normal" data-i18n="hero_desc">
-        An enterprise-grade productivity cockpit combining Tasks, Kanban, Multi-Account Calendars, Deep-Work Time Tracking, and a Voice-Driven AI Assistant. Runs standalone on macOS with embedded PostgreSQL or everywhere via Docker.
+        All your Tasks, Projects, Kanban, Time Tracking, Pomodoro, Quick Notes, World Clocks, Multi-Account Calendars, and Voice-Driven AI Assistant in one cohesive workstation.
       </p>
       <div class="flex flex-wrap items-center justify-center gap-4">
-        <a href="#quickstart" class="px-6 py-3.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-semibold text-sm transition shadow-lg shadow-brand-500/30 flex items-center gap-2">
-          <i class="fa-solid fa-terminal"></i>
-          <span data-i18n="btn_quickstart">Quickstart Guide</span>
+        <a href="#gallery" class="px-6 py-3.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-semibold text-sm transition shadow-lg shadow-brand-500/30 flex items-center gap-2">
+          <i class="fa-solid fa-images"></i>
+          <span data-i18n="btn_screenshots">View Screenshots</span>
         </a>
         <a href="#desktop" class="px-6 py-3.5 rounded-xl glass-card hover:bg-white/10 text-white font-semibold text-sm transition flex items-center gap-2">
           <i class="fa-brands fa-apple text-base"></i>
@@ -149,123 +154,128 @@
         </a>
       </div>
     </div>
+  </section>
 
-    <!-- Hero Interactive Mockup -->
-    <div class="mt-16 max-w-5xl mx-auto glass-card rounded-2xl p-4 sm:p-6 shadow-2xl border border-white/10 relative overflow-hidden">
-      <div class="flex items-center justify-between pb-4 border-b border-white/10 mb-6">
+  <!-- Interactive Dashboard Cockpit Preview -->
+  <section id="cockpit" class="relative z-10 py-12 px-6 max-w-6xl mx-auto">
+    <div class="text-center mb-8">
+      <h2 class="text-3xl font-extrabold tracking-tight sm:text-4xl mb-3" data-i18n="gallery_heading">Visual Interface Tour</h2>
+      <p class="text-slate-400 max-w-2xl mx-auto text-sm" data-i18n="gallery_subheading">Experience the unified productivity cockpit. Everything you need in one clean, local-first view.</p>
+    </div>
+
+    <!-- macOS Window Chrome Frame -->
+    <div class="glass-card rounded-2xl p-4 sm:p-6 shadow-2xl border border-white/10 overflow-hidden">
+      <!-- Window Controls Bar -->
+      <div class="flex items-center justify-between pb-3 border-b border-white/10 mb-4 px-2">
         <div class="flex items-center space-x-2">
           <div class="w-3 h-3 rounded-full bg-rose-500"></div>
           <div class="w-3 h-3 rounded-full bg-amber-500"></div>
           <div class="w-3 h-3 rounded-full bg-emerald-500"></div>
-          <span class="text-xs font-mono text-slate-400 ml-4" data-i18n="mock_title">DNZ Productivity v3.0 — Mission Control</span>
+          <span class="text-xs font-mono text-slate-400 ml-4 hidden sm:inline">DNZ Productivity Dashboard v3.0 — Mission Control</span>
         </div>
         <div class="flex items-center space-x-3 text-xs text-slate-400 font-medium">
-          <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30" data-i18n="mock_db_status">● Embedded DB Active</span>
-          <span data-i18n="mock_chip">Mac Apple Silicon Native</span>
+          <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">● Embedded PostgreSQL Active</span>
+          <span class="hidden sm:inline">Apple Silicon Native (M-Series)</span>
         </div>
       </div>
 
-      <!-- Mockup Grid Content -->
+      <!-- Synthetic Visual Dashboard Grid -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-left">
         <!-- Col 1: Tasks & Kanban -->
-        <div class="glass-card rounded-xl p-4 border border-white/5 bg-slate-900/60">
-          <div class="flex items-center justify-between mb-3">
-            <span class="text-xs font-bold uppercase tracking-wider text-slate-400" data-i18n="mock_tasks_title"><i class="fa-solid fa-list-check text-brand-400 mr-1.5"></i> Daily Tasks</span>
-            <span class="text-[10px] px-2 py-0.5 rounded bg-brand-500/20 text-brand-300" data-i18n="mock_tasks_badge">5 Remaining</span>
+        <div class="glass-card rounded-xl p-4 border border-white/5 bg-slate-900/80 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-400"><i class="fa-solid fa-list-check text-brand-400 mr-1.5"></i> Tasks & Kanban</span>
+            <span class="text-[10px] px-2 py-0.5 rounded bg-brand-500/20 text-brand-300 font-mono">4 Active</span>
           </div>
           <div class="space-y-2">
-            <div class="p-2.5 rounded-lg bg-dark-bg/80 border border-white/5 flex items-start gap-2.5">
+            <div class="p-2.5 rounded-lg bg-dark-bg border border-white/5 flex items-start gap-2.5">
               <input type="checkbox" checked class="mt-1 accent-brand-500">
               <div class="text-xs">
-                <span class="line-through text-slate-500 font-medium" data-i18n="mock_task_1">Security architecture review</span>
+                <span class="line-through text-slate-500 font-medium">Security architecture RFC</span>
                 <div class="flex gap-2 mt-1 text-[10px] text-slate-400">
-                  <span class="text-rose-400" data-i18n="mock_p_high">● High Priority</span>
-                  <span>DNZ-Core</span>
+                  <span class="text-rose-400">● High Priority</span>
+                  <span>Core</span>
                 </div>
               </div>
             </div>
-            <div class="p-2.5 rounded-lg bg-dark-bg/80 border border-white/5 flex items-start gap-2.5">
+            <div class="p-2.5 rounded-lg bg-dark-bg border border-white/5 flex items-start gap-2.5">
               <input type="checkbox" class="mt-1 accent-brand-500">
               <div class="text-xs">
-                <span class="text-slate-200 font-medium" data-i18n="mock_task_2">Prepare public release notes v3.0</span>
+                <span class="text-slate-200 font-medium">Local LLM Ollama integration</span>
                 <div class="flex gap-2 mt-1 text-[10px] text-slate-400">
-                  <span class="text-amber-400" data-i18n="mock_p_med">● Med Priority</span>
-                  <span>Dashboard</span>
+                  <span class="text-brand-400">● In Progress</span>
+                  <span>AI Engine</span>
                 </div>
               </div>
             </div>
-            <div class="p-2.5 rounded-lg bg-dark-bg/80 border border-white/5 flex items-start gap-2.5">
+            <div class="p-2.5 rounded-lg bg-dark-bg border border-white/5 flex items-start gap-2.5">
               <input type="checkbox" class="mt-1 accent-brand-500">
               <div class="text-xs">
-                <span class="text-slate-200 font-medium" data-i18n="mock_task_3">Synchronize CalDAV & Google Calendar</span>
+                <span class="text-slate-200 font-medium">CalDAV & Google Calendar sync</span>
                 <div class="flex gap-2 mt-1 text-[10px] text-slate-400">
-                  <span class="text-emerald-400" data-i18n="mock_p_low">● Low</span>
-                  <span>Work</span>
+                  <span class="text-amber-400">● Medium</span>
+                  <span>Calendar</span>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Col 2: AI Assistant & SITREP -->
-        <div class="glass-card rounded-xl p-4 border border-white/5 bg-slate-900/60">
-          <div class="flex items-center justify-between mb-3">
-            <span class="text-xs font-bold uppercase tracking-wider text-slate-400" data-i18n="mock_ai_title"><i class="fa-solid fa-robot text-purple-400 mr-1.5"></i> AI Co-Pilot (Voice + Chat)</span>
-            <span class="text-[10px] px-2 py-0.5 rounded bg-purple-500/20 text-purple-300">Gemini / Claude / GPT</span>
+        <!-- Col 2: AI Co-Pilot & Focus -->
+        <div class="glass-card rounded-xl p-4 border border-white/5 bg-slate-900/80 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-purple-400"><i class="fa-solid fa-robot mr-1.5"></i> Multimodal AI & Live Voice</span>
+            <span class="text-[10px] px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 font-mono">Ollama / Gemini / Claude</span>
           </div>
-          <div class="p-3 rounded-lg bg-purple-950/20 border border-purple-500/20 text-xs mb-3">
-            <div class="flex items-center gap-1.5 text-purple-300 font-semibold mb-1">
-              <i class="fa-solid fa-microphone-lines animate-pulse"></i> <span data-i18n="mock_voice_status">Live Voice Ready</span>
+          <div class="p-3 rounded-lg bg-purple-950/30 border border-purple-500/20 text-xs space-y-1.5">
+            <div class="flex items-center gap-1.5 text-purple-300 font-semibold">
+              <i class="fa-solid fa-microphone-lines animate-pulse"></i> <span>Live Voice & Local LLM</span>
             </div>
-            <p class="text-slate-300 text-[11px] leading-relaxed" data-i18n="mock_voice_msg">
-              "Good morning! You have the Security Architecture presentation at 14:00 today. I scheduled a 2-hour deep focus block before it."
+            <p class="text-slate-300 text-[11px] leading-relaxed">
+              "Connected to local Ollama (Llama 3 / DeepSeek). Ready for voice commands and daily SITREP briefing."
             </p>
           </div>
           <div class="grid grid-cols-2 gap-2 text-center text-xs">
-            <div class="p-2 rounded bg-dark-bg/80 border border-white/5">
+            <div class="p-2.5 rounded bg-dark-bg border border-white/5">
               <span class="text-slate-400 text-[10px] block">Pomodoro</span>
-              <span class="font-mono font-bold text-brand-400">25:00</span>
+              <span class="font-mono font-bold text-amber-400 text-sm">25:00</span>
             </div>
-            <div class="p-2 rounded bg-dark-bg/80 border border-white/5">
-              <span class="text-slate-400 text-[10px] block" data-i18n="mock_today_focus">Today's Focus</span>
-              <span class="font-mono font-bold text-emerald-400">4h 15m</span>
+            <div class="p-2.5 rounded bg-dark-bg border border-white/5">
+              <span class="text-slate-400 text-[10px] block">Focus Today</span>
+              <span class="font-mono font-bold text-emerald-400 text-sm">4h 20m</span>
             </div>
           </div>
         </div>
 
-        <!-- Col 3: Smart Quick Links -->
-        <div class="glass-card rounded-xl p-4 border border-white/5 bg-slate-900/60">
-          <div class="flex items-center justify-between mb-3">
-            <span class="text-xs font-bold uppercase tracking-wider text-slate-400" data-i18n="mock_quick_title"><i class="fa-solid fa-compass text-amber-400 mr-1.5"></i> Quick Launch</span>
-            <span class="text-[10px] px-2 py-0.5 rounded bg-amber-500/20 text-amber-300" data-i18n="mock_quick_badge">Local & Web</span>
+        <!-- Col 3: World Clocks & Quick Launcher -->
+        <div class="glass-card rounded-xl p-4 border border-white/5 bg-slate-900/80 space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-cyan-400"><i class="fa-solid fa-clock mr-1.5"></i> Clocks & Quick Launch</span>
+            <span class="text-[10px] px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300 font-mono">Global</span>
+          </div>
+          <div class="grid grid-cols-2 gap-2 text-center text-xs">
+            <div class="p-2 rounded bg-dark-bg border border-white/5">
+              <span class="text-[10px] text-slate-400 block">Istanbul</span>
+              <span class="font-mono font-bold text-slate-200">01:25</span>
+            </div>
+            <div class="p-2 rounded bg-dark-bg border border-white/5">
+              <span class="text-[10px] text-slate-400 block">London / UTC</span>
+              <span class="font-mono font-bold text-slate-200">22:25</span>
+            </div>
           </div>
           <div class="grid grid-cols-2 gap-2">
-            <div class="p-2.5 rounded-lg bg-dark-bg/80 border border-white/5 flex items-center gap-2 hover:border-brand-500/40 transition">
-              <i class="fa-brands fa-docker text-brand-400 text-lg"></i>
-              <div class="text-left">
-                <span class="text-xs font-semibold block text-slate-200">Docker Hub</span>
-                <span class="text-[9px] text-slate-400">Containers</span>
+            <div class="p-2 rounded-lg bg-dark-bg border border-white/5 flex items-center gap-2">
+              <i class="fa-solid fa-terminal text-emerald-400"></i>
+              <div class="text-left text-xs">
+                <span class="font-semibold block text-slate-200">Terminal</span>
+                <span class="text-[9px] text-slate-400">Cmd+K</span>
               </div>
             </div>
-            <div class="p-2.5 rounded-lg bg-dark-bg/80 border border-white/5 flex items-center gap-2 hover:border-brand-500/40 transition">
-              <i class="fa-solid fa-terminal text-emerald-400 text-lg"></i>
-              <div class="text-left">
-                <span class="text-xs font-semibold block text-slate-200">Terminal</span>
-                <span class="text-[9px] text-slate-400">iTerm2</span>
-              </div>
-            </div>
-            <div class="p-2.5 rounded-lg bg-dark-bg/80 border border-white/5 flex items-center gap-2 hover:border-brand-500/40 transition">
-              <i class="fa-brands fa-google-drive text-amber-400 text-lg"></i>
-              <div class="text-left">
-                <span class="text-xs font-semibold block text-slate-200">Google Drive</span>
-                <span class="text-[9px] text-slate-400" data-i18n="mock_sync_active">Sync Active</span>
-              </div>
-            </div>
-            <div class="p-2.5 rounded-lg bg-dark-bg/80 border border-white/5 flex items-center gap-2 hover:border-brand-500/40 transition">
-              <i class="fa-solid fa-folder-tree text-rose-400 text-lg"></i>
-              <div class="text-left">
-                <span class="text-xs font-semibold block text-slate-200">DNZ-Core</span>
-                <span class="text-[9px] text-slate-400" data-i18n="mock_local_dir">Local Dir</span>
+            <div class="p-2 rounded-lg bg-dark-bg border border-white/5 flex items-center gap-2">
+              <i class="fa-solid fa-note-sticky text-amber-400"></i>
+              <div class="text-left text-xs">
+                <span class="font-semibold block text-slate-200">Quick Notes</span>
+                <span class="text-[9px] text-slate-400">Cmd+J</span>
               </div>
             </div>
           </div>
@@ -274,85 +284,123 @@
     </div>
   </section>
 
-  <!-- Features Grid -->
-  <section id="features" class="relative z-10 py-20 px-6 max-w-7xl mx-auto">
+  <!-- Complete 9 Modules Breakdown Grid -->
+  <section id="modules" class="relative z-10 py-20 px-6 max-w-7xl mx-auto border-t border-dark-border">
     <div class="text-center mb-16">
-      <h2 class="text-3xl font-extrabold tracking-tight sm:text-4xl mb-4" data-i18n="features_heading">Engineered For High-Performance Workflows</h2>
-      <p class="text-slate-400 max-w-2xl mx-auto text-base" data-i18n="features_subheading">Everything you need to orchestrate projects, manage time, and boost cognition — without cloud dependencies or telemetry.</p>
+      <h2 class="text-3xl font-extrabold tracking-tight sm:text-4xl mb-4" data-i18n="modules_heading">Complete Toolset. Zero Tab Fatigue.</h2>
+      <p class="text-slate-400 max-w-3xl mx-auto text-base" data-i18n="modules_subheading">Everything you need to orchestrate projects, manage time, and elevate cognitive performance in a unified cockpit.</p>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <!-- Card 1 -->
+
+      <!-- 1. Tasks & Kanban -->
       <div class="glass-card rounded-2xl p-6 transition duration-300">
-        <div class="w-12 h-12 rounded-xl bg-brand-500/20 text-brand-400 flex items-center justify-center text-xl mb-4">
-          <i class="fa-solid fa-robot"></i>
+        <div class="w-12 h-12 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center text-xl mb-4">
+          <i class="fa-solid fa-list-check"></i>
         </div>
-        <h3 class="text-lg font-bold text-white mb-2" data-i18n="feat_1_title">Multimodal AI Assistant & Live Voice</h3>
-        <p class="text-sm text-slate-300 leading-relaxed mb-4" data-i18n="feat_1_desc">
-          Chat or talk via real-time speech synthesis and voice recognition (STT/TTS). Compatible with Google Gemini, Anthropic Claude, and OpenAI GPT with live web-search citation support.
+        <h3 class="text-lg font-bold text-white mb-2" data-i18n="mod_tasks_title">Tasks & Kanban Board</h3>
+        <p class="text-sm text-slate-300 leading-relaxed mb-4" data-i18n="mod_tasks_desc">
+          Drag-and-drop Kanban columns (To Do, In Progress, Review, Done). Prioritize with Low/Med/High badges, set due dates with reminders, and attach local files.
         </p>
-        <span class="text-xs font-mono text-brand-400">● Gemini 2.5 / Claude 3.7 / GPT-4o</span>
+        <span class="text-xs font-mono text-blue-400">● Drag & Drop • Priority Tags • File Attachments</span>
       </div>
 
-      <!-- Card 2 -->
+      <!-- 2. Projects & Sections -->
       <div class="glass-card rounded-2xl p-6 transition duration-300">
-        <div class="w-12 h-12 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xl mb-4">
-          <i class="fa-solid fa-table-columns"></i>
+        <div class="w-12 h-12 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-xl mb-4">
+          <i class="fa-solid fa-folder-tree"></i>
         </div>
-        <h3 class="text-lg font-bold text-white mb-2" data-i18n="feat_2_title">Visual Kanban & Tasks Management</h3>
-        <p class="text-sm text-slate-300 leading-relaxed mb-4" data-i18n="feat_2_desc">
-          Dynamic Kanban boards with drag-and-drop workflow status, deadline reminders, priority scoring, sub-tasks, and deep task hierarchies.
+        <h3 class="text-lg font-bold text-white mb-2" data-i18n="mod_projects_title">Projects & Workspaces</h3>
+        <p class="text-sm text-slate-300 leading-relaxed mb-4" data-i18n="mod_projects_desc">
+          Organize work across separate domains: Security, Software, Family, and Client Workspaces. Track progress percentages per project.
         </p>
-        <span class="text-xs font-mono text-emerald-400" data-i18n="feat_2_tag">● Filter by Status / Priority / Project</span>
+        <span class="text-xs font-mono text-indigo-400">● Multi-Domain • Progress Tracking • Color Tags</span>
       </div>
 
-      <!-- Card 3 -->
-      <div class="glass-card rounded-2xl p-6 transition duration-300">
-        <div class="w-12 h-12 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center text-xl mb-4">
-          <i class="fa-solid fa-calendar-days"></i>
-        </div>
-        <h3 class="text-lg font-bold text-white mb-2" data-i18n="feat_3_title">Unified Multi-Account Calendar</h3>
-        <p class="text-sm text-slate-300 leading-relaxed mb-4" data-i18n="feat_3_desc">
-          Sync work and personal calendars seamlessly. Full support for CalDAV, Apple iCloud, and Google Calendar alongside native offline event management.
-        </p>
-        <span class="text-xs font-mono text-purple-400">● CalDAV + Google Calendar OAuth</span>
-      </div>
-
-      <!-- Card 4 -->
+      <!-- 3. Pomodoro Hourglass -->
       <div class="glass-card rounded-2xl p-6 transition duration-300">
         <div class="w-12 h-12 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-xl mb-4">
+          <i class="fa-solid fa-hourglass-half"></i>
+        </div>
+        <h3 class="text-lg font-bold text-white mb-2" data-i18n="mod_pomodoro_title">Pomodoro Hourglass</h3>
+        <p class="text-sm text-slate-300 leading-relaxed mb-4" data-i18n="mod_pomodoro_desc">
+          Customizable focus intervals (25/50m) with an animated visual hourglass. Configurable short and long breaks with subtle audio chimes.
+        </p>
+        <span class="text-xs font-mono text-amber-400">● Animated Hourglass • Audio Chimes • Loops</span>
+      </div>
+
+      <!-- 4. Time Tracker -->
+      <div class="glass-card rounded-2xl p-6 transition duration-300">
+        <div class="w-12 h-12 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xl mb-4">
           <i class="fa-solid fa-stopwatch"></i>
         </div>
-        <h3 class="text-lg font-bold text-white mb-2" data-i18n="feat_4_title">Deep Work & Pomodoro Hourglass</h3>
-        <p class="text-sm text-slate-300 leading-relaxed mb-4" data-i18n="feat_4_desc">
-          Customizable Pomodoro timer with animated hourglass visual, interval logs, and rich analytical charts (Recharts) to track productivity trends over time.
+        <h3 class="text-lg font-bold text-white mb-2" data-i18n="mod_time_title">Time Tracker & Analytics</h3>
+        <p class="text-sm text-slate-300 leading-relaxed mb-4" data-i18n="mod_time_desc">
+          Granular project-based duration logs with start/stop stopwatches and manual entry. Interactive charts powered by Recharts display productivity trends.
         </p>
-        <span class="text-xs font-mono text-amber-400">● Recharts Analytics & Time Logs</span>
+        <span class="text-xs font-mono text-emerald-400">● Recharts Analytics • Duration Logs • Streaks</span>
       </div>
 
-      <!-- Card 5 -->
+      <!-- 5. Quick Notes -->
+      <div class="glass-card rounded-2xl p-6 transition duration-300">
+        <div class="w-12 h-12 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center text-xl mb-4">
+          <i class="fa-solid fa-note-sticky"></i>
+        </div>
+        <h3 class="text-lg font-bold text-white mb-2" data-i18n="mod_notes_title">Quick Notes (Cmd+J)</h3>
+        <p class="text-sm text-slate-300 leading-relaxed mb-4" data-i18n="mod_notes_desc">
+          Instant slide-over markdown scratchpad. Accessible globally from any screen with Cmd+J. Attach files, pin urgent thoughts, and auto-save.
+        </p>
+        <span class="text-xs font-mono text-purple-400">● Markdown • Global Hotkey Cmd+J • Auto-Save</span>
+      </div>
+
+      <!-- 6. Quick Links & App Launcher -->
       <div class="glass-card rounded-2xl p-6 transition duration-300">
         <div class="w-12 h-12 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-xl mb-4">
-          <i class="fa-solid fa-link"></i>
+          <i class="fa-solid fa-compass"></i>
         </div>
-        <h3 class="text-lg font-bold text-white mb-2" data-i18n="feat_5_title">Smart Quick Launch & Local Files</h3>
-        <p class="text-sm text-slate-300 leading-relaxed mb-4" data-i18n="feat_5_desc">
-          Organize links, folders, and macOS applications into categorized groups. Launch local files, terminal tools, or web links with a single click or Cmd+K.
+        <h3 class="text-lg font-bold text-white mb-2" data-i18n="mod_links_title">Quick Links & App Launcher</h3>
+        <p class="text-sm text-slate-300 leading-relaxed mb-4" data-i18n="mod_links_desc">
+          Organize bookmarks with automatic high-res favicons. Launch local macOS apps, shell scripts, and system directories with 1-click or Cmd+K.
         </p>
-        <span class="text-xs font-mono text-cyan-400">● Native File Protocol + Favicon Engine</span>
+        <span class="text-xs font-mono text-cyan-400">● macOS Apps • Local Folders • Auto Favicons</span>
       </div>
 
-      <!-- Card 6 -->
+      <!-- 7. World Clocks -->
+      <div class="glass-card rounded-2xl p-6 transition duration-300">
+        <div class="w-12 h-12 rounded-xl bg-teal-500/20 text-teal-400 flex items-center justify-center text-xl mb-4">
+          <i class="fa-solid fa-clock"></i>
+        </div>
+        <h3 class="text-lg font-bold text-white mb-2" data-i18n="mod_clocks_title">World Clocks</h3>
+        <p class="text-sm text-slate-300 leading-relaxed mb-4" data-i18n="mod_clocks_desc">
+          Live multi-timezone clocks (Istanbul, London, New York, Tokyo, Berlin). Track international teams, distributed clients, and market openings.
+        </p>
+        <span class="text-xs font-mono text-teal-400">● Multi-Timezone • Daylight Savings • Live Grid</span>
+      </div>
+
+      <!-- 8. Multimodal AI Assistant -->
       <div class="glass-card rounded-2xl p-6 transition duration-300">
         <div class="w-12 h-12 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center text-xl mb-4">
-          <i class="fa-solid fa-cloud-arrow-up"></i>
+          <i class="fa-solid fa-robot"></i>
         </div>
-        <h3 class="text-lg font-bold text-white mb-2" data-i18n="feat_6_title">Encrypted Google Drive Sync & Backup</h3>
-        <p class="text-sm text-slate-300 leading-relaxed mb-4" data-i18n="feat_6_desc">
-          Backup your entire database on demand or restore state from Google Drive. Your keys stay on your machine, and your data remains completely under your control.
+        <h3 class="text-lg font-bold text-white mb-2" data-i18n="mod_ai_title">Multimodal AI & Live Voice</h3>
+        <p class="text-sm text-slate-300 leading-relaxed mb-4" data-i18n="mod_ai_desc">
+          Hands-free vocal conversations with STT/TTS. Connect Gemini 2.5, Claude 3.7, or GPT-4o with real-time web search citations and daily SITREP briefs.
         </p>
-        <span class="text-xs font-mono text-rose-400">● 1-Click JSON Snapshot & Restore</span>
+        <span class="text-xs font-mono text-rose-400">● Live Voice VAD • Gemini / Claude • Web Citations</span>
       </div>
+
+      <!-- 9. Unified Multi-Account Calendar -->
+      <div class="glass-card rounded-2xl p-6 transition duration-300">
+        <div class="w-12 h-12 rounded-xl bg-sky-500/20 text-sky-400 flex items-center justify-center text-xl mb-4">
+          <i class="fa-solid fa-calendar-days"></i>
+        </div>
+        <h3 class="text-lg font-bold text-white mb-2" data-i18n="mod_cal_title">Unified Calendar Sync</h3>
+        <p class="text-sm text-slate-300 leading-relaxed mb-4" data-i18n="mod_cal_desc">
+          Bi-directional calendar sync with Google Calendar OAuth and Apple iCloud / CalDAV alongside offline native calendar management.
+        </p>
+        <span class="text-xs font-mono text-sky-400">● Google OAuth • Apple CalDAV • Offline First</span>
+      </div>
+
     </div>
   </section>
 
@@ -399,37 +447,6 @@
             <span data-i18n="desktop_btn_download">Download Release DMG</span>
           </a>
         </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Technical Architecture -->
-  <section id="architecture" class="relative z-10 py-20 px-6 max-w-7xl mx-auto border-t border-dark-border">
-    <div class="text-center mb-16">
-      <h2 class="text-3xl font-extrabold tracking-tight sm:text-4xl mb-4" data-i18n="arch_heading">Modern Full-Stack Architecture</h2>
-      <p class="text-slate-400 max-w-2xl mx-auto text-base" data-i18n="arch_subheading">Built on modern, type-safe open source technologies.</p>
-    </div>
-
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-      <div class="glass-card rounded-xl p-6 border border-white/5">
-        <i class="fa-brands fa-react text-cyan-400 text-3xl mb-3"></i>
-        <h4 class="font-bold text-white text-base">Next.js 16 + React 19</h4>
-        <p class="text-xs text-slate-400 mt-1" data-i18n="arch_nextjs">App Router, Server Actions & Turbopack</p>
-      </div>
-      <div class="glass-card rounded-xl p-6 border border-white/5">
-        <i class="fa-solid fa-database text-blue-400 text-3xl mb-3"></i>
-        <h4 class="font-bold text-white text-base">Prisma ORM & PostgreSQL</h4>
-        <p class="text-xs text-slate-400 mt-1" data-i18n="arch_db">Type-safe schema, migrations & relationships</p>
-      </div>
-      <div class="glass-card rounded-xl p-6 border border-white/5">
-        <i class="fa-solid fa-desktop text-purple-400 text-3xl mb-3"></i>
-        <h4 class="font-bold text-white text-base">Electron 33</h4>
-        <p class="text-xs text-slate-400 mt-1" data-i18n="arch_electron">Native macOS bindings & Embedded PostgreSQL</p>
-      </div>
-      <div class="glass-card rounded-xl p-6 border border-white/5">
-        <i class="fa-brands fa-css3-alt text-teal-400 text-3xl mb-3"></i>
-        <h4 class="font-bold text-white text-base">Tailwind CSS 4</h4>
-        <p class="text-xs text-slate-400 mt-1" data-i18n="arch_tailwind">Glassmorphism design system & light/dark modes</p>
       </div>
     </div>
   </section>
@@ -520,55 +537,48 @@
     </div>
   </footer>
 
-  <!-- Multilingual i18n Engine (EN / TR / DE) -->
+  <!-- Multilingual i18n & Interactive Screenshot Gallery Script -->
   <script>
     const translations = {
       en: {
-        nav_features: "Features",
-        nav_desktop: "Desktop App",
-        nav_architecture: "Architecture",
+        nav_gallery: "Screenshots",
+        nav_modules: "Modules & Tools",
+        nav_desktop: "macOS App",
         nav_security: "Security & Privacy",
         nav_quickstart: "Get Started",
         hero_pill: "Local-First • Privacy Focused • AI Augmented",
         hero_title: 'Master Your Day With Absolute Focus and <span class="text-gradient">Zero Cloud Lock-in</span>.',
-        hero_desc: "An enterprise-grade productivity cockpit combining Tasks, Kanban, Multi-Account Calendars, Deep-Work Time Tracking, and a Voice-Driven AI Assistant. Runs standalone on macOS with embedded PostgreSQL or everywhere via Docker.",
-        btn_quickstart: "Quickstart Guide",
+        hero_desc: "All your Tasks, Projects, Kanban, Time Tracking, Pomodoro, Quick Notes, World Clocks, Multi-Account Calendars, and Voice-Driven AI Assistant in one cohesive workstation.",
+        btn_screenshots: "View Screenshots",
         btn_download: "Download macOS App",
         btn_star: "Star on GitHub",
-        mock_title: "DNZ Productivity v3.0 — Mission Control",
-        mock_db_status: "● Embedded DB Active",
-        mock_chip: "Mac Apple Silicon Native",
-        mock_tasks_title: '<i class="fa-solid fa-list-check text-brand-400 mr-1.5"></i> Daily Tasks',
-        mock_tasks_badge: "5 Remaining",
-        mock_task_1: "Security architecture review",
-        mock_p_high: "● High Priority",
-        mock_task_2: "Prepare public release notes v3.0",
-        mock_p_med: "● Med Priority",
-        mock_task_3: "Synchronize CalDAV & Google Calendar",
-        mock_p_low: "● Low",
-        mock_ai_title: '<i class="fa-solid fa-robot text-purple-400 mr-1.5"></i> AI Co-Pilot (Voice + Chat)',
-        mock_voice_status: "Live Voice Ready",
-        mock_voice_msg: '"Good morning! You have the Security Architecture presentation at 14:00 today. I scheduled a 2-hour deep focus block before it."',
-        mock_today_focus: "Today's Focus",
-        mock_quick_title: '<i class="fa-solid fa-compass text-amber-400 mr-1.5"></i> Quick Launch',
-        mock_quick_badge: "Local & Web",
-        mock_sync_active: "Sync Active",
-        mock_local_dir: "Local Dir",
-        features_heading: "Engineered For High-Performance Workflows",
-        features_subheading: "Everything you need to orchestrate projects, manage time, and boost cognition — without cloud dependencies or telemetry.",
-        feat_1_title: "Multimodal AI Assistant & Live Voice",
-        feat_1_desc: "Chat or talk via real-time speech synthesis and voice recognition (STT/TTS). Compatible with Google Gemini, Anthropic Claude, and OpenAI GPT with live web-search citation support.",
-        feat_2_title: "Visual Kanban & Tasks Management",
-        feat_2_desc: "Dynamic Kanban boards with drag-and-drop workflow status, deadline reminders, priority scoring, sub-tasks, and deep task hierarchies.",
-        feat_2_tag: "● Filter by Status / Priority / Project",
-        feat_3_title: "Unified Multi-Account Calendar",
-        feat_3_desc: "Sync work and personal calendars seamlessly. Full support for CalDAV, Apple iCloud, and Google Calendar alongside native offline event management.",
-        feat_4_title: "Deep Work & Pomodoro Hourglass",
-        feat_4_desc: "Customizable Pomodoro timer with animated hourglass visual, interval logs, and rich analytical charts (Recharts) to track productivity trends over time.",
-        feat_5_title: "Smart Quick Launch & Local Files",
-        feat_5_desc: "Organize links, folders, and macOS applications into categorized groups. Launch local files, terminal tools, or web links with a single click or Cmd+K.",
-        feat_6_title: "Encrypted Google Drive Sync & Backup",
-        feat_6_desc: "Backup your entire database on demand or restore state from Google Drive. Your keys stay on your machine, and your data remains completely under your control.",
+        gallery_heading: "Visual Interface Tour",
+        gallery_subheading: "Explore real screenshots of the dashboard in action. Click any tab below to switch views.",
+        tab_full: "1. Mission Control Overview",
+        tab_tasks: "2. Tasks & Deadlines",
+        tab_ai: "3. AI Assistant & Voice",
+        tab_tools: "4. Time Tracker & Tools",
+        tab_focus: "5. Pomodoro Hourglass",
+        modules_heading: "Complete Toolset. Zero Tab Fatigue.",
+        modules_subheading: "Everything you need to orchestrate projects, manage time, and elevate cognitive performance in a unified cockpit.",
+        mod_tasks_title: "Tasks & Kanban Board",
+        mod_tasks_desc: "Drag-and-drop Kanban columns (To Do, In Progress, Review, Done). Prioritize with Low/Med/High badges, set due dates with reminders, and attach local files.",
+        mod_projects_title: "Projects & Workspaces",
+        mod_projects_desc: "Organize work across separate domains: Security, Software, Family, and Client Workspaces. Track progress percentages per project.",
+        mod_pomodoro_title: "Pomodoro Hourglass",
+        mod_pomodoro_desc: "Customizable focus intervals (25/50m) with an animated visual hourglass. Configurable short and long breaks with subtle audio chimes.",
+        mod_time_title: "Time Tracker & Analytics",
+        mod_time_desc: "Granular project-based duration logs with start/stop stopwatches and manual entry. Interactive charts powered by Recharts display productivity trends.",
+        mod_notes_title: "Quick Notes (Cmd+J)",
+        mod_notes_desc: "Instant slide-over markdown scratchpad. Accessible globally from any screen with Cmd+J. Attach files, pin urgent thoughts, and auto-save.",
+        mod_links_title: "Quick Links & App Launcher",
+        mod_links_desc: "Organize bookmarks with automatic high-res favicons. Launch local macOS apps, shell scripts, and system directories with 1-click or Cmd+K.",
+        mod_clocks_title: "World Clocks",
+        mod_clocks_desc: "Live multi-timezone clocks (Istanbul, London, New York, Tokyo, Berlin). Track international teams, distributed clients, and market openings.",
+        mod_ai_title: "Multimodal AI & Live Voice",
+        mod_ai_desc: "Hands-free vocal conversations with STT/TTS. Connect Gemini 2.5, Claude 3.7, GPT-4o, or run 100% Private Local LLMs via Ollama (Llama 3.2, Mistral, DeepSeek R1) with real-time citations.",
+        mod_cal_title: "Unified Calendar Sync",
+        mod_cal_desc: "Bi-directional calendar sync with Google Calendar OAuth and Apple iCloud / CalDAV alongside offline native calendar management.",
         desktop_pill: "Standalone Native macOS Experience",
         desktop_heading: "Zero Docker Needed. Bundled With Embedded PostgreSQL.",
         desktop_body: "The standalone macOS desktop app (.dmg) packages everything into a native Apple Silicon app. It automatically spawns an embedded PostgreSQL 17 instance on boot, mounts a macOS Menu Bar (Tray) icon for instant access, and registers global hotkeys like Cmd+K and Cmd+J.",
@@ -579,12 +589,6 @@
         desktop_card_title: "DNZ Productivity Dashboard for Mac",
         desktop_card_sub: "Version 3.0.0 • macOS Sonoma / Sequoia (ARM64 Apple Silicon)",
         desktop_btn_download: "Download Release DMG",
-        arch_heading: "Modern Full-Stack Architecture",
-        arch_subheading: "Built on modern, type-safe open source technologies.",
-        arch_nextjs: "App Router, Server Actions & Turbopack",
-        arch_db: "Type-safe schema, migrations & relationships",
-        arch_electron: "Native macOS bindings & Embedded PostgreSQL",
-        arch_tailwind: "Glassmorphism design system & light/dark modes",
         sec_heading: "Security & Privacy First",
         sec_body: "Unlike proprietary SaaS tools that scrape your tasks and calendars for model training, <strong>DNZ Productivity Dashboard is 100% local-first</strong>. Your data resides entirely inside your local PostgreSQL database. No telemetry, no third-party trackers, and no external calls unless you explicitly configure Google Drive Sync or provide your own AI API keys.",
         sec_card1_title: "Zero Telemetry",
@@ -606,51 +610,44 @@
         qs_dev_run: "# Start Next.js development server"
       },
       tr: {
-        nav_features: "Özellikler",
-        nav_desktop: "Masaüstü Uygulaması",
-        nav_architecture: "Mimari",
+        nav_gallery: "Ekran Görüntüleri",
+        nav_modules: "Modüller & Araçlar",
+        nav_desktop: "macOS Uygulaması",
         nav_security: "Güvenlik & Gizlilik",
         nav_quickstart: "Başlarken",
         hero_pill: "Yerel Öncelikli • Gizlilik Odaklı • Yapay Zeka Destekli",
         hero_title: 'Gününüzü Mutlak Odaklanma ve <span class="text-gradient">Sıfır Bulut Bağımlılığı</span> ile Yönetin.',
-        hero_desc: "Görevler, Kanban, Çoklu Hesap Takvimi, Derin Odak Süre Takibi ve Sesli Yapay Zeka Kokpiti tek panelde. Gömülü PostgreSQL ile yerel macOS uygulaması olarak bağımsız veya Docker ile her yerde çalışır.",
-        btn_quickstart: "Hızlı Kurulum Kılavuzu",
+        hero_desc: "Tüm Görevleriniz, Projeleriniz, Kanban Panonuz, Süre Takibiniz, Pomodoro Kum Saatiniz, Hızlı Notlarınız, Dünya Saatleriniz ve Sesli Yapay Zeka Kokpitiniz tek bir çalışma alanında.",
+        btn_screenshots: "Ekran Görüntülerini İncele",
         btn_download: "macOS Uygulamasını İndir",
         btn_star: "GitHub'da Yıldızla",
-        mock_title: "DNZ Productivity v3.0 — Görev Kontrol Merkezi",
-        mock_db_status: "● Gömülü Veritabanı Aktif",
-        mock_chip: "Mac Apple Silicon Yerel",
-        mock_tasks_title: '<i class="fa-solid fa-list-check text-brand-400 mr-1.5"></i> Günlük Görevler',
-        mock_tasks_badge: "5 Kalan",
-        mock_task_1: "Güvenlik mimarisi incelemesi",
-        mock_p_high: "● Yüksek Öncelik",
-        mock_task_2: "v3.0 lansman sürüm notları",
-        mock_p_med: "● Orta Öncelik",
-        mock_task_3: "CalDAV ve Google Takvim eşitlemesi",
-        mock_p_low: "● Düşük",
-        mock_ai_title: '<i class="fa-solid fa-robot text-purple-400 mr-1.5"></i> AI Yardımcı Pilot (Ses + Sohbet)',
-        mock_voice_status: "Canlı Ses Hazır",
-        mock_voice_msg: '"Günaydın! Bugün saat 14:00\'te Güvenlik Mimarisi sunumunuz var. Öncesinde 2 saatlik derin odak bloğu planladım."',
-        mock_today_focus: "Bugünkü Odak",
-        mock_quick_title: '<i class="fa-solid fa-compass text-amber-400 mr-1.5"></i> Hızlı Başlatıcı',
-        mock_quick_badge: "Yerel & Web",
-        mock_sync_active: "Sync Aktif",
-        mock_local_dir: "Yerel Klasör",
-        features_heading: "Yüksek Performanslı İş Akışları İçin Tasarlandı",
-        features_subheading: "Projeleri koordine etmek, zamanı yönetmek ve bilişsel odağı artırmak için ihtiyacınız olan her şey — bulut bağımlılığı ve telemetri olmadan.",
-        feat_1_title: "Çok Modlu AI Asistanı & Canlı Ses",
-        feat_1_desc: "Gerçek zamanlı konuşma sentezi ve ses tanıma (STT/TTS). Google Gemini, Anthropic Claude ve OpenAI GPT ile canlı web araması dipnot desteği.",
-        feat_2_title: "Görsel Kanban & Görev Yönetimi",
-        feat_2_desc: "Sürükle-bırak iş akışı durumu, son teslim tarihi uyarıları, öncelik puanlaması, alt görevler ve derin hiyerarşi içeren dinamik Kanban panoları.",
-        feat_2_tag: "● Durum / Öncelik / Projeye Göre Filtrele",
-        feat_3_title: "Birleşik Çoklu Hesap Takvimi",
-        feat_3_desc: "İş ve kişisel takvimleri sorunsuz eşitleyin. CalDAV, Apple iCloud ve Google Calendar tam desteği yanında yerel çevrimdışı etkinlik yönetimi.",
-        feat_4_title: "Derin Çalışma & Pomodoro Kum Saati",
-        feat_4_desc: "Animasyonlu kum saati görseli, aralık günlükleri ve zaman içindeki verimlilik trendlerini izleyen zengin Recharts grafik analizleri.",
-        feat_5_title: "Akıllı Hızlı Başlatıcı & Yerel Dosyalar",
-        feat_5_desc: "Bağlantıları, klasörleri ve macOS uygulamalarını kategorize edin. Yerel dosyaları, terminal araçlarını veya web sitelerini tek tıkla ya da Cmd+K ile açın.",
-        feat_6_title: "Şifreli Google Drive & JSON Yedekleme",
-        feat_6_desc: "Veritabanınızın tamamını Google Drive'a yedekleyin veya geri yükleyin. Anahtarlarınız bilgisayarınızda kalır, verileriniz tamamen sizin kontrolünüzdedir.",
+        gallery_heading: "Görsel Arayüz Turu",
+        gallery_subheading: "Kontrol panelinin gerçek ekran görüntülerini inceleyin. Görünümleri değiştirmek için aşağıdaki sekmelere tıklayın.",
+        tab_full: "1. Görev Kontrol Merkezi",
+        tab_tasks: "2. Görevler & Teslim Tarihleri",
+        tab_ai: "3. AI Asistanı & Ses",
+        tab_tools: "4. Süre Takibi & Araçlar",
+        tab_focus: "5. Pomodoro Kum Saati",
+        modules_heading: "Eksiksiz Araç Kiti. Sıfır Sekme Karmaşası.",
+        modules_subheading: "Projeleri koordine etmek, zamanı yönetmek ve bilişsel performansı artırmak için ihtiyacınız olan her şey tek bir kokpitte.",
+        mod_tasks_title: "Görevler & Kanban Panosu",
+        mod_tasks_desc: "Sürükle-bırak Kanban sütunları (Yapılacak, Devam Eden, İnceleme, Tamamlandı). Düşük/Orta/Yüksek öncelik etiketleri, son teslim uyarıları ve dosya ekleri.",
+        mod_projects_title: "Projeler & Çalışma Alanları",
+        mod_projects_desc: "İşlerinizi bağımsız alanlara ayırın: Güvenlik, Yazılım, Aile ve Müşteri Projeleri. Proje bazlı ilerleme yüzdelerini anlık takip edin.",
+        mod_pomodoro_title: "Pomodoro Kum Saati",
+        mod_pomodoro_desc: "Görsel animasyonlu kum saati ile özelleştirilebilir odak aralıkları (25/50 dk). Hafif sesli uyarılar ile kısa ve uzun mola döngüleri.",
+        mod_time_title: "Süre Takibi & Analitikler",
+        mod_time_desc: "Kronometre ve manuel giriş ile proje bazlı çalışma süreleri. Recharts destekli interaktif grafiklerle verimlilik trendlerini izleyin.",
+        mod_notes_title: "Hızlı Notlar (Cmd+J)",
+        mod_notes_desc: "Anında açılan Markdown not defteri. Cmd+J kısayoluyla her ekrandan erişilebilir. Dosya ekleme, sabitleme ve otomatik kaydetme.",
+        mod_links_title: "Hızlı Bağlantılar & Başlatıcı",
+        mod_links_desc: "Otomatik yüksek çözünürlüklü faviconlu yer imleri. macOS uygulamalarını, kabuk komut dosyalarını ve klasörleri tek tıkla açın.",
+        mod_clocks_title: "Dünya Saatleri",
+        mod_clocks_desc: "Canlı çoklu saat dilimi göstergeleri (İstanbul, Londra, New York, Tokyo, Berlin). Uluslararası ekipleri ve piyasaları anlık izleyin.",
+        mod_ai_title: "Çok Modlu AI & Canlı Ses",
+        mod_ai_desc: "STT/TTS ile eller serbest sesli diyalog. Gemini 2.5, Claude 3.7, GPT-4o veya Ollama ile %100 yerel ve gizli çalışan Local LLM'ler (Llama 3.2, Mistral, DeepSeek R1), canlı web arama alıntıları.",
+        mod_cal_title: "Birleşik Takvim Senkronizasyonu",
+        mod_cal_desc: "Google Calendar OAuth ve Apple iCloud / CalDAV çift yönlü senkronizasyonu ile çevrimdışı yerel etkinlik yönetimi.",
         desktop_pill: "Bağımsız Yerel macOS Deneyimi",
         desktop_heading: "Docker Gerektirmez. Gömülü PostgreSQL İle Birlikte Gelir.",
         desktop_body: "Bağımsız macOS masaüstü uygulaması (.dmg) her şeyi yerel bir Apple Silicon uygulamasında paketler. Başlangıçta gömülü bir PostgreSQL 17 örneği başlatır, Menü Çubuğu (Tray) ikonu ekler ve Cmd+K, Cmd+J kısayollarını sisteme kaydeder.",
@@ -661,14 +658,8 @@
         desktop_card_title: "Mac İçin DNZ Productivity Dashboard",
         desktop_card_sub: "Sürüm 3.0.0 • macOS Sonoma / Sequoia (ARM64 Apple Silicon)",
         desktop_btn_download: "Sürüm DMG Dosyasını İndir",
-        arch_heading: "Modern Full-Stack Mimari",
-        arch_subheading: "Modern, tip güvenli açık kaynak teknolojiler üzerine inşa edilmiştir.",
-        arch_nextjs: "App Router, Server Actions & Turbopack",
-        arch_db: "Tip güvenli şema, migrasyonlar ve ilişkiler",
-        arch_electron: "Yerel macOS bağlayıcıları ve Gömülü PostgreSQL",
-        arch_tailwind: "Glassmorphism tasarım sistemi & açık/koyu modlar",
         sec_heading: "Önce Güvenlik & Gizlilik",
-        sec_body: "Görevlerinizi ve takvimlerinizi model eğitimi için tarayan tescilli SaaS araçlarının aksine, <strong>DNZ Productivity Dashboard %100 yerel önceliklidir</strong>. Verileriniz tamamen yerel PostgreSQL veritabanınızda kalır. Sıfır telemetri, sıfır üçüncü taraf izleyici.",
+        sec_body: "Görevlerinizi model eğitimi için tarayan SaaS araçlarının aksine, <strong>DNZ Productivity %100 yerel önceliklidir</strong>. Verileriniz tamamen bilgisayarınızda kalır. Sıfır telemetri, sıfır üçüncü taraf izleyici.",
         sec_card1_title: "Sıfır Telemetri",
         sec_card1_desc: "Arka plan analitiği, kaza izleyicisi veya harici ping yok.",
         sec_card2_title: "Kendi Anahtarını Getir (BYOK)",
@@ -688,51 +679,44 @@
         qs_dev_run: "# Next.js geliştirme sunucusunu başlatın"
       },
       de: {
-        nav_features: "Funktionen",
-        nav_desktop: "Desktop-App",
-        nav_architecture: "Architektur",
+        nav_gallery: "Screenshots",
+        nav_modules: "Module & Tools",
+        nav_desktop: "macOS-App",
         nav_security: "Sicherheit & Datenschutz",
         nav_quickstart: "Erste Schritte",
         hero_pill: "Local-First • Datenschutzfokussiert • KI-Erweitert",
         hero_title: 'Meistern Sie Ihren Tag mit absolutem Fokus und <span class="text-gradient">ohne Cloud-Abhängigkeit</span>.',
-        hero_desc: "Ein erstklassiges Produktivitäts-Cockpit mit Aufgaben, Kanban, Multi-Account-Kalendern, Deep-Work-Zeiterfassung und sprachgesteuertem KI-Assistenten. Läuft nativ auf macOS mit eingebettetem PostgreSQL oder überall via Docker.",
-        btn_quickstart: "Schnellstartanleitung",
+        hero_desc: "Alle Ihre Aufgaben, Projekte, Kanban, Zeiterfassung, Pomodoro, Sofortnotizen, Weltuhren und der sprachgesteuerte KI-Assistent in einem stimmigen Arbeitsbereich.",
+        btn_screenshots: "Screenshots ansehen",
         btn_download: "macOS-App herunterladen",
         btn_star: "Auf GitHub bewerten",
-        mock_title: "DNZ Productivity v3.0 — Missionskontrolle",
-        mock_db_status: "● Eingebettete DB Aktiv",
-        mock_chip: "Mac Apple Silicon Nativ",
-        mock_tasks_title: '<i class="fa-solid fa-list-check text-brand-400 mr-1.5"></i> Tägliche Aufgaben',
-        mock_tasks_badge: "5 Verbleibend",
-        mock_task_1: "Sicherheitsarchitektur-Überprüfung",
-        mock_p_high: "● Hohe Priorität",
-        mock_task_2: "v3.0 Release Notes vorbereiten",
-        mock_p_med: "● Mittlere Priorität",
-        mock_task_3: "CalDAV & Google Kalender synchronisieren",
-        mock_p_low: "● Niedrig",
-        mock_ai_title: '<i class="fa-solid fa-robot text-purple-400 mr-1.5"></i> KI-Copilot (Sprache + Chat)',
-        mock_voice_status: "Echtzeit-Sprache Bereit",
-        mock_voice_msg: '"Guten Morgen! Sie haben heute um 14:00 Uhr die Sicherheitspräsentation. Ich habe davor einen 2-stündigen Fokusblock eingeplant."',
-        mock_today_focus: "Heutiger Fokus",
-        mock_quick_title: '<i class="fa-solid fa-compass text-amber-400 mr-1.5"></i> Schnellzugriff',
-        mock_quick_badge: "Lokal & Web",
-        mock_sync_active: "Sync Aktiv",
-        mock_local_dir: "Lokaler Ordner",
-        features_heading: "Entwickelt für High-Performance-Workflows",
-        features_subheading: "Alles, was Sie zur Projektorganisation, Zeitverwaltung und Konzentrationsförderung benötigen — ohne Cloud-Abhängigkeiten oder Telemetrie.",
-        feat_1_title: "Multimodaler KI-Assistent & Live-Sprache",
-        feat_1_desc: "Chatten oder sprechen Sie in Echtzeit (STT/TTS). Kompatibel mit Google Gemini, Anthropic Claude und OpenAI GPT mit Live-Websuche-Quellenangaben.",
-        feat_2_title: "Visuelles Kanban & Aufgabenmanagement",
-        feat_2_desc: "Dynamische Kanban-Boards mit Drag-and-Drop, Fälligkeitserinnerungen, Priorisierung, Teilaufgaben und tiefen Aufgabenhierarchien.",
-        feat_2_tag: "● Nach Status / Priorität / Projekt filtern",
-        feat_3_title: "Einheitlicher Multi-Account-Kalender",
-        feat_3_desc: "Synchronisieren Sie Arbeits- und Privatkalender nahtlos. Volle Unterstützung für CalDAV, Apple iCloud und Google Kalender plus Offline-Verwaltung.",
-        feat_4_title: "Deep Work & Pomodoro-Sanduhr",
-        feat_4_desc: "Anpassbarer Pomodoro-Timer mit animierter Sanduhr, Intervallprotokollen und interaktiven Recharts-Diagrammen zur Produktivitätsanalyse.",
-        feat_5_title: "Intelligenter Schnellstarter & Lokale Dateien",
-        feat_5_desc: "Organisieren Sie Links, Ordner und macOS-Apps in Gruppen. Starten Sie lokale Dateien, Terminal-Tools oder Webseiten mit einem Klick oder Cmd+K.",
-        feat_6_title: "Verschlüsseltes Google Drive & JSON-Backup",
-        feat_6_desc: "Sichern Sie Ihre gesamte Datenbank in Google Drive oder stellen Sie Daten wieder her. Ihre Schlüssel und Daten bleiben vollständig unter Ihrer Kontrolle.",
+        gallery_heading: "Visuelle Benutzeroberflächen-Tour",
+        gallery_subheading: "Erkunden Sie echte Screenshots des Dashboards. Klicken Sie auf die Tabs, um Ansichten zu wechseln.",
+        tab_full: "1. Missionskontrolle Übersicht",
+        tab_tasks: "2. Aufgaben & Fälligkeiten",
+        tab_ai: "3. KI-Assistent & Sprache",
+        tab_tools: "4. Zeiterfassung & Tools",
+        tab_focus: "5. Pomodoro-Sanduhr",
+        modules_heading: "Vollständiges Toolkit. Kein Tab-Chaos mehr.",
+        modules_subheading: "Alles, was Sie zur Projektorganisation, Zeitverwaltung und Konzentrationsförderung benötigen.",
+        mod_tasks_title: "Aufgaben & Kanban-Board",
+        mod_tasks_desc: "Drag-and-Drop-Kanban-Spalten. Priorisieren Sie mit Low/Med/High-Badges, Fristerinnerungen und Dateianhängen.",
+        mod_projects_title: "Projekte & Arbeitsbereiche",
+        mod_projects_desc: "Organisieren Sie Aufgaben nach Domänen: Sicherheit, Software, Familie und Kundenprojekte mit Fortschrittsanzeige.",
+        mod_pomodoro_title: "Pomodoro-Sanduhr",
+        mod_pomodoro_desc: "Anpassbare Fokusintervalle (25/50m) mit animierter Sanduhr, kurzen und langen Pausen sowie sanften akustischen Signalen.",
+        mod_time_title: "Zeiterfassung & Analysen",
+        mod_time_desc: "Präzise projektbezogene Dauerprotokolle mit Stoppuhren. Interaktive Recharts-Diagramme zeigen Produktivitätstrends.",
+        mod_notes_title: "Sofortnotizen (Cmd+J)",
+        mod_notes_desc: "Sofortiges Markdown-Notizfeld. Global über Cmd+J erreichbar. Fügen Sie Dateien hinzu und sichern Sie Gedanken sofort.",
+        mod_links_title: "Schnellstarter & App-Launcher",
+        mod_links_desc: "Lesezeichen mit hochauflösenden Favicons. Starten Sie native macOS-Apps, Skripte und Verzeichnisse mit einem Klick oder Cmd+K.",
+        mod_clocks_title: "Weltuhren",
+        mod_clocks_desc: "Internationale Zeitzonen (Istanbul, London, New York, Tokio, Berlin) zur Koordination globaler Teams und Märkte.",
+        mod_ai_title: "Multimodale KI & Live-Sprache",
+        mod_ai_desc: "Freihändige Sprachdialoge (STT/TTS). Gemini 2.5, Claude 3.7, GPT-4o oder 100% private lokale LLMs über Ollama (Llama 3.2, Mistral, DeepSeek R1) mit Websuche-Quellenangaben.",
+        mod_cal_title: "Einheitlicher Kalenderabgleich",
+        mod_cal_desc: "Zwei-Wege-Synchronisierung mit Google Calendar OAuth und Apple iCloud / CalDAV sowie Offline-Verwaltung.",
         desktop_pill: "Eigenständiges natives macOS-Erlebnis",
         desktop_heading: "Kein Docker erforderlich. Mit eingebettetem PostgreSQL.",
         desktop_body: "Die eigenständige macOS-Desktop-App (.dmg) bündelt alles in einer nativen Apple Silicon App. Sie startet beim Booten automatisch eine eingebettete PostgreSQL 17 Instanz, bietet ein Menüleisten-Icon (Tray) und globale Hotkeys wie Cmd+K und Cmd+J.",
@@ -743,18 +727,12 @@
         desktop_card_title: "DNZ Productivity Dashboard für Mac",
         desktop_card_sub: "Version 3.0.0 • macOS Sonoma / Sequoia (ARM64 Apple Silicon)",
         desktop_btn_download: "Release DMG herunterladen",
-        arch_heading: "Moderne Full-Stack-Architektur",
-        arch_subheading: "Entwickelt auf modernen, typsicheren Open-Source-Technologien.",
-        arch_nextjs: "App Router, Server Actions & Turbopack",
-        arch_db: "Typsicheres Schema, Migrationen & Relationen",
-        arch_electron: "Native macOS-Bindings & Eingebettetes PostgreSQL",
-        arch_tailwind: "Glassmorphism-Designsystem & Hell/Dunkel-Modi",
         sec_heading: "Sicherheit & Datenschutz an erster Stelle",
         sec_body: "Im Gegensatz zu proprietären SaaS-Tools, die Ihre Aufgaben für das Modelltraining auswerten, ist das <strong>DNZ Productivity Dashboard zu 100% lokal</strong>. Ihre Daten verbleiben vollständig in Ihrer lokalen Datenbank.",
         sec_card1_title: "Null Telemetrie",
         sec_card1_desc: "Keine Hintergrundanalysen, Absturzberichte oder externe Pings.",
         sec_card2_title: "BYO-Key KI-Modell",
-        sec_card2_desc: "Verwenden Sie Ihren eigenen API-Schlüssel; Schlüssel bleiben lokal.",
+        sec_card2_desc: "100% private lokale LLMs über Ollama oder eigene API-Schlüssel. Volle Privatsphäre.",
         sec_card3_title: "Lokale Datenbank",
         sec_card3_desc: "Vollständige Datensouveränität mit sofortigem JSON-Export.",
         qs_heading: "Schnellstart & Installation",
@@ -788,13 +766,15 @@
         }
       });
 
-      // Update all translatable elements
+      // Update translatable elements
       document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
         if (translations[lang][key]) {
           el.innerHTML = translations[lang][key];
         }
       });
+
+
     }
 
     // Initialize with stored or default language (default: 'en')

@@ -306,7 +306,7 @@ export interface ConnectedCalendarAccountsStatus {
 }
 
 // AI Chat & Voice Assistant Types
-export type AiProvider = 'anthropic' | 'gemini' | 'openai';
+export type AiProvider = 'anthropic' | 'gemini' | 'openai' | 'ollama';
 
 export interface AiModelOption {
   id: string;
@@ -376,6 +376,38 @@ export const AI_MODELS: AiModelOption[] = [
     icon: '⚡',
     badge: 'Economical',
     description: 'Hızlı ve ekonomik yanıtlar. Web araması ile güncel bilgiye erişir.',
+  },
+  {
+    id: 'llama3.2',
+    name: 'Llama 3.2 (Local)',
+    provider: 'ollama',
+    icon: '🦙',
+    badge: 'Local Offline',
+    description: 'Yerel makinede Ollama ile çalışan gizlilik odaklı açık kaynaklı model (100% Offline & Private).',
+  },
+  {
+    id: 'deepseek-r1',
+    name: 'DeepSeek R1 (Local)',
+    provider: 'ollama',
+    icon: '🐋',
+    badge: 'Local Reasoning',
+    description: 'Ollama üzerinde çalışan yerel akıl yürütme ve problem çözme modeli.',
+  },
+  {
+    id: 'mistral',
+    name: 'Mistral (Local)',
+    provider: 'ollama',
+    icon: '🌪️',
+    badge: 'Local General',
+    description: 'Hızlı, dengeli ve genel amaçlı açık kaynak yerel model.',
+  },
+  {
+    id: 'qwen2.5',
+    name: 'Qwen 2.5 (Local)',
+    provider: 'ollama',
+    icon: '⚡',
+    badge: 'Local Coding',
+    description: 'Kodlama ve teknik analiz için optimize edilmiş yerel model.',
   },
 ];
 

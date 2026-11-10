@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
   const settings = await getAiSettings().catch(() => ({} as Record<string, unknown>));
   const s = settings as Record<string, string | undefined>;
 
-  const providers: AiProvider[] = ['anthropic', 'gemini', 'openai'];
+  const providers: AiProvider[] = ['anthropic', 'gemini', 'openai', 'ollama'];
   const keyFor = (provider: AiProvider): string | undefined => {
     const override = req.nextUrl.searchParams.get(`${provider}Key`) || undefined;
     if (override) return override;
@@ -23,19 +23,19 @@ export async function GET(req: NextRequest) {
     return s.openaiApiKey || process.env.OPENAI_API_KEY;
   };
 
-  const result: Record<AiProvider, AiModelOption[]> = { anthropic: [], gemini: [], openai: [] };
-  const source: Record<AiProvider, 'live' | 'fallback'> = { anthropic: 'fallback', gemini: 'fallback', openai: 'fallback' };
+  const result: Record<AiProvider, AiModelOption[]> = { anthropic: [], gemini: [], openai: [], ollama: [] };
+  const source: Record<AiProvider, 'live' | 'fallback'> = { anthropic: 'fallback', gemini: 'fallback', openai: 'fallback', ollama: 'fallback' };
 
   await Promise.all(
     providers.map(async (provider) => {
       const key = keyFor(provider);
       const seed = AI_MODELS.filter((m) => m.provider === provider);
-      if (!key) {
+      if (!key && provider !== 'ollama') {
         result[provider] = seed;
         return;
       }
       try {
-        const live = await fetchLiveModels(provider, key);
+        const live = await fetchLiveModels(provider, key || '');
         result[provider] = live.length > 0 ? live : seed;
         source[provider] = live.length > 0 ? 'live' : 'fallback';
       } catch (err) {

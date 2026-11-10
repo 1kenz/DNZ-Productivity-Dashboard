@@ -1,5 +1,5 @@
 /**
- * Curated AI Voice Engine & ChatGPT Voice Personas for DNZ Productivity OS
+ * Curated AI Voice Engine & ChatGPT Voice Personas for DNZ Productivity Dashboard
  * Optimized for natural, warm, human-like voice synthesis on macOS, iOS, Windows, Chrome.
  */
 

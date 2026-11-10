@@ -7,7 +7,7 @@
   # DNZ Productivity Dashboard
   ### The All-in-One, Local-First Productivity & Cognition Cockpit
 
-  **Enterprise-grade workstation featuring Task & Project Hierarchies, Interactive Kanban, Unified Multi-Account Calendars, Deep-Work Focus Tools, and a Voice-Driven Multimodal AI Assistant.**
+  **All your Tasks, Projects, Kanban, Time Tracking, Pomodoro, Quick Notes, World Clocks, Multi-Account Calendars, and Voice-Driven AI Assistant in one cohesive workstation.**
 
   <br />
 
@@ -25,193 +25,116 @@
 
   <br />
 
-  **[🌐 Live Showcase Site](https://1kenz.github.io/DNZ-Productivity-Dashboard/)** • **[⚡ Quickstart](#-quickstart)** • **[✨ Key Features](#-key-features)** • **[🖥️ macOS Desktop App](#%EF%B8%8F-native-macos-desktop-app)** • **[🛠️ Architecture](#%EF%B8%8F-technical-architecture)** • **[🔒 Security & Privacy](#-security--zero-telemetry-guarantee)**
+  **[🌐 Live Showcase Site](https://1kenz.github.io/DNZ-Productivity-Dashboard/)** • **[⚡ Quickstart](#-quickstart)** • **[🧩 Core Modules](#-everything-you-need-in-one-workspace)** • **[🖥️ macOS Desktop App](#%EF%B8%8F-native-macos-desktop-app)** • **[🔒 Security & Privacy](#-security--zero-telemetry-guarantee)**
 
 </div>
 
 ---
 
 > ### 🌐 **Live Showcase & Interactive Product Tour**
-> Experience the interactive live presentation, feature walk-throughs, and architecture diagrams directly in your browser:  
+> Experience the interactive live presentation, feature walk-throughs, and multi-language support in action:  
 > 👉 **[https://1kenz.github.io/DNZ-Productivity-Dashboard/](https://1kenz.github.io/DNZ-Productivity-Dashboard/)**  
 > *(Features built-in instant language switching: **English (Default)**, **Türkçe**, and **Deutsch**).*
 
 ---
 
-## 📖 Executive Summary
+## 🧩 Everything You Need in One Workspace
 
-**DNZ Productivity Dashboard** is an enterprise-grade personal productivity and task orchestration suite engineered for developers, engineering managers, cybersecurity professionals, and power users.
+DNZ Productivity Dashboard eliminates tab fatigue by consolidating all essential personal productivity tools into a unified, high-performance interface:
 
-Unlike conventional SaaS productivity tools that lock your sensitive work data into proprietary clouds and harvest it for AI model training, DNZ Productivity Dashboard is built from the ground up with a **strict local-first, zero-telemetry philosophy**. 
-
-Every task, time log, calendar entry, note, and credential stays strictly on your local machine in an ACID-compliant **PostgreSQL** database.
-
-### 🌟 Core Highlights
-- **100% Local-First & Sovereign**: Runs on your machine with zero external cloud dependencies.
-- **Multimodal AI Assistant & Live Voice**: Real-time voice conversations (VAD + STT + TTS) with live web-search citation support powered by Google Gemini 2.5, Anthropic Claude 3.7, or OpenAI GPT-4o.
-- **Native macOS Apple Silicon App**: Standalone `.dmg` packaging an **Embedded PostgreSQL 17** engine, macOS Menu Bar (Tray) icon, and global system hotkeys (`Cmd+K`, `Cmd+J`).
-- **Zero-Friction Deployment**: 1-command startup via Docker Compose or native Node.js.
-
----
-
-## 🏗️ Technical Architecture
-
-```mermaid
-graph TD
-    User([👤 User Interface]) -->|User Interactions / Shortcuts| UI[🎨 Next.js 16 + React 19 Frontend\nTailwind CSS 4 • Glassmorphism Design System]
-    
-    subgraph Core Application Engine
-        UI -->|Server Actions / Next.js API Routes| Backend[⚙️ App Engine / API Routes]
-        Backend -->|Type-Safe Queries| Prisma[💎 Prisma ORM 7.3]
-        
-        Backend -->|Real-Time Voice & Web Search| AI[🤖 Multimodal AI Engine\nGemini 2.5 • Claude 3.7 • GPT-4o]
-        Backend -->|Two-Way Sync RFC 4791| Cal[📅 Calendar Sync Engine\nGoogle Calendar OAuth • Apple iCloud / CalDAV]
-        Backend -->|Encrypted Snapshots| Drive[☁️ Google Drive Cloud Backup]
-    end
-
-    subgraph Data Persistence Layer
-        Prisma -->|Primary Storage| DB[(🐘 PostgreSQL 17 Database)]
-        DB -.->|macOS Standalone Mode| EmbeddedDB[(⚡ Embedded PostgreSQL 17\nZero Docker Required)]
-        DB -.->|Container Mode| DockerDB[(🐳 Docker PostgreSQL Container\nPort 5532)]
-    end
-
-    subgraph Native Desktop Shell
-        UI -.->|IPC Channel| Electron[🖥️ Electron 33 macOS Wrapper]
-        Electron -->|Global Hotkeys / System Tray| Tray[🍏 macOS Menu Bar Tray & Dock]
-        Electron -->|Local Protocol Handler| FileOpener[📂 Local Files & Apps Launcher]
-    end
-```
-
----
-
-## ✨ Key Features
-
-### 🤖 Multimodal AI Co-Pilot & Live Voice
-- **Multi-Provider Intelligence**: Seamlessly switch between **Google Gemini** (Gemini 2.5 Flash / Pro), **Anthropic Claude** (Claude 3.7 Sonnet), and **OpenAI** (GPT-4o).
-- **Real-Time Voice Assistant (Live Voice)**: Hands-free vocal dialogue equipped with Voice Activity Detection (VAD), Whisper STT, and neural Speech Synthesis (TTS).
-- **Web-Grounded Research**: Queries web sources in real-time and appends transparent citation footnotes to responses.
-- **Executive SITREP**: Generates on-demand daily situational intelligence reports summarizing critical deadlines, overdue items, and schedule conflicts.
-- **AI to Action**: Convert any AI response into a task or note with a single click.
-
-### 📋 Task Management & Visual Kanban
-- **Interactive Kanban Boards**: Drag-and-drop task workflows across *To Do*, *In Progress*, *Review*, and *Done* states.
-- **Priority Scoring**: Low, Medium, and High priority visual badges with color coding.
-- **Intelligent Deadlines**: Date filters (*All*, *Today*, *This Week*, *Upcoming*) with daily reminder alerts and warning badges.
-- **Recurring Task Automation**: Daily, weekly, monthly, or cron-based schedules with instant pause/resume controls.
-- **File Attachments**: Attach local disk files, scripts, documents, and programs directly to tasks.
-
-### 📅 Unified Multi-Account Calendar
-- **Bi-Directional Calendar Sync**: Full integration with **Google Calendar** (OAuth 2.0) and **CalDAV** (Apple iCloud, Fastmail, Nextcloud).
-- **Built-in Offline Calendar**: Create and manage local events independently of any external calendar account.
-- **Optimized Views**: Day, Week, and Month grids calibrated to focused working hours (06:00–18:00).
-
-### ⏱️ Deep Work & Focus Tools
-- **Pomodoro Hourglass**: Visual animated hourglass timer with customizable focus and break sessions.
-- **Active Time Tracker**: Granular project-based work hour tracking with stopwatches and manual adjustment.
-- **Productivity Analytics**: Rich charts powered by **Recharts** visualizing productivity streaks and weekly output.
-
-### 🔗 Smart Quick Links & macOS App Launcher
-- **Group Clusters**: Categorized bookmarks with automatic high-resolution favicon scraping.
-- **Native App & File Launcher**: Launch native macOS applications (`iTerm`, `VS Code`, `Docker Desktop`), terminal scripts, or folders directly from your browser or app window.
-- **Command Palette**: Instant workspace search and navigation via global hotkey <kbd>Cmd</kbd> + <kbd>K</kbd>.
-
-### ☁️ Encrypted Cloud Sync & Data Mobility
-- **Google Drive Sync**: Export AES-encrypted database snapshots directly to your personal Google Drive or restore across devices.
-- **Zero-Dependency JSON Backups**: 1-click complete database export and instant offline restoration.
+| Module | Icon | Key Capabilities |
+| :--- | :---: | :--- |
+| **Tasks & Kanban** | 📋 | Drag-and-drop Kanban workflow, priority tags (Low/Med/High), deadline filters, subtasks, and file attachments. |
+| **Projects & Sections** | 📁 | Multi-project organization (Security, Software, Home, Personal) with dedicated progress tracking. |
+| **Pomodoro Hourglass** | ⏳ | Animated visual hourglass timer with custom focus intervals, short/long break loops, and audio notifications. |
+| **Time Tracker** | ⏱️ | Real-time stopwatch and manual task duration logging with interactive **Recharts** productivity analytics. |
+| **Quick Notes** | 📝 | Instant slide-over markdown scratchpad accessible system-wide with global hotkey <kbd>Cmd</kbd> + <kbd>J</kbd>. |
+| **Quick Links & App Launcher** | 🔗 | Categorized bookmark clusters with auto-favicons + native launching of local macOS apps, files, and scripts. |
+| **World Clocks** | ⏰ | Real-time international timezone monitors (Istanbul, London, New York, Tokyo, Berlin) for distributed workflows. |
+| **Unified Calendar** | 📅 | Bi-directional calendar sync with **Google Calendar** (OAuth 2.0) and **Apple iCloud / CalDAV** (RFC 4791). |
+| **Multimodal AI & Local LLM** | 🤖 | Hands-free **Live Voice**, live web citations, daily **SITREP** briefs, and **100% private Local LLMs via Ollama** (Llama 3.2, DeepSeek R1, Mistral, Qwen 2.5). |
+| **Google Drive Cloud Sync** | ☁️ | Encrypted one-click database snapshot backups and instant cross-device state restoration. |
 
 ---
 
 ## 🖥️ Native macOS Desktop App
 
-For macOS users (Sonoma, Sequoia, and Apple Silicon M-Series), DNZ Productivity Dashboard is available as a **native standalone desktop application (`.dmg`)**.
+For macOS users (Sonoma, Sequoia, and Apple Silicon M-Series), DNZ Productivity Dashboard is packaged as a **standalone native desktop application (`.dmg`)**.
 
-| Feature | Desktop App (.dmg) | Web / Docker Deployment |
-| :--- | :---: | :---: |
-| **PostgreSQL Database** | **Embedded (Native Bundle)** | Docker Container |
-| **Docker Desktop Required** | ❌ **No** | ✅ Yes |
-| **macOS Menu Bar (Tray) Icon** | ✅ **Yes** | ❌ No |
-| **Global System Hotkeys** (`Cmd+K`, `Cmd+J`) | ✅ **Yes** | In-Browser Only |
-| **Native File / App Protocol Launching** | ✅ **Yes** | Local Host Only |
-| **Apple Silicon (M1/M2/M3/M4) Optimized** | ✅ **Yes (ARM64)** | Multi-Arch |
-
-### Building the macOS DMG from Source
+- **Embedded PostgreSQL 17**: Automatically starts its own isolated, native database engine on launch — **Zero Docker or background setup required**.
+- **macOS Menu Bar (Tray) Icon**: Keeps quick actions, Pomodoro controls, and instant notes reachable even when the main window is closed.
+- **Global Hotkeys**: System-wide <kbd>Cmd</kbd> + <kbd>K</kbd> Command Palette and <kbd>Cmd</kbd> + <kbd>J</kbd> Quick Notes trigger from anywhere on your Mac.
+- **Native File Launcher**: Open local source files, scripts, and macOS applications directly from dashboard cards.
 
 ```bash
-# Clone the repository
-git clone https://github.com/1kenz/DNZ-Productivity-Dashboard.git
-cd dnz-productivity-dashboard
-
-# Build Next.js, bundle Embedded PostgreSQL, and package into .dmg:
+# Build standalone DMG installer from source:
 bash scripts/build_desktop_app.sh
 ```
-The compiled installer will be generated at `desktop/dist/DNZ Productivity Dashboard-3.0.0-arm64.dmg`.
 
 ---
 
 ## 🚀 Quickstart
 
-### Option 1: Run via Docker Compose (Recommended)
-
-The easiest and fastest method to launch the web dashboard and PostgreSQL database:
+### Option 1: Docker Compose (Recommended for Web)
 
 ```bash
-# 1. Clone the repository
+# 1. Clone repository
 git clone https://github.com/1kenz/DNZ-Productivity-Dashboard.git
-cd dnz-productivity-dashboard
+cd DNZ-Productivity-Dashboard
 
-# 2. Copy the environment template
+# 2. Configure environment
 cp .env.example .env
 
-# 3. Start the application
+# 3. Start database and dashboard
 docker compose up -d
-```
-Open **[http://localhost:3000](http://localhost:3000)** (or `http://localhost:9999` for dev compose) in your browser.
-
----
-
-### Option 2: Local Node.js Development
-
-```bash
-# 1. Install dependencies
-npm install
-
-# 2. Copy environment template and configure DATABASE_URL
-cp .env.example .env
-
-# 3. Push Prisma schema to your PostgreSQL instance
-npx prisma db push
-
-# 4. Start Next.js Turbopack development server
-npm run dev
 ```
 Open **[http://localhost:3000](http://localhost:3000)** in your browser.
 
 ---
 
-## ⚙️ Configuration & Environment Variables
+### Option 2: Local Development (Node.js 18+)
 
-Copy `.env.example` to `.env` and configure your environment:
+```bash
+# 1. Install dependencies
+npm install
 
-| Variable | Type | Default | Description |
-| :--- | :---: | :---: | :--- |
-| `DATABASE_URL` | **Required** | `postgresql://...:5532/...` | PostgreSQL connection string |
-| `GOOGLE_CLIENT_ID` | Optional | `""` | Google Cloud OAuth 2.0 Client ID (Drive & Calendar) |
-| `GOOGLE_CLIENT_SECRET` | Optional | `""` | Google Cloud OAuth 2.0 Client Secret |
-| `GOOGLE_REDIRECT_URI` | Optional | `http://localhost:9999/api/google/callback` | OAuth redirect URI (port `9898` for Desktop) |
-| `GEMINI_API_KEY` | Optional | `""` | Google AI Studio Gemini API Key |
-| `ANTHROPIC_API_KEY` | Optional | `""` | Anthropic Claude API Key |
-| `OPENAI_API_KEY` | Optional | `""` | OpenAI API Key (Whisper STT / TTS / GPT-4o) |
+# 2. Configure environment
+cp .env.example .env
 
-> 💡 *Note: All AI API keys can also be securely configured or updated at runtime directly through the dashboard UI settings (`Settings ➔ AI Configuration`).*
+# 3. Apply Prisma database schema
+npx prisma db push
+
+# 4. Start Turbopack dev server
+npm run dev
+```
+
+---
+
+## ⚙️ Environment Variables Reference
+
+See `.env.example` for the complete configuration template:
+
+| Variable | Required | Description |
+| :--- | :---: | :--- |
+| `DATABASE_URL` | **Yes** | PostgreSQL connection string (`postgresql://postgres:...@localhost:5532/...`) |
+| `GOOGLE_CLIENT_ID` | Optional | Google Cloud OAuth 2.0 Client ID for Drive & Calendar sync |
+| `GOOGLE_CLIENT_SECRET` | Optional | Google Cloud OAuth 2.0 Client Secret |
+| `GOOGLE_REDIRECT_URI` | Optional | OAuth redirect URI (`http://localhost:9999/api/google/callback` or port `9898`) |
+| `GEMINI_API_KEY` | Optional | Google AI Studio Gemini API Key |
+| `ANTHROPIC_API_KEY` | Optional | Anthropic Claude API Key |
+| `OPENAI_API_KEY` | Optional | OpenAI API Key (Whisper STT / TTS / GPT-4o) |
+| `OLLAMA_BASE_URL` | Optional | Ollama local server URL (defaults to `http://127.0.0.1:11434`, zero API key required) |
+
+*All AI keys can also be securely configured at runtime directly from the in-app Settings panel.*
 
 ---
 
 ## 🔒 Security & Zero-Telemetry Guarantee
 
-1. **Local-First Data Isolation**: All your tasks, notes, time logs, and contacts are stored in your local PostgreSQL database.
-2. **Zero Telemetry & Zero Trackers**: No Google Analytics, no Mixpanel, no Sentry, no cookies, and no background crash beacons.
-3. **Bring Your Own Keys (BYOK)**: AI models communicate directly with provider APIs using your personal API keys stored in your local database or environment file. Keys are never exposed in frontend bundles or client logs.
-4. **Hardened OAuth Scope**: Google Drive and Calendar authorizations use strictly scoped, direct OAuth 2.0 tokens stored locally.
+1. **Local-First Data Storage**: All tasks, calendar entries, and notes reside exclusively in your local PostgreSQL database.
+2. **Zero Telemetry**: No tracking scripts, analytics cookies, third-party beacons, or background data collection.
+3. **Local LLMs & BYO-Key Cloud Models**: Run 100% offline open-source models (Llama 3.2, Mistral, DeepSeek R1) via Ollama with zero data leaving your computer, or bring your own API keys for cloud providers. Keys are stored strictly locally and never exposed in frontend bundles.
+4. **Sandboxed OAuth**: Google Drive and Calendar authorizations use strictly scoped, direct OAuth 2.0 tokens stored locally.
 
 ---
 
@@ -223,24 +146,6 @@ Copy `.env.example` to `.env` and configure your environment:
 | <kbd>Cmd</kbd> + <kbd>J</kbd> | Open Quick Notes Popover |
 | <kbd>Esc</kbd> | Dismiss active modal or overlay |
 | <kbd>Enter</kbd> | Confirm dialog action / Submit modal |
-
----
-
-## 🧪 Testing & Code Quality
-
-```bash
-# Run unit & integration tests (Jest)
-npm test
-
-# Run strict TypeScript type check
-npm run type-check
-
-# Run linter (ESLint)
-npm run lint
-
-# Run End-to-End tests (Playwright)
-npm run test:e2e
-```
 
 ---
 
