@@ -176,6 +176,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS "CalendarPreference_provider_accountId_calenda
 -- taskView/linkView/groupBy/calendarView) was failing outright with
 -- "column does not exist" until this runs.
 ALTER TABLE "ViewPreferences" ADD COLUMN IF NOT EXISTS "lastDueDateModalShownAt" TIMESTAMP(3);
+ALTER TABLE "ViewPreferences" ADD COLUMN IF NOT EXISTS "calendarView" TEXT NOT NULL DEFAULT 'week';
 
 -- --- AI Chat feature: AiConversation, AiMessage, AiSettings ---
 -- These three tables back the whole AI Chat / Live Voice feature
