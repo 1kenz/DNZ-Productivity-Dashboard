@@ -1,6 +1,6 @@
 <div align="center">
 
-  <a href="https://1kenz.github.io/dnz-productivity-dashboard/">
+  <a href="https://1kenz.github.io/DNZ-Productivity-Dashboard/">
     <img src="public/icons/icon-512.png" alt="DNZ Productivity Dashboard Logo" width="216" height="216" style="border-radius: 40px; box-shadow: 0 16px 40px rgba(0,0,0,0.4); margin-bottom: 20px;" />
   </a>
 
@@ -11,8 +11,8 @@
 
   <br />
 
-  [![Live Showcase](https://img.shields.io/badge/🌐_Live_Showcase_Site-1kenz.github.io-success?style=for-the-badge&logo=safari&logoColor=white)](https://1kenz.github.io/dnz-productivity-dashboard/)
-  [![Release](https://img.shields.io/badge/Release-v3.0.0-0070f3?style=for-the-badge&logo=github)](https://github.com/1kenz/dnz-productivity-dashboard/releases)
+  [![Live Showcase](https://img.shields.io/badge/🌐_Live_Showcase_Site-1kenz.github.io-success?style=for-the-badge&logo=safari&logoColor=white)](https://1kenz.github.io/DNZ-Productivity-Dashboard/)
+  [![Release](https://img.shields.io/badge/Release-v3.0.0-0070f3?style=for-the-badge&logo=github)](https://github.com/1kenz/DNZ-Productivity-Dashboard/releases)
   [![License](https://img.shields.io/badge/License-MIT-emerald?style=for-the-badge)](LICENSE)
 
   [![Next.js](https://img.shields.io/badge/Next.js-16.1.5-black?style=flat-square&logo=next.js)](https://nextjs.org/)
@@ -25,7 +25,7 @@
 
   <br />
 
-  **[🌐 Live Showcase Site](https://1kenz.github.io/dnz-productivity-dashboard/)** • **[⚡ Quickstart](#-quickstart)** • **[✨ Key Features](#-key-features)** • **[🖥️ macOS Desktop App](#%EF%B8%8F-native-macos-desktop-app)** • **[🛠️ Architecture](#%EF%B8%8F-technical-architecture)** • **[🔒 Security & Privacy](#-security--zero-telemetry-guarantee)**
+  **[🌐 Live Showcase Site](https://1kenz.github.io/DNZ-Productivity-Dashboard/)** • **[⚡ Quickstart](#-quickstart)** • **[✨ Key Features](#-key-features)** • **[🖥️ macOS Desktop App](#%EF%B8%8F-native-macos-desktop-app)** • **[🛠️ Architecture](#%EF%B8%8F-technical-architecture)** • **[🔒 Security & Privacy](#-security--zero-telemetry-guarantee)**
 
 </div>
 
@@ -33,7 +33,7 @@
 
 > ### 🌐 **Live Showcase & Interactive Product Tour**
 > Experience the interactive live presentation, feature walk-throughs, and architecture diagrams directly in your browser:  
-> 👉 **[https://1kenz.github.io/dnz-productivity-dashboard/](https://1kenz.github.io/dnz-productivity-dashboard/)**  
+> 👉 **[https://1kenz.github.io/DNZ-Productivity-Dashboard/](https://1kenz.github.io/DNZ-Productivity-Dashboard/)**  
 > *(Features built-in instant language switching: **English (Default)**, **Türkçe**, and **Deutsch**).*
 
 ---
@@ -138,7 +138,7 @@ For macOS users (Sonoma, Sequoia, and Apple Silicon M-Series), DNZ Productivity 
 
 ```bash
 # Clone the repository
-git clone https://github.com/1kenz/dnz-productivity-dashboard.git
+git clone https://github.com/1kenz/DNZ-Productivity-Dashboard.git
 cd dnz-productivity-dashboard
 
 # Build Next.js, bundle Embedded PostgreSQL, and package into .dmg:
@@ -156,7 +156,7 @@ The easiest and fastest method to launch the web dashboard and PostgreSQL databa
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/1kenz/dnz-productivity-dashboard.git
+git clone https://github.com/1kenz/DNZ-Productivity-Dashboard.git
 cd dnz-productivity-dashboard
 
 # 2. Copy the environment template
@@ -248,7 +248,7 @@ npm run test:e2e
 
 Contributions, feature requests, and bug reports are warmly welcomed!
 
-1. Fork the Project (`https://github.com/1kenz/dnz-productivity-dashboard`)
+1. Fork the Project (`https://github.com/1kenz/DNZ-Productivity-Dashboard`)
 2. Create your Feature Branch (`git checkout -b feature/NewCapability`)
 3. Commit your Changes (`git commit -m 'feat: Add NewCapability'`)
 4. Push to the Branch (`git push origin feature/NewCapability`)
@@ -264,5 +264,5 @@ Distributed under the **MIT License**. See `LICENSE` for details.
 
 <div align="center">
   <sub>Architected with precision by <strong>DNZ Security & Software</strong> • Maintained by <a href="https://github.com/1kenz">@1kenz</a></sub><br>
-  <sub>🌐 <a href="https://1kenz.github.io/dnz-productivity-dashboard/">https://1kenz.github.io/dnz-productivity-dashboard/</a></sub>
+  <sub>🌐 <a href="https://1kenz.github.io/DNZ-Productivity-Dashboard/">https://1kenz.github.io/DNZ-Productivity-Dashboard/</a></sub>
 </div>
