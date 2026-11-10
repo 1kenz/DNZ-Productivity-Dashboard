@@ -1,201 +1,216 @@
-# DNZ Productivity Dashboard
+<div align="center">
 
-A modern, enterprise-grade productivity dashboard for managing daily tasks, organizing quick links, and tracking productivity.
+  <img src="public/icons/icon-512.png" alt="DNZ Productivity Logo" width="108" height="108" style="border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);" />
 
-![Dashboard Screenshot](/Users/ikenz/.gemini/antigravity/brain/ed431fcf-b320-463c-85c1-5a930627054b/initial_dashboard_view_1769523323460.png)
+  # DNZ Productivity Dashboard
 
-## ✨ Features
+  **Enterprise-grade, local-first productivity cockpit with Tasks, Kanban, Multi-Account Calendars, Deep-Work Focus Tools, and a Voice-Driven Multimodal AI Assistant.**
 
-### 📋 Task Management
-- Create, edit, and delete tasks
-- Priority levels (Low, Medium, High) with color coding
-- Filter tasks (All, Active, Completed)
-- Sort by date, priority, or alphabetically
-- Inline editing with double-click
-- Task completion tracking
+  [![Version](https://img.shields.io/badge/version-3.0.0-blue.svg?style=flat-square)](https://github.com/1kenz/dnz-productivity-dashboard/releases)
+  [![Next.js](https://img.shields.io/badge/Next.js-16.1.5-black.svg?style=flat-square&logo=next.js)](https://nextjs.org/)
+  [![React](https://img.shields.io/badge/React-19.2.3-61dafb.svg?style=flat-square&logo=react)](https://react.dev/)
+  [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178c6.svg?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
+  [![Tailwind CSS](https://img.shields.io/badge/Tailwind-4.0-38bdf8.svg?style=flat-square&logo=tailwindcss)](https://tailwindcss.com/)
+  [![Electron](https://img.shields.io/badge/Electron-33-47848F.svg?style=flat-square&logo=electron)](https://www.electronjs.org/)
+  [![License](https://img.shields.io/badge/license-MIT-green.svg?style=flat-square)](LICENSE)
 
-### 🔗 Quick Links
-- Organize links into custom groups
-- Choose from 8 preset colors and icons
-- Automatic favicon fetching
-- Expandable/collapsible groups
-- Easy link management
+  [🌐 Live Showcase Site](https://1kenz.github.io/dnz-productivity-dashboard/) • [🖥️ macOS App](#%EF%B8%8F-macos-desktop-app) • [🚀 Quickstart](#-getting-started) • [🔒 Security & Privacy](#-security--privacy-first)
 
-### 🎨 UI/UX
-- Dark/Light theme toggle
-- Responsive design (mobile, tablet, desktop)
-- Smooth animations and transitions
-- Professional Inter font
-- Accessibility features (ARIA, keyboard navigation)
+</div>
 
-### 💾 Data Persistence
-- Automatic local storage
-- Data survives page refresh
-- No backend required
+---
 
-## 🚀 Getting Started
+## 📖 Overview
 
-### Prerequisites
-- Node.js 18+ 
-- npm or yarn
+**DNZ Productivity Dashboard** is an all-in-one personal productivity workstation engineered for developers, security professionals, and power users. Designed with a strict **local-first, privacy-respecting philosophy**, all your tasks, calendar events, time logs, and notes stay within your control on your local machine.
 
-### Installation
+Whether deployed via **Docker**, run locally in development, or installed as a standalone **native macOS `.dmg` app** with a bundled embedded PostgreSQL database, it delivers seamless speed and reliability with zero cloud lock-in.
 
-```bash
-# Clone or navigate to the project
-cd productivity-dashboard
+---
 
-# Install dependencies
-npm install
+## ✨ Key Features
 
-# Start development server
-npm run dev
-```
+### 🤖 Multimodal AI Assistant & Live Voice
+- **Multi-Model Support**: Connect with **Google Gemini** (Gemini 2.5 Flash / Pro), **Anthropic Claude** (Claude 3.7 Sonnet), or **OpenAI** (GPT-4o).
+- **Live Voice Assistant**: Real-time microphone capture with voice activity detection (VAD), speech-to-text (STT), and voice synthesis (TTS) for natural vocal conversations.
+- **Live Web Search & Citations**: Automatic web-search grounded answers with clickable source footnotes.
+- **SITREP Intelligence**: On-demand executive daily situational reports summarizing upcoming deadlines, schedule conflicts, and task priorities.
+- **Turn AI into Action**: 1-click convert chat outputs into tasks or notes.
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+### 📋 Task Management & Interactive Kanban
+- **Flexible Views**: Switch between customizable Task Lists and interactive Kanban boards.
+- **Drag-and-Drop Workflow**: Move cards across To Do, In Progress, Review, and Done.
+- **Priority & Deadlines**: Low, Medium, and High priority tags, color-coded badges, and intelligent due date alerts.
+- **Recurring Tasks**: Daily, weekly, monthly, or cron-based task automation with pause/resume controls.
+- **Attachments**: Link local files, documents, and programs directly to tasks.
+
+### 📅 Unified Multi-Account Calendar
+- **Cross-Platform Sync**: Full support for **Google Calendar** (OAuth 2.0) and **CalDAV** (Apple iCloud, Fastmail, Nextcloud).
+- **Built-in Local Calendar**: Offline-capable native calendar events independent of third-party services.
+- **Views**: Seamless switching between Day, Week, and Month grids with working-hours focus (06:00–18:00).
+
+### ⏱️ Deep Work & Focus Tools
+- **Pomodoro Timer**: Animated hourglass visual timer with customizable focus and break intervals.
+- **Active Time Tracker**: Log project work hours with start/stop stopwatches and manual entry.
+- **Analytics & Trends**: Interactive charts powered by **Recharts** displaying daily and weekly output.
+
+### 🔗 Smart Quick Links & App Launcher
+- **Group Organization**: Color-coded and icon-customized bookmark clusters with automatic favicon fetching.
+- **Native macOS App & File Launcher**: Launch local applications, scripts, or files directly from your dashboard via native OS protocols.
+- **Fast Command Palette**: Instant navigation across the entire workspace via `Cmd + K` or `Cmd + J`.
+
+### ☁️ Cloud Backup & Data Mobility
+- **Google Drive Sync**: Securely export encrypted database snapshots to Google Drive or restore state across machines.
+- **Local JSON Export**: 1-click zero-dependency database backup and instant restore.
+
+---
 
 ## 🖥️ macOS Desktop App
 
-This project can also be built into a standalone native macOS app (`.dmg`) that
-bundles its own PostgreSQL database — no Docker Desktop needed to run it day to
-day. It's a separate local database from the Docker deployment; use
-Settings → Backup/Import (or Google Drive sync) to move data between the two.
+For macOS users, DNZ Productivity Dashboard offers a standalone, native desktop application (`.dmg`) bundled with **Electron** and an **embedded PostgreSQL 17** engine.
+
+- **No Docker Required**: Spawns its own isolated, native PostgreSQL server on boot.
+- **macOS Menu Bar (Tray)**: Dock and Menu Bar icon for instant access, quick notes, and Pomodoro controls even when the main window is closed.
+- **Global Shortcuts**: System-wide `Cmd+K` Command Palette and `Cmd+J` Quick Notes.
+- **Apple Silicon Native**: High performance on M1/M2/M3/M4 chips.
+
+To build the standalone `.dmg` installer from source:
 
 ```bash
 bash scripts/build_desktop_app.sh
 ```
 
-This installs dependencies, builds the Next.js app, and packages everything
-with Electron into `desktop/dist/*.dmg`. Requires real internet access (npm
-registry, Prisma's engine CDN, Electron's binary downloads) — run it in a
-normal Terminal, not inside a sandboxed shell. See `desktop/main.js` for how
-it wires the embedded database to the bundled app server.
+---
 
-## ☁️ Google Drive Sync Setup
+## 🔒 Security & Privacy First
 
-Settings → Google Drive Sync lets you connect a Google account and back up
-(or restore) your data straight to Drive, from either the Docker deployment
-or the native macOS app. It needs its own OAuth credentials — one-time setup
-in Google Cloud Console:
+We believe productivity data is inherently sensitive. DNZ Productivity Dashboard is engineered with security at the forefront:
 
-1. Go to [Google Cloud Console](https://console.cloud.google.com/), create
-   or pick a project, then enable the **Google Drive API**
-   (APIs & Services → Library).
-2. Configure the **OAuth consent screen** (APIs & Services → OAuth consent
-   screen). "External" + "Testing" is fine for personal use — add your own
-   Google account as a test user.
-3. Create credentials (APIs & Services → Credentials → Create Credentials →
-   OAuth client ID), application type **Web application**. Under
-   "Authorized redirect URIs" add both, so the same client works for both
-   deployments:
-   - `http://localhost:9999/api/google/callback` (Docker deployment, port 9999)
-   - `http://127.0.0.1:9898/api/google/callback` (native macOS app, port 9898)
-4. Copy the generated **Client ID** and **Client secret**.
-5. Add them to the `.env` the running instance actually reads:
-   - Docker/dev deployment → root `.env` (`GOOGLE_CLIENT_ID`,
-     `GOOGLE_CLIENT_SECRET`; `GOOGLE_REDIRECT_URI` optional, defaults to the
-     first URI above if unset).
-   - Native macOS app → create `desktop/.env` (see
-     `desktop/.env.example`) with the same two values, then rebuild
-     (`bash scripts/build_desktop_app.sh`) so it's bundled into the app.
-
-Once set, Settings → Google Drive Sync shows a "Connect Google Drive" button
-instead of "Not set up yet".
-
-## 🛠️ Tech Stack
-
-- **Framework**: Next.js 14+ (App Router)
-- **Language**: TypeScript
-- **Styling**: Vanilla CSS with CSS Modules
-- **State Management**: React Context API
-- **Storage**: Browser Local Storage
-- **Testing**: Jest + React Testing Library + Playwright
-
-## 📁 Project Structure
-
-```
-productivity-dashboard/
-├── app/                    # Next.js app directory
-│   ├── layout.tsx         # Root layout
-│   ├── page.tsx           # Main dashboard page
-│   └── page.module.css    # Page styles
-├── components/            # React components
-│   ├── Dashboard/         # Header and layout
-│   ├── TodoList/          # Task management
-│   ├── QuickLinks/        # Link organization
-│   └── ui/                # Reusable UI components
-├── contexts/              # React contexts
-│   └── AppContext.tsx     # Global state
-├── hooks/                 # Custom hooks
-│   └── useLocalStorage.ts # Persistent storage
-├── styles/                # Global styles
-│   ├── design-system.css  # CSS variables
-│   └── globals.css        # Base styles
-├── types/                 # TypeScript types
-│   └── index.ts           # Type definitions
-└── tests/                 # Test files
-```
-
-## 🧪 Testing
-
-```bash
-# Run unit tests
-npm test
-
-# Run tests in watch mode
-npm run test:watch
-
-# Run E2E tests
-npm run test:e2e
-
-# Type checking
-npm run type-check
-```
-
-## 📝 Usage
-
-### Adding Tasks
-1. Click "+ Add Task" button
-2. Enter task title (required)
-3. Add description (optional)
-4. Select priority level
-5. Click "Add Task"
-
-### Managing Link Groups
-1. Click "+ Add Group" button
-2. Enter group name
-3. Choose a color and icon
-4. Add links (title + URL)
-5. Click "Create Group"
-
-### Theme Toggle
-Click the sun/moon icon in the header to switch between light and dark themes.
-
-## 🎯 Roadmap
-
-- [ ] Pomodoro Timer
-- [ ] Quick Notes
-- [ ] Time Tracker
-- [ ] Analytics Dashboard
-- [ ] Drag-and-drop task reordering
-- [ ] Due dates and reminders
-- [ ] Export/Import data
-- [ ] Cloud sync (optional)
-
-## 🤝 Contributing
-
-This is a personal productivity tool, but feel free to fork and customize for your needs!
-
-## 📄 License
-
-MIT License - feel free to use this project for personal or commercial purposes.
-
-## 🙏 Acknowledgments
-
-- Built with [Next.js](https://nextjs.org/)
-- Icons from emoji set
-- Fonts from [Google Fonts](https://fonts.google.com/)
+1. **Local-First Storage**: Your core database runs locally (PostgreSQL on port `5532` in Docker, or embedded locally in the macOS app).
+2. **Zero Telemetry**: No third-party tracking scripts, analytics cookies, or behavioral telemetry.
+3. **Bring Your Own Keys (BYOK)**: AI integrations use your personal API keys stored safely in your local environment or database; keys are never exposed in client bundles or public endpoints.
+4. **Sandboxed OAuth**: Google Drive and Calendar sync use direct, scoped OAuth 2.0 authorizations with explicit consent.
 
 ---
 
-**Built with ❤️ for productivity enthusiasts**
+## 🛠️ Tech Stack & Architecture
+
+| Layer | Technologies |
+| :--- | :--- |
+| **Frontend Framework** | [Next.js 16](https://nextjs.org/) (App Router), [React 19](https://react.dev/) |
+| **Language** | [TypeScript 5](https://www.typescriptlang.org/) (strict mode) |
+| **Styling & Design System** | [Tailwind CSS 4](https://tailwindcss.com/), CSS Modules, Glassmorphism |
+| **Database & ORM** | [PostgreSQL](https://www.postgresql.org/), [Prisma ORM 7](https://www.prisma.io/) |
+| **Desktop Platform** | [Electron 33](https://www.electronjs.org/), `embedded-postgres` |
+| **Visualizations** | [Recharts 3](https://recharts.org/) |
+| **Calendar Protocol** | [tsdav](https://github.com/natelindev/tsdav) (CalDAV / iCloud RFC 4791) |
+| **Testing** | [Jest](https://jestjs.io/), [Testing Library](https://testing-library.com/), [Playwright](https://playwright.dev/) |
+
+---
+
+## 🚀 Getting Started
+
+### Option A: Run via Docker Compose (Recommended)
+
+The fastest way to run both the PostgreSQL database and the Next.js web application:
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/1kenz/dnz-productivity-dashboard.git
+cd dnz-productivity-dashboard
+
+# 2. Configure environment
+cp .env.example .env
+
+# 3. Start containers
+docker compose up -d
+```
+
+Open [http://localhost:3000](http://localhost:3000) (or `http://localhost:9999` if using the dev compose config) in your browser.
+
+---
+
+### Option B: Local Node.js Development
+
+```bash
+# 1. Install dependencies
+npm install
+
+# 2. Prepare environment file
+cp .env.example .env
+
+# 3. Apply Prisma database schema
+npx prisma db push
+
+# 4. Start the Turbopack development server
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+---
+
+## ⚙️ Environment Variables Reference
+
+See `.env.example` for the complete configuration template:
+
+| Variable | Required | Description |
+| :--- | :---: | :--- |
+| `DATABASE_URL` | **Yes** | PostgreSQL connection string (`postgresql://user:pass@localhost:5532/dbname`) |
+| `GOOGLE_CLIENT_ID` | Optional | Google OAuth 2.0 Client ID for Drive & Calendar sync |
+| `GOOGLE_CLIENT_SECRET` | Optional | Google OAuth 2.0 Client Secret |
+| `GOOGLE_REDIRECT_URI` | Optional | Redirect URI (`http://localhost:9999/api/google/callback` or port `9898`) |
+| `GEMINI_API_KEY` | Optional | Google AI Gemini API key (supports Gemini 2.5) |
+| `ANTHROPIC_API_KEY` | Optional | Anthropic API key for Claude 3.7 / 3.5 Sonnet |
+| `OPENAI_API_KEY` | Optional | OpenAI API key for GPT-4o, Whisper STT, and TTS |
+
+---
+
+## 🧪 Testing & Quality Assurance
+
+```bash
+# Run unit and integration tests
+npm test
+
+# Type checking
+npm run type-check
+
+# Run linter
+npm run lint
+
+# End-to-End tests
+npm run test:e2e
+```
+
+---
+
+## ⌨️ Useful Keyboard Shortcuts
+
+- <kbd>Cmd</kbd> + <kbd>K</kbd> : Open Command Palette & Quick Search
+- <kbd>Cmd</kbd> + <kbd>J</kbd> : Open Quick Notes
+- <kbd>Esc</kbd> : Close active modal or drawer
+- <kbd>Enter</kbd> : Confirm modal actions
+
+---
+
+## 🤝 Contributing
+
+Contributions, feedback, and pull requests are warmly welcomed!
+
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'feat: Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+---
+
+## 📄 License
+
+Distributed under the **MIT License**. See `LICENSE` for more information.
+
+---
+
+<div align="center">
+  <sub>Developed with precision by <strong>DNZ Security & Software</strong> • Maintained by <a href="https://github.com/1kenz">@1kenz</a></sub>
+</div>

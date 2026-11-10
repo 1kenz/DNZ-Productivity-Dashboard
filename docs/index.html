@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DNZ Productivity Dashboard | All-in-One Local-First Workspace</title>
+  <meta name="description" content="Enterprise-grade personal productivity workspace with Tasks, Projects, Kanban, Calendar, Time Tracking, and Voice AI Assistant. Local-first, private, and lightning fast.">
+  <link rel="icon" type="image/png" href="assets/icon-512.png">
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <!-- FontAwesome CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Plus Jakarta Sans', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#eef6ff',
+              100: '#d9ebff',
+              400: '#3894ff',
+              500: '#0070f3',
+              600: '#0058c6',
+              700: '#004399',
+            },
+            dark: {
+              bg: '#090d16',
+              card: '#111726',
+              border: '#1e293b',
+              hover: '#1b2438',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background: #090d16;
+      color: #f1f5f9;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      overflow-x: hidden;
+    }
+    .gradient-glow {
+      background: radial-gradient(circle at 50% 0%, rgba(0, 112, 243, 0.18) 0%, transparent 60%);
+    }
+    .glass-card {
+      background: rgba(17, 23, 38, 0.7);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .glass-card:hover {
+      border-color: rgba(56, 148, 255, 0.35);
+      box-shadow: 0 12px 30px -10px rgba(0, 112, 243, 0.25);
+    }
+    .text-gradient {
+      background: linear-gradient(135deg, #ffffff 30%, #3894ff 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .code-block {
+      background: #06090e;
+      border: 1px solid #1e293b;
+    }
+  </style>
+</head>
+<body class="selection:bg-brand-500 selection:text-white">
+
+  <!-- Background Ambient Glow -->
+  <div class="fixed inset-0 gradient-glow pointer-events-none z-0"></div>
+
+  <!-- Navigation -->
+  <header class="relative z-50 border-b border-dark-border/60 glass-card sticky top-0">
+    <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <img src="assets/icon-512.png" alt="DNZ Productivity" class="w-10 h-10 rounded-xl shadow-lg shadow-brand-500/20 ring-1 ring-white/10">
+        <div>
+          <span class="font-extrabold text-lg tracking-tight text-white flex items-center gap-2">
+            DNZ Productivity
+            <span class="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-brand-500/20 text-brand-400 border border-brand-500/30">v3.0</span>
+          </span>
+          <span class="text-xs text-slate-400 block -mt-0.5">By DNZ Security & Software</span>
+        </div>
+      </div>
+      <nav class="hidden md:flex items-center space-x-8 text-sm font-medium text-slate-300">
+        <a href="#features" class="hover:text-brand-400 transition">Features</a>
+        <a href="#desktop" class="hover:text-brand-400 transition">Desktop App</a>
+        <a href="#architecture" class="hover:text-brand-400 transition">Architecture</a>
+        <a href="#security" class="hover:text-brand-400 transition">Security & Privacy</a>
+        <a href="#quickstart" class="hover:text-brand-400 transition">Get Started</a>
+      </nav>
+      <div class="flex items-center space-x-4">
+        <a href="https://github.com/1kenz/dnz-productivity-dashboard" target="_blank" rel="noopener noreferrer"
+           class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg bg-white/10 hover:bg-white/15 text-white border border-white/15 transition">
+          <i class="fa-brands fa-github text-base"></i>
+          <span>GitHub</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="relative z-10 pt-20 pb-24 px-6 text-center">
+    <div class="max-w-4xl mx-auto">
+      <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-500/10 border border-brand-500/25 text-brand-400 text-xs font-semibold mb-6 animate-pulse">
+        <i class="fa-solid fa-sparkles"></i>
+        Local-First • Privacy Focused • AI Augmented
+      </div>
+      <h1 class="text-4xl sm:text-6xl font-extrabold tracking-tight mb-6 leading-tight">
+        Master Your Day With Absolute Focus and <span class="text-gradient">Zero Cloud Lock-in</span>.
+      </h1>
+      <p class="text-lg sm:text-xl text-slate-300 mb-10 leading-relaxed font-normal">
+        An enterprise-grade productivity cockpit combining Tasks, Kanban, Multi-Account Calendars, Deep-Work Time Tracking, and a Voice-Driven AI Assistant. Runs standalone on macOS with embedded PostgreSQL or everywhere via Docker.
+      </p>
+      <div class="flex flex-wrap items-center justify-center gap-4">
+        <a href="#quickstart" class="px-6 py-3.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-semibold text-sm transition shadow-lg shadow-brand-500/30 flex items-center gap-2">
+          <i class="fa-solid fa-terminal"></i>
+          Quickstart Guide
+        </a>
+        <a href="#desktop" class="px-6 py-3.5 rounded-xl glass-card hover:bg-white/10 text-white font-semibold text-sm transition flex items-center gap-2">
+          <i class="fa-brands fa-apple text-base"></i>
+          Download macOS App
+        </a>
+        <a href="https://github.com/1kenz/dnz-productivity-dashboard" target="_blank" rel="noopener noreferrer"
+           class="px-6 py-3.5 rounded-xl border border-white/10 hover:bg-white/5 text-slate-300 font-semibold text-sm transition flex items-center gap-2">
+          <i class="fa-solid fa-star text-amber-400"></i>
+          Star on GitHub
+        </a>
+      </div>
+    </div>
+
+    <!-- Hero Interactive Mockup -->
+    <div class="mt-16 max-w-5xl mx-auto glass-card rounded-2xl p-4 sm:p-6 shadow-2xl border border-white/10 relative overflow-hidden">
+      <div class="flex items-center justify-between pb-4 border-b border-white/10 mb-6">
+        <div class="flex items-center space-x-2">
+          <div class="w-3 h-3 rounded-full bg-rose-500"></div>
+          <div class="w-3 h-3 rounded-full bg-amber-500"></div>
+          <div class="w-3 h-3 rounded-full bg-emerald-500"></div>
+          <span class="text-xs font-mono text-slate-400 ml-4">DNZ Productivity v3.0 — Mission Control</span>
+        </div>
+        <div class="flex items-center space-x-3 text-xs text-slate-400 font-medium">
+          <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">● Embedded DB Active</span>
+          <span>Mac M-Series Native</span>
+        </div>
+      </div>
+      <!-- Mockup Grid Content -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-left">
+        <!-- Col 1: Tasks & Kanban -->
+        <div class="glass-card rounded-xl p-4 border border-white/5 bg-slate-900/60">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-400"><i class="fa-solid fa-list-check text-brand-400 mr-1.5"></i> Daily Tasks</span>
+            <span class="text-[10px] px-2 py-0.5 rounded bg-brand-500/20 text-brand-300">5 Remaining</span>
+          </div>
+          <div class="space-y-2">
+            <div class="p-2.5 rounded-lg bg-dark-bg/80 border border-white/5 flex items-start gap-2.5">
+              <input type="checkbox" checked class="mt-1 accent-brand-500">
+              <div class="text-xs">
+                <span class="line-through text-slate-500 font-medium">Security architecture review</span>
+                <div class="flex gap-2 mt-1 text-[10px] text-slate-400">
+                  <span class="text-rose-400">● High Priority</span>
+                  <span>DNZ-Core</span>
+                </div>
+              </div>
+            </div>
+            <div class="p-2.5 rounded-lg bg-dark-bg/80 border border-white/5 flex items-start gap-2.5">
+              <input type="checkbox" class="mt-1 accent-brand-500">
+              <div class="text-xs">
+                <span class="text-slate-200 font-medium">Prepare public release notes v3.0</span>
+                <div class="flex gap-2 mt-1 text-[10px] text-slate-400">
+                  <span class="text-amber-400">● Med Priority</span>
+                  <span>Dashboard</span>
+                </div>
+              </div>
+            </div>
+            <div class="p-2.5 rounded-lg bg-dark-bg/80 border border-white/5 flex items-start gap-2.5">
+              <input type="checkbox" class="mt-1 accent-brand-500">
+              <div class="text-xs">
+                <span class="text-slate-200 font-medium">Synchronize CalDAV & Google Calendar</span>
+                <div class="flex gap-2 mt-1 text-[10px] text-slate-400">
+                  <span class="text-emerald-400">● Low</span>
+                  <span>Work</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Col 2: AI Assistant & SITREP -->
+        <div class="glass-card rounded-xl p-4 border border-white/5 bg-slate-900/60">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-400"><i class="fa-solid fa-robot text-purple-400 mr-1.5"></i> AI Co-Pilot (Voice + Chat)</span>
+            <span class="text-[10px] px-2 py-0.5 rounded bg-purple-500/20 text-purple-300">Gemini / Claude / GPT</span>
+          </div>
+          <div class="p-3 rounded-lg bg-purple-950/20 border border-purple-500/20 text-xs mb-3">
+            <div class="flex items-center gap-1.5 text-purple-300 font-semibold mb-1">
+              <i class="fa-solid fa-microphone-lines animate-pulse"></i> Live Voice Ready
+            </div>
+            <p class="text-slate-300 text-[11px] leading-relaxed">
+              "Günaydın! Bugün saat 14:00'te Güvenlik Mimarisi sunumun var. Öncesinde 2 saatlik derin odak bloğu planladım."
+            </p>
+          </div>
+          <div class="grid grid-cols-2 gap-2 text-center text-xs">
+            <div class="p-2 rounded bg-dark-bg/80 border border-white/5">
+              <span class="text-slate-400 text-[10px] block">Pomodoro</span>
+              <span class="font-mono font-bold text-brand-400">25:00</span>
+            </div>
+            <div class="p-2 rounded bg-dark-bg/80 border border-white/5">
+              <span class="text-slate-400 text-[10px] block">Today's Focus</span>
+              <span class="font-mono font-bold text-emerald-400">4h 15m</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Col 3: Smart Quick Links -->
+        <div class="glass-card rounded-xl p-4 border border-white/5 bg-slate-900/60">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-400"><i class="fa-solid fa-compass text-amber-400 mr-1.5"></i> Quick Launch</span>
+            <span class="text-[10px] px-2 py-0.5 rounded bg-amber-500/20 text-amber-300">Local & Web</span>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div class="p-2.5 rounded-lg bg-dark-bg/80 border border-white/5 flex items-center gap-2 hover:border-brand-500/40 transition">
+              <i class="fa-brands fa-docker text-brand-400 text-lg"></i>
+              <div class="text-left">
+                <span class="text-xs font-semibold block text-slate-200">Docker Hub</span>
+                <span class="text-[9px] text-slate-400">Containers</span>
+              </div>
+            </div>
+            <div class="p-2.5 rounded-lg bg-dark-bg/80 border border-white/5 flex items-center gap-2 hover:border-brand-500/40 transition">
+              <i class="fa-solid fa-terminal text-emerald-400 text-lg"></i>
+              <div class="text-left">
+                <span class="text-xs font-semibold block text-slate-200">Terminal</span>
+                <span class="text-[9px] text-slate-400">iTerm2</span>
+              </div>
+            </div>
+            <div class="p-2.5 rounded-lg bg-dark-bg/80 border border-white/5 flex items-center gap-2 hover:border-brand-500/40 transition">
+              <i class="fa-brands fa-google-drive text-amber-400 text-lg"></i>
+              <div class="text-left">
+                <span class="text-xs font-semibold block text-slate-200">Google Drive</span>
+                <span class="text-[9px] text-slate-400">Sync Active</span>
+              </div>
+            </div>
+            <div class="p-2.5 rounded-lg bg-dark-bg/80 border border-white/5 flex items-center gap-2 hover:border-brand-500/40 transition">
+              <i class="fa-solid fa-folder-tree text-rose-400 text-lg"></i>
+              <div class="text-left">
+                <span class="text-xs font-semibold block text-slate-200">DNZ-Core</span>
+                <span class="text-[9px] text-slate-400">Local Dir</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Grid -->
+  <section id="features" class="relative z-10 py-20 px-6 max-w-7xl mx-auto">
+    <div class="text-center mb-16">
+      <h2 class="text-3xl font-extrabold tracking-tight sm:text-4xl mb-4">Engineered For High-Performance Workflows</h2>
+      <p class="text-slate-400 max-w-2xl mx-auto text-base">Everything you need to orchestrate projects, manage time, and boost cognition — without cloud dependencies or telemetry.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <!-- Card 1 -->
+      <div class="glass-card rounded-2xl p-6 transition duration-300">
+        <div class="w-12 h-12 rounded-xl bg-brand-500/20 text-brand-400 flex items-center justify-center text-xl mb-4">
+          <i class="fa-solid fa-robot"></i>
+        </div>
+        <h3 class="text-lg font-bold text-white mb-2">Multimodal AI Assistant & Live Voice</h3>
+        <p class="text-sm text-slate-300 leading-relaxed mb-4">
+          Chat or talk via real-time speech synthesis and voice recognition (STT/TTS). Compatible with Google Gemini, Anthropic Claude, and OpenAI GPT with live web-search citation support.
+        </p>
+        <span class="text-xs font-mono text-brand-400">● Gemini 2.5 / Claude 3.7 / GPT-4o</span>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="glass-card rounded-2xl p-6 transition duration-300">
+        <div class="w-12 h-12 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xl mb-4">
+          <i class="fa-solid fa-table-columns"></i>
+        </div>
+        <h3 class="text-lg font-bold text-white mb-2">Visual Kanban & Tasks Management</h3>
+        <p class="text-sm text-slate-300 leading-relaxed mb-4">
+          Dynamic Kanban boards with drag-and-drop workflow status, deadline reminders, priority scoring, sub-tasks, and deep task hierarchies.
+        </p>
+        <span class="text-xs font-mono text-emerald-400">● Filter by Status / Priority / Project</span>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="glass-card rounded-2xl p-6 transition duration-300">
+        <div class="w-12 h-12 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center text-xl mb-4">
+          <i class="fa-solid fa-calendar-days"></i>
+        </div>
+        <h3 class="text-lg font-bold text-white mb-2">Unified Multi-Account Calendar</h3>
+        <p class="text-sm text-slate-300 leading-relaxed mb-4">
+          Sync work and personal calendars seamlessly. Full support for CalDAV, Apple iCloud, and Google Calendar alongside native offline event management.
+        </p>
+        <span class="text-xs font-mono text-purple-400">● CalDAV + Google Calendar OAuth</span>
+      </div>
+
+      <!-- Card 4 -->
+      <div class="glass-card rounded-2xl p-6 transition duration-300">
+        <div class="w-12 h-12 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-xl mb-4">
+          <i class="fa-solid fa-stopwatch"></i>
+        </div>
+        <h3 class="text-lg font-bold text-white mb-2">Deep Work & Pomodoro Hourglass</h3>
+        <p class="text-sm text-slate-300 leading-relaxed mb-4">
+          Customizable Pomodoro timer with animated hourglass visual, interval logs, and rich analytical charts (Recharts) to track productivity trends over time.
+        </p>
+        <span class="text-xs font-mono text-amber-400">● Recharts Analytics & Time Logs</span>
+      </div>
+
+      <!-- Card 5 -->
+      <div class="glass-card rounded-2xl p-6 transition duration-300">
+        <div class="w-12 h-12 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-xl mb-4">
+          <i class="fa-solid fa-link"></i>
+        </div>
+        <h3 class="text-lg font-bold text-white mb-2">Smart Quick Launch & Local Files</h3>
+        <p class="text-sm text-slate-300 leading-relaxed mb-4">
+          Organize links, folders, and macOS applications into categorized groups. Launch local files, terminal tools, or web links with a single click or Cmd+K.
+        </p>
+        <span class="text-xs font-mono text-cyan-400">● Native File Protocol + Favicon Engine</span>
+      </div>
+
+      <!-- Card 6 -->
+      <div class="glass-card rounded-2xl p-6 transition duration-300">
+        <div class="w-12 h-12 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center text-xl mb-4">
+          <i class="fa-solid fa-cloud-arrow-up"></i>
+        </div>
+        <h3 class="text-lg font-bold text-white mb-2">Encrypted Google Drive Sync & Backup</h3>
+        <p class="text-sm text-slate-300 leading-relaxed mb-4">
+          Backup your entire database on demand or restore state from Google Drive. Your keys stay on your machine, and your data remains completely under your control.
+        </p>
+        <span class="text-xs font-mono text-rose-400">● 1-Click JSON Snapshot & Restore</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Desktop App Showcase -->
+  <section id="desktop" class="relative z-10 py-20 px-6 max-w-7xl mx-auto border-t border-dark-border">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+      <div>
+        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-800 text-slate-300 text-xs font-semibold mb-4 border border-white/10">
+          <i class="fa-brands fa-apple text-white"></i> Standalone Native macOS Experience
+        </div>
+        <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight mb-6">
+          Zero Docker Needed. Bundled With Embedded PostgreSQL.
+        </h2>
+        <p class="text-slate-300 text-base leading-relaxed mb-6">
+          The standalone macOS desktop app (<code class="text-brand-400 font-mono">.dmg</code>) packages everything into a native Apple Silicon app. It automatically spawns an embedded PostgreSQL 17 instance on boot, mounts a macOS Menu Bar (Tray) icon for instant access, and registers global hotkeys like <kbd class="px-2 py-0.5 rounded bg-dark-border text-xs font-mono">Cmd+K</kbd> and <kbd class="px-2 py-0.5 rounded bg-dark-border text-xs font-mono">Cmd+J</kbd>.
+        </p>
+        <ul class="space-y-3 mb-8 text-sm text-slate-300">
+          <li class="flex items-center gap-3">
+            <i class="fa-solid fa-check text-emerald-400"></i>
+            <span><strong>Embedded Postgres 17</strong>: Starts in milliseconds without external daemons.</span>
+          </li>
+          <li class="flex items-center gap-3">
+            <i class="fa-solid fa-check text-emerald-400"></i>
+            <span><strong>macOS Menu Bar Tray</strong>: Quick actions, Pomodoro toggle, and instant notes.</span>
+          </li>
+          <li class="flex items-center gap-3">
+            <i class="fa-solid fa-check text-emerald-400"></i>
+            <span><strong>Offline First</strong>: Complete autonomy even with no internet access.</span>
+          </li>
+        </ul>
+        <div class="p-4 rounded-xl code-block font-mono text-xs text-slate-300">
+          <div class="text-slate-500 mb-1"># Build native DMG from source:</div>
+          <span class="text-brand-400">bash</span> scripts/build_desktop_app.sh
+        </div>
+      </div>
+      <div class="glass-card rounded-2xl p-8 border border-white/10 text-center">
+        <img src="assets/icon-512.png" alt="DNZ Productivity Icon" class="w-24 h-24 mx-auto mb-6 rounded-2xl shadow-2xl ring-1 ring-white/10">
+        <h3 class="text-xl font-bold text-white mb-2">DNZ Productivity Dashboard for Mac</h3>
+        <p class="text-xs text-slate-400 mb-6">Version 3.0.0 • macOS Sonoma / Sequoia (ARM64 Apple Silicon)</p>
+        <div class="inline-flex flex-col sm:flex-row gap-3 justify-center">
+          <a href="https://github.com/1kenz/dnz-productivity-dashboard/releases" target="_blank"
+             class="px-6 py-3 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-semibold text-sm transition flex items-center justify-center gap-2 shadow-lg shadow-brand-500/25">
+            <i class="fa-solid fa-download"></i>
+            Download Release DMG
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Technical Architecture -->
+  <section id="architecture" class="relative z-10 py-20 px-6 max-w-7xl mx-auto border-t border-dark-border">
+    <div class="text-center mb-16">
+      <h2 class="text-3xl font-extrabold tracking-tight sm:text-4xl mb-4">Modern Full-Stack Architecture</h2>
+      <p class="text-slate-400 max-w-2xl mx-auto text-base">Built on modern, type-safe open source technologies.</p>
+    </div>
+
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+      <div class="glass-card rounded-xl p-6 border border-white/5">
+        <i class="fa-brands fa-react text-cyan-400 text-3xl mb-3"></i>
+        <h4 class="font-bold text-white text-base">Next.js 16 + React 19</h4>
+        <p class="text-xs text-slate-400 mt-1">App Router, Server Actions & Turbopack</p>
+      </div>
+      <div class="glass-card rounded-xl p-6 border border-white/5">
+        <i class="fa-solid fa-database text-blue-400 text-3xl mb-3"></i>
+        <h4 class="font-bold text-white text-base">Prisma ORM & PostgreSQL</h4>
+        <p class="text-xs text-slate-400 mt-1">Type-safe schema, migrations & relationships</p>
+      </div>
+      <div class="glass-card rounded-xl p-6 border border-white/5">
+        <i class="fa-solid fa-desktop text-purple-400 text-3xl mb-3"></i>
+        <h4 class="font-bold text-white text-base">Electron 33</h4>
+        <p class="text-xs text-slate-400 mt-1">Native macOS bindings & Embedded PostgreSQL</p>
+      </div>
+      <div class="glass-card rounded-xl p-6 border border-white/5">
+        <i class="fa-brands fa-css3-alt text-teal-400 text-3xl mb-3"></i>
+        <h4 class="font-bold text-white text-base">Tailwind CSS 4</h4>
+        <p class="text-xs text-slate-400 mt-1">Glassmorphism design system & light/dark modes</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Security & Privacy Section -->
+  <section id="security" class="relative z-10 py-20 px-6 max-w-7xl mx-auto border-t border-dark-border">
+    <div class="glass-card rounded-3xl p-8 sm:p-12 border border-emerald-500/20 bg-emerald-950/10">
+      <div class="max-w-3xl mx-auto text-center">
+        <div class="w-14 h-14 rounded-2xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-2xl mx-auto mb-6">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <h2 class="text-3xl font-extrabold text-white mb-4">Security & Privacy First</h2>
+        <p class="text-slate-300 text-sm sm:text-base leading-relaxed mb-8">
+          Unlike proprietary SaaS tools that scrape your tasks and calendars for model training, <strong>DNZ Productivity Dashboard is 100% local-first</strong>. Your data resides entirely inside your local PostgreSQL database. No telemetry, no third-party trackers, and no external calls unless you explicitly configure Google Drive Sync or provide your own AI API keys.
+        </p>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-left text-xs">
+          <div class="p-4 rounded-xl bg-dark-bg/60 border border-white/5">
+            <div class="text-emerald-400 font-bold mb-1"><i class="fa-solid fa-lock mr-1.5"></i> Zero Telemetry</div>
+            <p class="text-slate-400">No background analytics, crash tracking, or external pings.</p>
+          </div>
+          <div class="p-4 rounded-xl bg-dark-bg/60 border border-white/5">
+            <div class="text-emerald-400 font-bold mb-1"><i class="fa-solid fa-key mr-1.5"></i> BYO-Key AI Model</div>
+            <p class="text-slate-400">Bring your own API key. Keys remain in your local storage or env.</p>
+          </div>
+          <div class="p-4 rounded-xl bg-dark-bg/60 border border-white/5">
+            <div class="text-emerald-400 font-bold mb-1"><i class="fa-solid fa-hard-drive mr-1.5"></i> Local Database</div>
+            <p class="text-slate-400">Full data ownership with instant offline JSON exports.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Quickstart / Installation -->
+  <section id="quickstart" class="relative z-10 py-20 px-6 max-w-4xl mx-auto border-t border-dark-border">
+    <div class="text-center mb-12">
+      <h2 class="text-3xl font-extrabold tracking-tight sm:text-4xl mb-4">Quickstart & Installation</h2>
+      <p class="text-slate-400 text-base">Get up and running in under two minutes with Docker or npm.</p>
+    </div>
+
+    <!-- Step 1: Docker -->
+    <div class="mb-8">
+      <h3 class="text-lg font-bold text-white mb-3 flex items-center gap-2">
+        <span class="w-6 h-6 rounded-full bg-brand-500/20 text-brand-400 text-xs flex items-center justify-center font-mono">1</span>
+        Run via Docker Compose (Recommended)
+      </h3>
+      <div class="p-4 rounded-xl code-block font-mono text-xs text-slate-300 space-y-2">
+        <div class="text-slate-500"># 1. Clone repository</div>
+        <div>git clone https://github.com/1kenz/dnz-productivity-dashboard.git</div>
+        <div>cd dnz-productivity-dashboard</div>
+        <div class="text-slate-500 pt-2"># 2. Copy environment template</div>
+        <div>cp .env.example .env</div>
+        <div class="text-slate-500 pt-2"># 3. Start database and web application</div>
+        <div class="text-brand-400">docker compose up -d</div>
+      </div>
+      <p class="text-xs text-slate-400 mt-2">Open <a href="http://localhost:3000" target="_blank" class="text-brand-400 underline">http://localhost:3000</a> to access the dashboard.</p>
+    </div>
+
+    <!-- Step 2: Native Dev -->
+    <div>
+      <h3 class="text-lg font-bold text-white mb-3 flex items-center gap-2">
+        <span class="w-6 h-6 rounded-full bg-brand-500/20 text-brand-400 text-xs flex items-center justify-center font-mono">2</span>
+        Local Development (Node 18+)
+      </h3>
+      <div class="p-4 rounded-xl code-block font-mono text-xs text-slate-300 space-y-2">
+        <div class="text-slate-500"># Install dependencies</div>
+        <div>npm install</div>
+        <div class="text-slate-500 pt-2"># Push Prisma schema to local PostgreSQL</div>
+        <div>npx prisma db push</div>
+        <div class="text-slate-500 pt-2"># Start Next.js development server</div>
+        <div class="text-brand-400">npm run dev</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="relative z-10 border-t border-dark-border/60 py-12 px-6 glass-card text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
+      <div class="flex items-center space-x-3">
+        <img src="assets/icon-512.png" alt="DNZ Logo" class="w-7 h-7 rounded-lg">
+        <span class="text-slate-400 font-medium">DNZ Productivity Dashboard © 2026 DNZ Security & Software</span>
+      </div>
+      <div class="flex items-center space-x-6">
+        <a href="https://github.com/1kenz/dnz-productivity-dashboard" target="_blank" class="hover:text-slate-300 transition">GitHub Repo</a>
+        <a href="https://github.com/1kenz/dnz-productivity-dashboard/blob/main/LICENSE" target="_blank" class="hover:text-slate-300 transition">MIT License</a>
+        <a href="https://github.com/1kenz" target="_blank" class="hover:text-slate-300 transition">@1kenz</a>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
