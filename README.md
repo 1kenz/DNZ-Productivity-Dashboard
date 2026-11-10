@@ -1,8 +1,6 @@
 <div align="center">
 
-  <img src="public/logo/DNZSecurity300px.png" alt="DNZ Security & Software" width="240" style="margin-bottom: 12px;" />
-  <br />
-  <img src="public/icons/icon-512.png" alt="DNZ Productivity Logo" width="216" height="216" style="border-radius: 36px; box-shadow: 0 12px 30px rgba(0,0,0,0.3); margin-bottom: 12px;" />
+  <img src="public/icons/icon-512.png" alt="DNZ Productivity Dashboard" width="216" height="216" style="border-radius: 36px; box-shadow: 0 12px 30px rgba(0,0,0,0.3); margin-bottom: 16px;" />
 
   # DNZ Productivity Dashboard
 
