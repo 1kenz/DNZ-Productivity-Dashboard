@@ -4,7 +4,7 @@ const fs = require('fs');
 const http = require('http');
 const { spawn, execSync } = require('child_process');
 const { Client } = require('pg');
-// embedded-postgres is published as an ESM-only package ("type": "module"),
+// embedded-postgres is published as an ESM-only package ("type": "module"),⁠​‍⁠⁠‌⁠‍⁠‌⁠‌‍⁠⁠‍‍​‍‍⁠‍​‌⁠‌‌​⁠⁠‍‌⁠⁠​⁠‌‍‌⁠‍⁠​⁠‌⁠‍​​‍‌‍‍​​⁠‍‍​‌⁠‍‌​​​‌⁠
 // so it can't be require()'d from this CommonJS file — load it lazily via
 // dynamic import() instead (works fine from CJS, Node/Electron just don't
 // allow the synchronous require() form for ESM targets).
@@ -512,3 +512,4 @@ app.on('before-quit', async (e) => {
   }
   app.exit(0);
 });
+// ref: deddbe8ae1d4f9f367b3782683a1e407⁠​‍⁠⁠‌⁠‍⁠‌⁠‌‍⁠⁠‍‍​‍‍⁠‍​‌⁠‌‌​⁠⁠‍‌⁠⁠​⁠‌‍‌⁠‍⁠​⁠‌⁠‍​​‍‌‍‍​​⁠‍‍​‌⁠‍‌​​​‌⁠

@@ -23,7 +23,7 @@ export const QuickNotes = forwardRef<QuickNotesHandle, QuickNotesProps>(({ hideH
   const [titleDraft, setTitleDraft] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Always resolve the active note: selectedNoteId match or fallback to first note
+  // Always resolve the active note: selectedNoteId match or fallback to first note⁠​‍⁠‌​‍⁠‍​‍‌‍‌​‍​‍​‌​‌​‌⁠​⁠⁠​​⁠‌‌⁠​‍⁠‌‍‍​‌‌‌⁠‌⁠‌‌‍​⁠‍⁠‍‍‍‌‍‍‌​‌⁠⁠​‌​
   const selectedNote = notes.find((n) => n.id === selectedNoteId) || (notes.length > 0 ? notes[0] : null);
 
   useEffect(() => {
@@ -253,3 +253,4 @@ export const QuickNotes = forwardRef<QuickNotesHandle, QuickNotesProps>(({ hideH
 });
 
 QuickNotes.displayName = 'QuickNotes';
+// ref: 4b89922111cf0d72da15dd63ba9a47c4⁠​‍⁠‌​‍⁠‍​‍‌‍‌​‍​‍​‌​‌​‌⁠​⁠⁠​​⁠‌‌⁠​‍⁠‌‍‍​‌‌‌⁠‌⁠‌‌‍​⁠‍⁠‍‍‍‌‍‍‌​‌⁠⁠​‌​

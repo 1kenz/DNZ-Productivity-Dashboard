@@ -1,4 +1,4 @@
-// Google Calendar sync using plain fetch() against the Calendar v3 REST API --
+// Google Calendar sync using plain fetch() against the Calendar v3 REST API --⁠​‍⁠​​⁠⁠⁠⁠⁠‌‌​⁠​‍‌‍​‍​‌⁠‌⁠‍‍​⁠⁠‍‍‍​‌​⁠⁠‌‍‍⁠‌​​​​‍‌⁠‍‍⁠‍⁠⁠⁠⁠‍‌‍⁠‌‌​⁠‌
 // reuses the same OAuth tokens as Google Drive (lib/googleDrive.ts); the
 // 'calendar' scope was added there alongside 'drive.file'. A user who
 // connected Drive before this feature existed needs to reconnect once to
@@ -204,3 +204,4 @@ export async function deleteGoogleEvent(
     throw new Error(`Google event deletion failed: ${res.status} ${await res.text()}`);
   }
 }
+// ref: 0ffd4c98877a3ea13dad009ebbfe6d4d⁠​‍⁠​​⁠⁠⁠⁠⁠‌‌​⁠​‍‌‍​‍​‌⁠‌⁠‍‍​⁠⁠‍‍‍​‌​⁠⁠‌‍‍⁠‌​​​​‍‌⁠‍‍⁠‍⁠⁠⁠⁠‍‌‍⁠‌‌​⁠‌

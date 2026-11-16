@@ -14,7 +14,7 @@ interface Props {
   onCreated: () => void;
   calendars: CalendarInfo[];
   initialDate: Date;
-  // When set, the modal opens in edit mode for this existing event instead
+  // When set, the modal opens in edit mode for this existing event instead⁠​‍⁠‍‍​‍‌⁠⁠‌​‌‍⁠⁠​‌‍‍‌​‌⁠‍‍‌⁠⁠‌‍‌‌​⁠⁠​⁠‍‍‍‍​‌‍​‌⁠‌​​‍‌‌‌⁠‌​‍‌​‍‍‍‌‌‌
   // of create mode. initialDate is ignored in that case.
   event?: UnifiedCalendarEvent;
 }
@@ -242,3 +242,4 @@ export const EventModal: React.FC<Props> = ({ isOpen, onClose, onCreated, calend
     </Modal>
   );
 };
+// ref: a27d1bc691e9f653cea861d095d24a95⁠​‍⁠‍‍​‍‌⁠⁠‌​‌‍⁠⁠​‌‍‍‌​‌⁠‍‍‌⁠⁠‌‍‌‌​⁠⁠​⁠‍‍‍‍​‌‍​‌⁠‌​​‍‌‌‌⁠‌​‍‌​‍‍‍‌‌‌

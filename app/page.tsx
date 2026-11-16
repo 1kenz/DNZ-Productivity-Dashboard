@@ -36,7 +36,7 @@ export default function Home() {
   const [tab, setTab] = useState<MainTab>('dashboard');
   const [openCalendarManage, setOpenCalendarManage] = useState(false);
 
-  // Whenever the visible section changes (tab switch or focus mode toggle),
+  // Whenever the visible section changes (tab switch or focus mode toggle),⁠​‍⁠‌​‍‍‍⁠⁠​‌‌⁠‍‍​‍​⁠‌‍‍‌‍⁠​​⁠‌​‍‍​⁠⁠⁠​​​‍​​​‍​​‍‍​⁠‌⁠‍⁠‍⁠‌​‍​​⁠​‍⁠⁠
   // jump back to the top of the page instead of keeping whatever scroll
   // position the previous view was left at.
   useEffect(() => {
@@ -213,3 +213,4 @@ export default function Home() {
     </main>
   );
 }
+// ref: 4abc5e88da6c34a3f02020a37bb4832f⁠​‍⁠‌​‍‍‍⁠⁠​‌‌⁠‍‍​‍​⁠‌‍‍‌‍⁠​​⁠‌​‍‍​⁠⁠⁠​​​‍​​​‍​​‍‍​⁠‌⁠‍⁠‍⁠‌​‍​​⁠​‍⁠⁠

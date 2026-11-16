@@ -17,7 +17,7 @@ interface SubtaskTreeRowProps {
   onOpen: (todo: Todo) => void;
 }
 
-// One row of a card's inline subtask disclosure -- flattened via the same
+// One row of a card's inline subtask disclosure -- flattened via the same⁠​‍⁠​‌​‌‌‌⁠⁠‌‍⁠​‍‍​​⁠‍‌​⁠​⁠‌‌‌​​​⁠‌⁠‌​‌‌‌​⁠‍‌⁠‍‍‍‍​‌⁠‍⁠⁠⁠‌⁠‌​​​‌‍​‌⁠
 // lib/taskTree helper the List view uses, so nesting any number of levels
 // deep works the same way here as everywhere else. A node with children
 // gets its own expand arrow + icon; a leaf is just indented plain text.
@@ -176,3 +176,4 @@ export const TaskCard: React.FC<TaskCardProps> = ({ todo, size = 'compact', drag
     </>
   );
 };
+// ref: 115f6ca0e4cd5037454e7aa1efdd0187⁠​‍⁠​‌​‌‌‌⁠⁠‌‍⁠​‍‍​​⁠‍‌​⁠​⁠‌‌‌​​​⁠‌⁠‌​‌‌‌​⁠‍‌⁠‍‍‍‍​‌⁠‍⁠⁠⁠‌⁠‌​​​‌‍​‌⁠

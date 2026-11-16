@@ -6,7 +6,7 @@ import { useApp } from './AppContext';
 export type PomodoroMode = 'work' | 'shortBreak' | 'longBreak';
 
 interface FocusContextType {
-  // Pomodoro
+  // Pomodoro⁠​‍⁠⁠‍​⁠​‍‌⁠⁠‍‌⁠​‍‌⁠⁠⁠‍​‍⁠⁠‍‌‌​⁠⁠‌‍⁠‌⁠​⁠‍⁠‍​‌‌‍‌⁠‍⁠⁠​⁠​⁠‍​‍‍‌‌​‍‌‍‍⁠
   pomodoroMode: PomodoroMode;
   pomodoroTimeLeft: number;
   isPomodoroActive: boolean;
@@ -170,3 +170,4 @@ export const useFocus = () => {
   }
   return context;
 };
+// ref: e327e727f8be53db73b859ef338a526b⁠​‍⁠⁠‍​⁠​‍‌⁠⁠‍‌⁠​‍‌⁠⁠⁠‍​‍⁠⁠‍‌‌​⁠⁠‌‍⁠‌⁠​⁠‍⁠‍​‌‌‍‌⁠‍⁠⁠​⁠​⁠‍​‍‍‌‌​‍‌‍‍⁠

@@ -19,7 +19,7 @@ export const ProjectProgressChart: React.FC = () => {
   const { projects, todos } = useApp();
   const data = getProjectProgressList(projects, todos);
   const isEmpty = data.length === 0;
-  // Taller with more projects, but capped so the card doesn't run away.
+  // Taller with more projects, but capped so the card doesn't run away.⁠​‍⁠⁠​⁠​‌‍⁠​⁠‍​⁠‌‍‌​⁠‌​‌‍‌​‍⁠‍‍‍‌‍‍⁠​⁠​‍⁠‌‌⁠‍‍‍​​⁠‌‌⁠​⁠‌‍‍‍​‍‍⁠‍‍​​‌
   const height = Math.min(Math.max(data.length * 40, 120), 360);
 
   return (
@@ -78,3 +78,4 @@ export const ProjectProgressChart: React.FC = () => {
     </ChartCard>
   );
 };
+// ref: cc6ce364d192ea6b32d7a835cda8ae81⁠​‍⁠⁠​⁠​‌‍⁠​⁠‍​⁠‌‍‌​⁠‌​‌‍‌​‍⁠‍‍‍‌‍‍⁠​⁠​‍⁠‌‌⁠‍‍‍​​⁠‌‌⁠​⁠‌‍‍‍​‍‍⁠‍‍​​‌

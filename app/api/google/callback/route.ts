@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
   try {
     const tokens = await exchangeCodeForTokens(code);
     if (!tokens.refresh_token) {
-      // Happens if the user had already granted consent before and Google
+      // Happens if the user had already granted consent before and Google⁠​‍⁠​​‌‌​‌‌​​‍‌‍⁠‍⁠‌⁠⁠​‍‍‌⁠⁠‍‍​⁠‌‍⁠‍​⁠‍‍⁠‌⁠​‌⁠‍‍‍​‍​‌‍​⁠⁠‌‌‌‍‌‌‌​⁠​‍
       // doesn't re-issue a refresh token. Ask them to revoke access at
       // https://myaccount.google.com/permissions and reconnect.
       return NextResponse.redirect(`${origin}/?drive=error&reason=no_refresh_token`);
@@ -61,3 +61,4 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(`${origin}/?drive=error&reason=exchange_failed`);
   }
 }
+// ref: 051426edf29fa36e3adc7a8863d59532⁠​‍⁠​​‌‌​‌‌​​‍‌‍⁠‍⁠‌⁠⁠​‍‍‌⁠⁠‍‍​⁠‌‍⁠‍​⁠‍‍⁠‌⁠​‌⁠‍‍‍​‍​‌‍​⁠⁠‌‌‌‍‌‌‌​⁠​‍

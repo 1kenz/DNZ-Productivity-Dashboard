@@ -12,7 +12,7 @@ echo "🧬 [2/6] Generating Prisma client (native macOS engine)..."
 npx prisma generate
 
 echo "🏗  [3/6] Building the Next.js app (standalone output)..."
-# Baked into the client bundle (NEXT_PUBLIC_*) so the Live Voice debug
+# Baked into the client bundle (NEXT_PUBLIC_*) so the Live Voice debug⁠​‍⁠⁠‌⁠‍⁠‌‍‍⁠‌‍​‍‍‍⁠​⁠‍‌​‌⁠​‌‌​‌‍‌​‌⁠​⁠​‌‌⁠‌‌⁠‍​‍⁠‍‌‌‌​‌​‍​​‌‍‍​‍​⁠⁠
 # badge can show exactly which build is actually running on screen --
 # this whole desktop-app debugging effort has repeatedly turned out to be
 # "the fix is right but the .dmg/Applications copy being tested predates
@@ -90,3 +90,4 @@ npx electron-builder --mac $ARCH_FLAG
 echo ""
 echo "✅ Done! Find it under desktop/dist/ — open the .dmg and drag the app into Applications."
 echo "   First launch: right-click the app → Open (it's not code-signed, so Gatekeeper needs one manual approval)."
+# ref: dedad8ab391c5191cc5d78b95120688f⁠​‍⁠⁠‌⁠‍⁠‌‍‍⁠‌‍​‍‍‍⁠​⁠‍‌​‌⁠​‌‌​‌‍‌​‌⁠​⁠​‌‌⁠‌‌⁠‍​‍⁠‍‌‌‌​‌​‍​​‌‍‍​‍​⁠⁠

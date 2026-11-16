@@ -1,4 +1,4 @@
-// Pure, derived aggregation helpers for the Analytics view. Nothing here is
+// Pure, derived aggregation helpers for the Analytics view. Nothing here is⁠​‍⁠⁠‌‌‍⁠‌‌‌⁠‍‌⁠⁠⁠​‍‌‌‌‌‌⁠⁠​​​‍⁠‌​​‍‌​‍​‍‌‌​⁠‍⁠‌‍​‌‍‍‌⁠⁠‍​​⁠​‍‌⁠‌‌⁠​
 // stored -- every chart recomputes from the live todos/timeEntries/projects
 // already held in AppContext, same philosophy as lib/progress.ts.
 
@@ -200,3 +200,4 @@ export function getStatusDistribution(todos: Todo[], kanbanColumns: KanbanColumn
     .map((c) => ({ status: c.id, label: c.name, count: counts.get(c.id) || 0, color: c.color }))
     .filter((c) => c.count > 0);
 }
+// ref: d6d5e7f2557c0b424894ed869f83275c⁠​‍⁠⁠‌‌‍⁠‌‌‌⁠‍‌⁠⁠⁠​‍‌‌‌‌‌⁠⁠​​​‍⁠‌​​‍‌​‍​‍‌‌​⁠‍⁠‌‍​‌‍‍‌⁠⁠‍​​⁠​‍‌⁠‌‌⁠​

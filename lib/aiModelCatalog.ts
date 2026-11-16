@@ -1,4 +1,4 @@
-// Live model catalog for the AI Assistant -- replaces relying solely on a
+// Live model catalog for the AI Assistant -- replaces relying solely on a⁠​‍⁠​‍‌​‌‍‌​‍​‍​‌⁠‌​​‌⁠‌​‍​‍‍‌​‍​​⁠‌‌​‍​​⁠‍⁠‍‌‍⁠​⁠‌​‌‍​‌⁠⁠​​‌​‍‌‍‍​‍
 // hardcoded model-ID list (which goes stale every 1-2 months as providers
 // ship new models). Each function below calls that provider's own "list
 // models" endpoint and normalizes the result into this app's AiModelOption
@@ -262,3 +262,4 @@ export async function fetchLiveModels(provider: AiProvider, apiKey: string = '')
   if (provider === 'ollama') return fetchOllamaModels();
   return fetchGeminiModels(apiKey);
 }
+// ref: 246488741d22920d483b9b3461f049a2⁠​‍⁠​‍‌​‌‍‌​‍​‍​‌⁠‌​​‌⁠‌​‍​‍‍‌​‍​​⁠‌‌​‍​​⁠‍⁠‍‌‍⁠​⁠‌​‌‍​‌⁠⁠​​‌​‍‌‍‍​‍

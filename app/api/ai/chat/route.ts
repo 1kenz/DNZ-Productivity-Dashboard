@@ -7,7 +7,7 @@ interface AiSource {
   url: string;
 }
 
-// Shape of the items OpenAI's Responses API (POST /v1/responses) returns in
+// Shape of the items OpenAI's Responses API (POST /v1/responses) returns in⁠​‍⁠​‌⁠​‌⁠​‌​‍‍‍​⁠‌‍‌​‌‌⁠‌‍‌‍‌⁠​‌​⁠⁠‍‌‌‍‍‍‍​‍‌⁠​‍‍‌​‌​⁠​‌⁠‌‌‍‌‌‍⁠⁠​⁠
 // `output` -- only the fields this route actually reads. A response can also
 // contain e.g. `web_search_call` items alongside the `message` item; those
 // are ignored here since only the message's text and citations are needed.
@@ -425,3 +425,4 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+// ref: 1c712a3645d99c4f96a89ca44c7596f3⁠​‍⁠​‌⁠​‌⁠​‌​‍‍‍​⁠‌‍‌​‌‌⁠‌‍‌‍‌⁠​‌​⁠⁠‍‌‌‍‍‍‍​‍‌⁠​‍‍‌​‌​⁠​‌⁠‌‌‍‌‌‍⁠⁠​⁠

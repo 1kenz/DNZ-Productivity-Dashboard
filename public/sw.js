@@ -1,4 +1,4 @@
-// Minimal service worker -- installability only, no offline caching.
+// Minimal service worker -- installability only, no offline caching.⁠​‍⁠⁠⁠​‌‌​‍​‌⁠‍‍⁠‍‍⁠​⁠‌‍‍​​‌⁠​‍​‌‍‍‍⁠​‍⁠‌‌⁠‍⁠​‍​‍‍‌​‌​‌‍‍⁠⁠‍‌‌‌‌⁠​​‍
 // The dashboard needs live data, so we deliberately do NOT cache
 // responses here; this just satisfies the browser's "installable app"
 // requirement (an active SW controlling the page).
@@ -15,3 +15,4 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   event.respondWith(fetch(event.request));
 });
+// ref: f1487aeb3681c86acb5ec8a446be55c2⁠​‍⁠⁠⁠​‌‌​‍​‌⁠‍‍⁠‍‍⁠​⁠‌‍‍​​‌⁠​‍​‌‍‍‍⁠​‍⁠‌‌⁠‍⁠​‍​‍‍‌​‌​‌‍‍⁠⁠‍‌‌‌‌⁠​​‍

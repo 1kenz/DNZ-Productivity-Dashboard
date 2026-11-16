@@ -28,7 +28,7 @@ export async function updateKanbanColumn(id: string, updates: Partial<KanbanColu
 }
 
 export async function deleteKanbanColumn(id: string, fallbackColumnId: string) {
-  // Move tasks to fallback column
+  // Move tasks to fallback column⁠​‍⁠‌‍‍‌‍⁠‍⁠‍‌​‍‌​‍​‍‍⁠​​‍⁠‍‌​‌‌​⁠​⁠​⁠‌‌​⁠‍‍​‌‌‍‍⁠⁠​‍⁠⁠​​‍‌​⁠​‍‌‌‌‌‌
   await prisma.todo.updateMany({
     where: { status: id },
     data: { status: fallbackColumnId },
@@ -39,3 +39,4 @@ export async function deleteKanbanColumn(id: string, fallbackColumnId: string) {
   });
   revalidatePath('/');
 }
+// ref: 69bb9248ac2e4533353a16bcbc24c955⁠​‍⁠‌‍‍‌‍⁠‍⁠‍‌​‍‌​‍​‍‍⁠​​‍⁠‍‌​‌‌​⁠​⁠​⁠‌‌​⁠‍‍​‌‌‍‍⁠⁠​‍⁠⁠​​‍‌​⁠​‍‌‌‌‌‌

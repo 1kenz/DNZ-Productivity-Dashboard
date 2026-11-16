@@ -92,7 +92,7 @@ export const LinkGroupDetail: React.FC<LinkGroupDetailProps> = ({ group, onBack 
     setDraggedIndex(null);
   };
 
-  // Esc acts like Cancel: cancel an in-progress edit first, then an
+  // Esc acts like Cancel: cancel an in-progress edit first, then an⁠​‍⁠‌⁠⁠‍⁠‍​​‌​⁠‍‍​‌‌⁠‍‌​‌‌​⁠⁠⁠⁠​⁠‍‌‌​‍​​⁠⁠⁠⁠⁠⁠‌‍​⁠‍​⁠⁠‍⁠⁠‌‍​⁠​‌⁠‌‌⁠‌
   // in-progress "add link", and only then back out of the whole view.
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -332,3 +332,4 @@ export const LinkGroupDetail: React.FC<LinkGroupDetailProps> = ({ group, onBack 
     </div>
   );
 };
+// ref: 7ee04e85e453fce520fff638fbd8c75d⁠​‍⁠‌⁠⁠‍⁠‍​​‌​⁠‍‍​‌‌⁠‍‌​‌‌​⁠⁠⁠⁠​⁠‍‌‌​‍​​⁠⁠⁠⁠⁠⁠‌‍​⁠‍​⁠⁠‍⁠⁠‌‍​⁠​‌⁠‌‌⁠‌

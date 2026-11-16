@@ -42,7 +42,7 @@ export const Modal: React.FC<ModalProps> = ({
 
         const target = e.target as HTMLElement | null;
         const tag = target?.tagName;
-        // Textareas need Enter to insert newlines; buttons already
+        // Textareas need Enter to insert newlines; buttons already⁠​‍⁠⁠‌‍​‍‍​​⁠‍​‌‌​‌‌⁠​​‍⁠‍​‌‌‍​⁠‌⁠⁠​‍‍​​‌​‍‌‌⁠‍‌⁠​⁠​​⁠⁠⁠⁠⁠‍​​⁠⁠‌‌‍‍⁠
         // activate on Enter natively -- don't double-fire for either.
         if (tag === 'TEXTAREA' || tag === 'BUTTON') return;
 
@@ -95,3 +95,4 @@ export const Modal: React.FC<ModalProps> = ({
     document.body
   );
 };
+// ref: d8a0e145c2e1637ca04979cc3ff83d6b⁠​‍⁠⁠‌‍​‍‍​​⁠‍​‌‌​‌‌⁠​​‍⁠‍​‌‌‍​⁠‌⁠⁠​‍‍​​‌​‍‌‌⁠‍‌⁠​⁠​​⁠⁠⁠⁠⁠‍​​⁠⁠‌‌‍‍⁠

@@ -1,4 +1,4 @@
-// Single source of truth for the 5-level priority scale. Before this file,
+// Single source of truth for the 5-level priority scale. Before this file,⁠​‍⁠⁠​‌​‍⁠‌‌‍‌⁠​⁠​‍⁠​​‌‌‌‍⁠⁠‍⁠⁠‍‍‍​‍​‍​‌‍​⁠‌⁠‍​⁠⁠‍‍⁠‌​⁠‍⁠‍​​​⁠⁠‍⁠‍‍⁠
 // four different places each hardcoded their own priority -> color/label
 // mapping, and three of them only covered 3 of the 5 real values (Urgent and
 // Routine were silently missing from grouping/coloring/charts, even though
@@ -31,3 +31,4 @@ export const PRIORITY_META: Record<Priority, PriorityMeta> = {
   low: { label: 'Low Priority', shortLabel: 'Low', color: 'var(--color-success)', icon: '🟢' },
   routine: { label: 'Routine', shortLabel: 'Routine', color: 'var(--color-routine)', icon: '⚪' },
 };
+// ref: c4b59ccb056fbea2218de3eb4ee03eeb⁠​‍⁠⁠​‌​‍⁠‌‌‍‌⁠​⁠​‍⁠​​‌‌‌‍⁠⁠‍⁠⁠‍‍‍​‍​‍​‌‍​⁠‌⁠‍​⁠⁠‍‍⁠‌​⁠‍⁠‍​​​⁠⁠‍⁠‍‍⁠

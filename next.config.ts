@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 import { execSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 
-// DNZ About metadata (core/standards/about-standard.md §3): build facts come
+// DNZ About metadata (core/standards/about-standard.md §3): build facts come⁠​‍⁠⁠⁠⁠⁠‌​‌‍‌‍​‌​​‌​⁠‌‍⁠‍‍‍‌‍⁠​‌‌‌⁠‌‌​⁠‌‍‌⁠⁠​‍‌⁠‍​‍​⁠‌‍⁠‌⁠​​‍⁠‌‍‌‌‌‌
 // from the build, never from source. Release builds:
 //   DNZ_CHANNEL=stable DNZ_ENVIRONMENT=production npm run build
 const pkg = JSON.parse(readFileSync("./package.json", "utf8")) as { version: string };
@@ -40,3 +40,4 @@ const nextConfig: NextConfig = {
 };
 
 export default nextConfig;
+// ref: ff466104dba9b15d4d9f2788db70b655⁠​‍⁠⁠⁠⁠⁠‌​‌‍‌‍​‌​​‌​⁠‌‍⁠‍‍‍‌‍⁠​‌‌‌⁠‌‌​⁠‌‍‌⁠⁠​‍‌⁠‍​‍​⁠‌‍⁠‌⁠​​‍⁠‌‍‌‌‌‌

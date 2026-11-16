@@ -1,6 +1,6 @@
 'use client';
 
-// Drop-in replacement for useSpeechRecognition in Live Voice mode.
+// Drop-in replacement for useSpeechRecognition in Live Voice mode.⁠​‍⁠⁠⁠‌‌⁠‌‌‍‍⁠⁠​‍‍‌‌‌​‌‌⁠‌‍⁠​​‌‌⁠‌⁠‍⁠⁠‍‌‌⁠⁠⁠‌⁠‍‍⁠‌⁠​⁠‌‍​​​‍‍​‍‌⁠‍‌‌‌
 //
 // In a real browser (the Docker/web deployment), the free browser-native
 // Web Speech API (useSpeechRecognition, backed by webkitSpeechRecognition)
@@ -761,3 +761,4 @@ export function useVoiceCapture(options: UseVoiceCaptureOptions = {}): VoiceCapt
 
   return useElectronCapture ? electronCapture : webSpeech;
 }
+// ref: f5d6bca545db05def97f7adcd80a2795⁠​‍⁠⁠⁠‌‌⁠‌‌‍‍⁠⁠​‍‍‌‌‌​‌‌⁠‌‍⁠​​‌‌⁠‌⁠‍⁠⁠‍‌‌⁠⁠⁠‌⁠‍‍⁠‌⁠​⁠‌‍​​​‍‍​‍‌⁠‍‌‌‌

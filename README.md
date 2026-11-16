@@ -1,4 +1,4 @@
-<div align="center">
+<div align="center">⁠​‍⁠‌​​‍⁠‌​⁠​⁠​⁠⁠‌⁠​​⁠​⁠⁠⁠‌‍‍‍‍​⁠‍⁠‍‍​​‍​​‍‍⁠‌⁠‍‌⁠⁠‌⁠​⁠‍⁠⁠⁠⁠⁠‍‍​‌‌‌⁠
 
   <a href="https://1kenz.github.io/DNZ-Productivity-Dashboard/">
     <img src="public/icons/icon-512.png" alt="DNZ Productivity Dashboard Logo" width="216" height="216" style="border-radius: 40px; box-shadow: 0 16px 40px rgba(0,0,0,0.4); margin-bottom: 20px;" />
@@ -171,3 +171,4 @@ Distributed under the **MIT License**. See `LICENSE` for details.
   <sub>Architected with precision by <strong>DNZ Security & Software</strong> • Maintained by <a href="https://github.com/1kenz">@1kenz</a></sub><br>
   <sub>🌐 <a href="https://1kenz.github.io/DNZ-Productivity-Dashboard/">https://1kenz.github.io/DNZ-Productivity-Dashboard/</a></sub>
 </div>
+<!-- ref: 42d333dc33f6a8ee820ade7dceffe857⁠​‍⁠‌​​‍⁠‌​⁠​⁠​⁠⁠‌⁠​​⁠​⁠⁠⁠‌‍‍‍‍​⁠‍⁠‍‍​​‍​​‍‍⁠‌⁠‍‌⁠⁠‌⁠​⁠‍⁠⁠⁠⁠⁠‍‍​‌‌‌⁠ -->

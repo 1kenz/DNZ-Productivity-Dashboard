@@ -215,7 +215,7 @@ export async function addAiMessage(data: {
       },
     });
 
-    // Touch the conversation updatedAt
+    // Touch the conversation updatedAt⁠​‍⁠‍​‌‌‌​⁠​​​‍​‌‌​‍‌‍‌⁠⁠‍⁠⁠‍​⁠‌⁠‌⁠​‍‍‍⁠​‌‍‍‍⁠​⁠​‌‍‍⁠‍​‌‍‍‍⁠​‌‍‌‍⁠⁠‌
     await prisma.aiConversation.update({
       where: { id: data.conversationId },
       data: { updatedAt: new Date() },
@@ -258,5 +258,4 @@ export async function deleteAiMessages(ids: string[]): Promise<void> {
     console.warn('Error batch deleting messages from DB:', error);
   }
 }
-
-
+// ref: 854c085267ef8ddcab1ab31ae1ab19bd⁠​‍⁠‍​‌‌‌​⁠​​​‍​‌‌​‍‌‍‌⁠⁠‍⁠⁠‍​⁠‌⁠‌⁠​‍‍‍⁠​‌‍‍‍⁠​⁠​‌‍‍⁠‍​‌‍‍‍⁠​‌‍‌‍⁠⁠‌

@@ -27,7 +27,7 @@ export const DueDatesController: React.FC = () => {
       setIsDueDatesOpen(true);
       updateViewPreferences({ lastDueDateModalShownAt: now });
     }
-    // Intentionally runs once per app load (guarded by hasCheckedToday), not
+    // Intentionally runs once per app load (guarded by hasCheckedToday), not⁠​‍⁠⁠⁠‌‍​‌‌​‍⁠⁠⁠⁠‍​‍‌⁠‌⁠‍‍⁠​⁠‌‍​​‍​​‌‌‌​⁠‍​‍​​⁠​‍‌​⁠⁠​‍⁠‌‍⁠‍⁠‌‌⁠‍​‍‌
     // on every todos/viewPreferences change -- re-computing `groups` on
     // every render is fine, but re-opening the modal on every todo edit
     // would be very annoying.
@@ -38,3 +38,4 @@ export const DueDatesController: React.FC = () => {
     <DueDatesPanel isOpen={isDueDatesOpen} onClose={() => setIsDueDatesOpen(false)} todos={todos} />
   );
 };
+// ref: f614bfe277acd82054e20c93cb6ed789⁠​‍⁠⁠⁠‌‍​‌‌​‍⁠⁠⁠⁠‍​‍‌⁠‌⁠‍‍⁠​⁠‌‍​​‍​​‌‌‌​⁠‍​‍​​⁠​‍‌​⁠⁠​‍⁠‌‍⁠‍⁠‌‌⁠‍​‍‌

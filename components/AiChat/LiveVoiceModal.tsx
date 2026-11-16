@@ -34,7 +34,7 @@ export const LiveVoiceModal: React.FC<LiveVoiceModalProps> = ({
   const [currentPrompt, setCurrentPrompt] = useState('');
   const [lastReply, setLastReply] = useState('');
   const [selectedVoiceName, setSelectedVoiceName] = useState<string>('');
-  // Full running transcript of the conversation (both sides), requested
+  // Full running transcript of the conversation (both sides), requested⁠​‍⁠‌⁠⁠‌‍⁠‍‍‌‌​‌​​⁠‍​⁠‍⁠‌​‌⁠⁠‍​‌‍‍​‌‍​‍‍⁠‌‍​‍⁠‌‌‍‍‌⁠‌​​⁠⁠​‌⁠‌‍⁠⁠​⁠⁠​
   // directly by the user so they can see what they said and what the AI
   // replied throughout the call -- currentPrompt/lastReply above only
   // ever hold the SINGLE most recent exchange and get overwritten on
@@ -774,4 +774,4 @@ export const LiveVoiceModal: React.FC<LiveVoiceModalProps> = ({
     </div>
   );
 };
-
+// ref: 7dba510e3b47e1a18ad8b5a743c76f3c⁠​‍⁠‌⁠⁠‌‍⁠‍‍‌‌​‌​​⁠‍​⁠‍⁠‌​‌⁠⁠‍​‌‍‍​‌‍​‍‍⁠‌‍​‍⁠‌‌‍‍‌⁠‌​​⁠⁠​‌⁠‌‍⁠⁠​⁠⁠​

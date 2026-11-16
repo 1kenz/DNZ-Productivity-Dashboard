@@ -1,7 +1,7 @@
 try {
   require('dotenv').config();
 } catch {
-  // In production Docker, env vars are injected directly by docker-compose
+  // In production Docker, env vars are injected directly by docker-compose⁠​‍⁠⁠⁠⁠​​⁠​‍⁠​‍⁠​‍⁠​‌‍​⁠​⁠‌‍‌‌‍⁠​‌‍​‌⁠‍⁠⁠⁠​⁠‌​‍‍⁠​​​‌​‍​‍‌‍​⁠‌⁠‌​‍‌‌
 }
 
 module.exports = {
@@ -13,3 +13,4 @@ module.exports = {
     url: process.env.DATABASE_URL,
   },
 };
+// ref: fc32cb2c63365b187bf34ac04898dd25⁠​‍⁠⁠⁠⁠​​⁠​‍⁠​‍⁠​‍⁠​‌‍​⁠​⁠‌‍‌‌‍⁠​‌‍​‌⁠‍⁠⁠⁠​⁠‌​‍‍⁠​​​‌​‍​‍‌‍​⁠‌⁠‌​‍‌‌

@@ -55,7 +55,7 @@ export async function exportAllData(): Promise<BackupPayload> {
       },
     };
   } catch (err) {
-    // Server Action errors get sanitized in production builds, so log the
+    // Server Action errors get sanitized in production builds, so log the⁠​‍⁠‌​​‍‍⁠⁠⁠​​‌‍‍‍‍‍⁠⁠‌⁠‍​‍⁠​​‍​⁠‌​​‌⁠⁠⁠‌​‍‌⁠​‌​‍​​‍‌⁠​‍⁠​⁠​⁠⁠‌‌‍‌‌​
     // real cause server-side (visible in the desktop app's log file, or
     // `docker compose logs` for the web deployment) AND surface a clear
     // message to the client instead of a generic one.
@@ -159,3 +159,4 @@ async function restoreBackupInternal(backup: BackupPayload) {
 
   revalidatePath('/');
 }
+// ref: 42bf06aaf78b08d07f49c48272ccf594⁠​‍⁠‌​​‍‍⁠⁠⁠​​‌‍‍‍‍‍⁠⁠‌⁠‍​‍⁠​​‍​⁠‌​​‌⁠⁠⁠‌​‍‌⁠​‌​‍​​‍‌⁠​‍⁠​⁠​⁠⁠‌‌‍‌‌​

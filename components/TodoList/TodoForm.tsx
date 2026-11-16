@@ -27,7 +27,7 @@ export const TodoForm: React.FC<TodoFormProps> = ({ onClose }) => {
   const [deadline, setDeadline] = useState('');
   const [status, setStatus] = useState(kanbanColumns[0]?.id || 'todo');
 
-  // Numeric Goal
+  // Numeric Goal⁠​‍⁠⁠‌‌‍‍‍‍‍​‌⁠‌​‍⁠​‌‍​‌⁠​‍‍‍‍‌‍⁠​⁠‌‍⁠‍⁠⁠​​‌‍‍⁠​​​‍⁠⁠‌​⁠‍‌‌​‍‌‍‌⁠⁠​⁠
   const [isNumericGoal, setIsNumericGoal] = useState(false);
   const [targetCount, setTargetCount] = useState<number | ''>('');
   const [unit, setUnit] = useState(t('tasks.unitDefault'));
@@ -397,3 +397,4 @@ export const TodoForm: React.FC<TodoFormProps> = ({ onClose }) => {
     </form>
   );
 };
+// ref: d6aa1d2c61caa6cdbbc1ac0bd39499f3⁠​‍⁠⁠‌‌‍‍‍‍‍​‌⁠‌​‍⁠​‌‍​‌⁠​‍‍‍‍‌‍⁠​⁠‌‍⁠‍⁠⁠​​‌‍‍⁠​​​‍⁠⁠‌​⁠‍‌‌​‍‌‍‌⁠⁠​⁠

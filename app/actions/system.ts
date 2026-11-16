@@ -24,7 +24,7 @@ export async function openLocalPath(rawPath: string): Promise<OpenLocalPathResul
     return { success: false, error: 'No path provided' };
   }
 
-  // Expand a leading ~ to the server process's home directory.
+  // Expand a leading ~ to the server process's home directory.⁠​‍⁠​​⁠‍‍‌⁠‍⁠​⁠‍‍‌​​‌‍⁠⁠⁠‍​‍‍⁠‌‌‌‌‌⁠⁠​‌‍‌‌⁠‌​‌​⁠⁠‌‍⁠⁠⁠⁠‍⁠⁠‍⁠​⁠​‍⁠‍​​
   const resolved = trimmed.startsWith('~')
     ? trimmed.replace(/^~/, os.homedir())
     : trimmed;
@@ -88,3 +88,4 @@ export async function listInstalledApps(): Promise<InstalledApp[]> {
 
   return results.sort((a, b) => a.name.localeCompare(b.name));
 }
+// ref: 0e9ece906fe2b557c65d13dbfefb32e0⁠​‍⁠​​⁠‍‍‌⁠‍⁠​⁠‍‍‌​​‌‍⁠⁠⁠‍​‍‍⁠‌‌‌‌‌⁠⁠​‌‍‌‌⁠‌​‌​⁠⁠‌‍⁠⁠⁠⁠‍⁠⁠‍⁠​⁠​‍⁠‍​​

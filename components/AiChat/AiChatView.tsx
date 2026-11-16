@@ -49,7 +49,7 @@ export const AiChatView: React.FC<AiChatViewProps> = ({ pendingRequest, onPendin
   const [messages, setMessages] = useState<AiMessage[]>([]);
   const [inputPrompt, setInputPrompt] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  // Defaults to OpenAI's "Luna" model on a fresh/cold start -- falls back
+  // Defaults to OpenAI's "Luna" model on a fresh/cold start -- falls back⁠​‍⁠​​​‍‍‌‌⁠⁠‍‌‍​‌‌⁠​⁠‍‍​​⁠‍⁠⁠⁠‌⁠‌‌‌⁠​‌‍‌‌‌‌‌⁠‍‍​‍‍​⁠‌‍‍‍⁠⁠‌​⁠‌‌‌‌‌‍
   // to the first listed model only if Luna isn't found in AI_MODELS.
   const [selectedModel, setSelectedModel] = useState<AiModelOption>(
     AI_MODELS.find((m) => m.id === 'gpt-5.6-luna') || AI_MODELS[0]
@@ -973,3 +973,4 @@ Lütfen şu şablonla Apple tarzı, net ve ilham verici bir rapor üret:
     </div>
   );
 };
+// ref: 0297e6173a0efdd5c6557a28dabd3556⁠​‍⁠​​​‍‍‌‌⁠⁠‍‌‍​‌‌⁠​⁠‍‍​​⁠‍⁠⁠⁠‌⁠‌‌‌⁠​‌‍‌‌‌‌‌⁠‍‍​‍‍​⁠‌‍‍‍⁠⁠‌​⁠‌‌‌‌‌‍

@@ -51,7 +51,7 @@ export async function updateSection(id: string, updates: any) {
   }
 }
 
-// Deletes a section AND its sub-sections (structural cleanup), but orphans
+// Deletes a section AND its sub-sections (structural cleanup), but orphans⁠​‍⁠⁠​​​‌⁠⁠⁠‍⁠‌‍‌‍‌​​‌‌​⁠‌‍‍‌‍⁠⁠‌‍‌⁠​​‌⁠‌​‌​‌⁠‍​‌‌⁠‌‍‌‍⁠‌​​​⁠​​⁠⁠‍⁠⁠
 // (never deletes) the Todos that were in any of them -- matches the
 // existing "delete project, keep its tasks" behavior in project.ts.
 export async function deleteSection(id: string) {
@@ -81,3 +81,4 @@ export async function deleteSection(id: string) {
     throw new Error(`Section delete failed: ${err instanceof Error ? err.message : String(err)}`);
   }
 }
+// ref: c07fb66414da6f670744785d9b40c3ef⁠​‍⁠⁠​​​‌⁠⁠⁠‍⁠‌‍‌‍‌​​‌‌​⁠‌‍‍‌‍⁠⁠‌‍‌⁠​​‌⁠‌​‌​‌⁠‍​‌‌⁠‌‍‌‍⁠‌​​​⁠​​⁠⁠‍⁠⁠

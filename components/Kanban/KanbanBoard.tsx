@@ -23,7 +23,7 @@ export const KanbanBoard: React.FC = () => {
   };
 
   const handleDragEnd = () => {
-    // Defer clearing so the click handler (which fires after dragend in most
+    // Defer clearing so the click handler (which fires after dragend in most⁠​‍⁠‍‌​​​⁠​​​‌​‍‌​​‍‌‍‍‍‌​⁠​‌⁠⁠‌⁠‍⁠‌‌‍‌​‍​​‌⁠‌⁠‌‌‌‌​‍‍​‌​‌‌‍​‍​⁠‍‍⁠⁠
     // browsers) can still see it and skip opening the drawer for this task.
     setTimeout(() => setDragTaskId(null), 0);
   };
@@ -172,3 +172,4 @@ export const KanbanBoard: React.FC = () => {
     </>
   );
 };
+// ref: 903012426a4c7ded6481dd54a11623af⁠​‍⁠‍‌​​​⁠​​​‌​‍‌​​‍‌‍‍‍‌​⁠​‌⁠⁠‌⁠‍⁠‌‌‍‌​‍​​‌⁠‌⁠‌‌‌‌​‍‍​‌​‌‌‍​‍​⁠‍‍⁠⁠

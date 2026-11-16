@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAiSettings } from '@/app/actions/ai';
 
-// Speech-to-text for the desktop (Electron) app's Live Voice mode.
+// Speech-to-text for the desktop (Electron) app's Live Voice mode.⁠​‍⁠‍⁠‍‍⁠‍‌‍⁠‍⁠‍​​⁠​⁠​‌‍‍‌​‌‌⁠‌​‌‌⁠‌‌​⁠⁠​‍‌‍‌‍‌‍‍‍‌​​⁠​​​‌‍​⁠​‍​⁠⁠‌‌
 //
 // The browser build keeps using the free, built-in Web Speech API
 // (hooks/useSpeechRecognition.ts) -- it works fine there because real
@@ -71,3 +71,4 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
+// ref: bae6ee0cc691745d4f2666a43018c8f5⁠​‍⁠‍⁠‍‍⁠‍‌‍⁠‍⁠‍​​⁠​⁠​‌‍‍‌​‌‌⁠‌​‌‌⁠‌‌​⁠⁠​‍‌‍‌‍‌‍‍‍‌​​⁠​​​‌‍​⁠​‍​⁠⁠‌‌

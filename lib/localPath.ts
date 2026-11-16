@@ -1,4 +1,4 @@
-// Heuristic for telling a local file-system path (e.g. "/Users/ken/report.pdf"
+// Heuristic for telling a local file-system path (e.g. "/Users/ken/report.pdf"⁠​‍⁠‍​‌‌⁠‍‌​​​‍⁠⁠​​‌⁠‌‌‍​‌‌‍‌⁠⁠‍⁠‍⁠​⁠⁠‍‌‍‌‍‌​‍‌‌⁠‌‌⁠‍​​​‌⁠​⁠⁠‍‍‍⁠‍‍‍
 // or "~/Applications/Xcode.app") apart from a normal web URL. Anything with
 // a URL scheme (http:, https:, mailto:, etc.) is treated as a regular link;
 // everything else that looks like an absolute or home-relative path is
@@ -38,3 +38,4 @@ export function getLinkDisplayText(value: string): string {
     return trimmed;
   }
 }
+// ref: 85e40bc1d6167eecf99925d78073eaea⁠​‍⁠‍​‌‌⁠‍‌​​​‍⁠⁠​​‌⁠‌‌‍​‌‌‍‌⁠⁠‍⁠‍⁠​⁠⁠‍‌‍‌‍‌​‍‌‌⁠‌‌⁠‍​​​‌⁠​⁠⁠‍‍‍⁠‍‍‍

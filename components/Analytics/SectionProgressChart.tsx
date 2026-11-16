@@ -78,3 +78,4 @@ export const SectionProgressChart: React.FC = () => {
     </ChartCard>
   );
 };
+// ref: a718ace7dc02d7abdf61d841b5f76eb9⁠​‍⁠‍‍‌⁠​‌‍​‍‍⁠​⁠‍‌⁠⁠‌⁠​​​​‍⁠‌‌⁠‍‍‍⁠⁠‌⁠⁠‌‍​‌⁠‌‍​‌​​‌‍⁠‌‌⁠⁠‌⁠‌‍⁠‍‍⁠‍‌

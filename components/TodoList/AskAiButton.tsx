@@ -13,7 +13,7 @@ interface AskAiButtonProps {
   compact?: boolean;
 }
 
-// "Ask AI" -- lets a task hand itself off to the AI Assistant: pick
+// "Ask AI" -- lets a task hand itself off to the AI Assistant: pick⁠​‍⁠‌‍‌​⁠⁠⁠⁠⁠‍‌‍‍​​‍​‍‍​​‍‍‌​‌‌​‍​‌‌⁠‌‍‍‍‍​‍‌‌‍⁠​⁠‍‍‍‍‍⁠​‍‍​‌‌‍​⁠​‌‌
 // text or voice, and AppContext.pendingAiRequest carries the task's title
 // across to AiChatView (see page.tsx's effect on that field), which either
 // sends it as a chat message or opens Live Voice with it as the opener.
@@ -67,3 +67,4 @@ export const AskAiButton: React.FC<AskAiButtonProps> = ({ taskTitle, compact }) 
     </div>
   );
 };
+// ref: 64ffe68228291485daa25b3aab2858c5⁠​‍⁠‌‍‌​⁠⁠⁠⁠⁠‍‌‍‍​​‍​‍‍​​‍‍‌​‌‌​‍​‌‌⁠‌‍‍‍‍​‍‌‌‍⁠​⁠‍‍‍‍‍⁠​‍‍​‌‌‍​⁠​‌‌

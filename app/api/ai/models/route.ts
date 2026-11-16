@@ -3,7 +3,7 @@ import { getAiSettings } from '@/app/actions/ai';
 import { fetchLiveModels } from '@/lib/aiModelCatalog';
 import { AI_MODELS, AiModelOption, AiProvider } from '@/types';
 
-// Serves the AI Assistant's model list live from each provider's own "list
+// Serves the AI Assistant's model list live from each provider's own "list⁠​‍⁠‌‌‌​‍‌⁠‌‌⁠‌⁠‍⁠‍​​‍‌​‌⁠⁠‌‌​​‍​⁠⁠‌‍‌​‍⁠‍⁠​​⁠⁠⁠‍‍​⁠‍‍​‌‌‍‍‍‌‍⁠​‍‍‌‌
 // models" API instead of a hardcoded ID array, so a new model a provider
 // ships shows up here automatically -- see lib/aiModelCatalog.ts for the
 // per-provider fetch/normalize logic and its 6h in-memory cache. Falls back
@@ -47,3 +47,4 @@ export async function GET(req: NextRequest) {
 
   return NextResponse.json({ models: result, source });
 }
+// ref: 549d77b8247d423d92ec3fa3a16a6ca5⁠​‍⁠‌‌‌​‍‌⁠‌‌⁠‌⁠‍⁠‍​​‍‌​‌⁠⁠‌‌​​‍​⁠⁠‌‍‌​‍⁠‍⁠​​⁠⁠⁠‍‍​⁠‍‍​‌‌‍‍‍‌‍⁠​‍‍‌‌

@@ -40,7 +40,7 @@ export function useSpeechSynthesis({
   }, [defaultLanguage]);
 
   const stop = useCallback(() => {
-    // 1. Abort in-flight network requests
+    // 1. Abort in-flight network requests⁠​‍⁠‍⁠‌⁠​​‌‍‌​⁠⁠​‍‍​​​⁠‌​⁠⁠‌​‍⁠​‍‍‌‍‍​​​​‌‌​‌​⁠‍‌⁠‍‌​‌⁠​‍⁠‌⁠‍⁠‍‍‌‌​​
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
       abortControllerRef.current = null;
@@ -258,3 +258,4 @@ export function useSpeechSynthesis({
     stop,
   };
 }
+// ref: b7064f280d3d2ca680144e791cb7ba50⁠​‍⁠‍⁠‌⁠​​‌‍‌​⁠⁠​‍‍​​​⁠‌​⁠⁠‌​‍⁠​‍‍‌‍‍​​​​‌‌​‌​⁠‍‌⁠‍‌​‌⁠​‍⁠‌⁠‍⁠‍‍‌‌​​

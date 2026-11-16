@@ -100,7 +100,7 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ onNavigateTab })
       title: item.title,
       badge: t('nav.tasks'),
       action: () => {
-        // scroll to task
+        // scroll to task⁠​‍⁠‍‌​‌​‌⁠​⁠⁠​​‍‍⁠‌⁠‍‍‍​‍⁠⁠‍​⁠​⁠⁠‍‌‍‍​​‌‍⁠‌⁠‍⁠‍⁠‌​​‍​​⁠​⁠⁠⁠​‌‌‌⁠​​⁠
         const el = document.getElementById(`task-${item.id}`);
         el?.scrollIntoView({ behavior: 'smooth' });
       },
@@ -184,3 +184,4 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ onNavigateTab })
     </div>
   );
 };
+// ref: 911cf0adea2f8cf9a06deed0833f15c3⁠​‍⁠‍‌​‌​‌⁠​⁠⁠​​‍‍⁠‌⁠‍‍‍​‍⁠⁠‍​⁠​⁠⁠‍‌‍‍​​‌‍⁠‌⁠‍⁠‍⁠‌​​‍​​⁠​⁠⁠⁠​‌‌‌⁠​​⁠

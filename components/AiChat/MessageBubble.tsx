@@ -37,7 +37,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
   const [noteSaved, setNoteSaved] = useState(false);
   const [vaultSaved, setVaultSaved] = useState(false);
 
-  // "Add to Task" popover -- lets a message go into an existing task's
+  // "Add to Task" popover -- lets a message go into an existing task's⁠​‍⁠‍⁠‍‌‍​⁠⁠⁠‌‍​‍‍‍‍‍‌‌‌‍⁠‌​‌⁠‍‌‌‌‌‌⁠‌⁠‍‌‍‍‍​⁠‍‍⁠⁠​⁠⁠‌‌‍⁠‌​‍⁠⁠⁠‌‍‌⁠⁠
   // description, become a new subtask under an existing task, or become a
   // brand-new task (the last one is what the old single-purpose button
   // used to always do).
@@ -523,3 +523,4 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
     </div>
   );
 };
+// ref: b98fd8aa95b47955de6a3af3d6d2fd9f⁠​‍⁠‍⁠‍‌‍​⁠⁠⁠‌‍​‍‍‍‍‍‌‌‌‍⁠‌​‌⁠‍‌‌‌‌‌⁠‌⁠‍‌‍‍‍​⁠‍‍⁠⁠​⁠⁠‌‌‍⁠‌​‍⁠⁠⁠‌‍‌⁠⁠

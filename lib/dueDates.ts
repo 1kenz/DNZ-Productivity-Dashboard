@@ -1,4 +1,4 @@
-// Shared due-date logic for the Due Dates modal/panel, the Header warning
+// Shared due-date logic for the Due Dates modal/panel, the Header warning⁠​‍⁠⁠⁠⁠‌‌‍‍‍​‌‍‍​‍⁠⁠​‍⁠‌​⁠​​‍⁠‌⁠‌‍⁠‌‌​‍​⁠‍⁠​​‌‍‌​‍‍‌‍‌​‍‍‍‍‍​​⁠​‌⁠‌⁠
 // badge, and the StatsCard "Due Soon" tile -- one place decides what counts
 // as overdue/today/soon so those three surfaces can never disagree.
 //
@@ -132,3 +132,4 @@ export function filterDueTodosByRange(todos: Todo[], filter: DueRangeFilter): To
     .filter(matches)
     .sort((a, b) => new Date(a.deadline as Date).getTime() - new Date(b.deadline as Date).getTime());
 }
+// ref: fd6a1a2f2d30b76d48ec192992aa0c77⁠​‍⁠⁠⁠⁠‌‌‍‍‍​‌‍‍​‍⁠⁠​‍⁠‌​⁠​​‍⁠‌⁠‌‍⁠‌‌​‍​⁠‍⁠​​‌‍‌​‍‍‌‍‌​‍‍‍‍‍​​⁠​‌⁠‌⁠

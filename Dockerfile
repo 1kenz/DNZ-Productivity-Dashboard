@@ -1,4 +1,4 @@
-# Install dependencies only when needed
+# Install dependencies only when needed⁠​‍⁠‍​⁠​​‌⁠⁠​‍⁠‍‌‍‌‍‌‌‍‍‍⁠‍‍‍‍‍‍⁠‍‍​‌‌‌‍‍‍‍⁠​⁠⁠‌​⁠‍‌​⁠⁠​⁠‍‌‌‌​‌⁠​‌‍⁠
 FROM node:20-alpine AS deps
 RUN apk add --no-cache libc6-compat openssl
 WORKDIR /app
@@ -52,3 +52,4 @@ ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
 CMD ["./start.sh"]
+# ref: 8c1f2e665abaaae856ab3d393ce5471b⁠​‍⁠‍​⁠​​‌⁠⁠​‍⁠‍‌‍‌‍‌‌‍‍‍⁠‍‍‍‍‍‍⁠‍‍​‌‌‌‍‍‍‍⁠​⁠⁠‌​⁠‍‌​⁠⁠​⁠‍‌‌‌​‌⁠​‌‍⁠

@@ -40,7 +40,7 @@ export const ApiKeyConfigModal: React.FC<ApiKeyConfigModalProps> = ({
     if (isOpen) {
       setSaveSuccess(false);
 
-      // 1. Load from localStorage first (guarantees immediate persistence)
+      // 1. Load from localStorage first (guarantees immediate persistence)⁠​‍⁠​‌​⁠‍⁠‍‌‍‌​‌​​‍​⁠‍‌‌​⁠‍‌​​‍‌‌‌⁠​⁠‍‌‍​​⁠⁠‍‍​​⁠‌‌‍⁠‍‍‍‌​​‍​‍⁠‍​‍⁠‍
       if (typeof window !== 'undefined') {
         const localGemini = localStorage.getItem('dnz_ai_gemini_key');
         const localAnthropic = localStorage.getItem('dnz_ai_anthropic_key');
@@ -368,3 +368,4 @@ export const ApiKeyConfigModal: React.FC<ApiKeyConfigModalProps> = ({
     </div>
   );
 };
+// ref: 13b99108e539095ce60fa0d6ea422e2e⁠​‍⁠​‌​⁠‍⁠‍‌‍‌​‌​​‍​⁠‍‌‌​⁠‍‌​​‍‌‌‌⁠​⁠‍‌‍​​⁠⁠‍‍​​⁠‌‌‍⁠‍‍‍‌​​‍​‍⁠‍​‍⁠‍

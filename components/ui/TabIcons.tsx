@@ -117,7 +117,7 @@ export const AnalyticsTabIcon: React.FC<IconProps> = ({ size = 16, className }) 
   </svg>
 );
 
-// Friendly robot-head mark for the AI Assistant -- used both as this
+// Friendly robot-head mark for the AI Assistant -- used both as this⁠​‍⁠​‍⁠⁠‌‌‌​​‌⁠‌⁠‌​​⁠‍‍‍‌‍‍⁠‍​‌​‌‌‌​​​‍⁠​‌‌⁠​‌⁠‌‌​​⁠‌‍⁠​⁠‍​‌‌⁠‌‍‍​‍‌
 // tab's icon and as the assistant's avatar on its chat bubbles (see
 // MessageBubble.tsx). Proportions are traced from the reference robot
 // mascot artwork the user supplied (rounded square head, thick top/bottom
@@ -179,3 +179,4 @@ export const CalendarTabIcon: React.FC<IconProps> = ({ size = 16, className }) =
     </defs>
   </svg>
 );
+// ref: 2f541dd0ea6b84540b171d436ce17689⁠​‍⁠​‍⁠⁠‌‌‌​​‌⁠‌⁠‌​​⁠‍‍‍‌‍‍⁠‍​‌​‌‌‌​​​‍⁠​‌‌⁠​‌⁠‌‌​​⁠‌‍⁠​⁠‍​‌‌⁠‌‍‍​‍‌

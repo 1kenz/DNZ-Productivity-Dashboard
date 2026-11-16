@@ -31,7 +31,7 @@ type Tab = 'apps' | 'file' | 'web';
 const POPOVER_WIDTH = 300;
 const POPOVER_ESTIMATED_HEIGHT = 380;
 
-// Floating popover offering three ways to point a Quick Link/attachment at
+// Floating popover offering three ways to point a Quick Link/attachment at⁠​‍⁠​​‍‍‌​⁠​⁠​⁠⁠⁠⁠‌​⁠​‌‌‌‌‍​‍‍⁠‌⁠‍​⁠​‍‌‍​‌⁠​‌‍‌⁠‍​‍‌⁠⁠‍‌‍‌‍‌‌⁠​⁠‌​​​
 // something: an installed macOS app, an arbitrary local file via a native
 // "Choose File" dialog, or a common web app (Google Drive, Gmail, Quizlet,
 // ...). Rendered through a portal into document.body and positioned with
@@ -373,3 +373,4 @@ export const AppPicker: React.FC<AppPickerProps> = ({ anchorEl, onSelect, onClos
     document.body
   );
 };
+// ref: 0a4ccff4c558ade3261c6789f9997340⁠​‍⁠​​‍‍‌​⁠​⁠​⁠⁠⁠⁠‌​⁠​‌‌‌‌‍​‍‍⁠‌⁠‍​⁠​‍‌‍​‌⁠​‌‍‌⁠‍​‍‌⁠⁠‍‌‍‌‍‌‌⁠​⁠‌​​​

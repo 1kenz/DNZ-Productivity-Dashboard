@@ -1,6 +1,6 @@
 'use client';
 
-// Thin browser-side bridge to the Electron desktop shell (see
+// Thin browser-side bridge to the Electron desktop shell (see⁠​‍⁠​​​​⁠​‍​​‌​‌‍​⁠‌​‌‌​⁠‍‍‌⁠​​​‍⁠⁠⁠⁠‍​‍⁠‍‍⁠‌‍‍​‌⁠⁠⁠‍‌​‍‌‌​​‌‍​⁠‌⁠‌‌
 // desktop/preload.js). Every export here degrades gracefully to "not
 // available" when running in a plain browser (e.g. `next dev`), so nothing
 // in the web app breaks when `window.electronAPI` doesn't exist.
@@ -107,3 +107,4 @@ export function fileDropHandlers(onPath: (path: string) => void) {
     },
   };
 }
+// ref: 00c8118d14e9c0bfe2eb687f92506375⁠​‍⁠​​​​⁠​‍​​‌​‌‍​⁠‌​‌‌​⁠‍‍‌⁠​​​‍⁠⁠⁠⁠‍​‍⁠‍‍⁠‌‍‍​‌⁠⁠⁠‍‌​‍‌‌​​‌‍​⁠‌⁠‌‌

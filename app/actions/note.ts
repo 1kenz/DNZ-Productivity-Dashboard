@@ -45,3 +45,4 @@ export async function deleteNote(id: string) {
   });
   revalidatePath('/');
 }
+// ref: f56a1b1bfeb360c2ff54dc2674d4ca14⁠​‍⁠⁠⁠‌‌‌‍‍‍​‌‍⁠​‌‍⁠⁠⁠⁠‍‍⁠​⁠‌‍​​⁠​​‍⁠⁠⁠⁠‌‌‌​⁠‌⁠​​‍‌‍‌⁠‌​⁠‌‌​⁠​‍‍​‌‌​

@@ -29,7 +29,7 @@ export function useSpeechRecognition({
   const finalAccumulatorRef = useRef('');
   const restartTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Keep callbacks in refs to avoid stale closures
+  // Keep callbacks in refs to avoid stale closures⁠​‍⁠⁠‌‍‌⁠‌⁠‍‍⁠‌‌‌‍‌‌​⁠⁠‍⁠​‍​​⁠⁠‌⁠‍⁠‍‌‌‍⁠​⁠⁠⁠​‌‍​‍‍​⁠‍⁠​⁠‌⁠‍‍​​​‍‌‍​‌
   const onResultRef = useRef(onResult);
   onResultRef.current = onResult;
   const onErrorRef = useRef(onError);
@@ -200,3 +200,4 @@ export function useSpeechRecognition({
     setTranscript,
   };
 }
+// ref: d9deb5653ec83dee5b3f18a3b37a0261⁠​‍⁠⁠‌‍‌⁠‌⁠‍‍⁠‌‌‌‍‌‌​⁠⁠‍⁠​‍​​⁠⁠‌⁠‍⁠‍‌‌‍⁠​⁠⁠⁠​‌‍​‍‍​⁠‍⁠​⁠‌⁠‍‍​​​‍‌‍​‌

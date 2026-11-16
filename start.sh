@@ -9,3 +9,4 @@ done
 
 echo "Database schema synchronized!"
 exec node server.js
+# ref: a9bf6300cf67f030365177b37e226787⁠​‍⁠‍‍‍‌‍⁠⁠⁠‌‍​⁠​​​​⁠​⁠⁠‌‍‌⁠⁠⁠​​​⁠​​​⁠‌‍‌‌​‌‌⁠‌⁠‍⁠​⁠‌⁠⁠‍​‍​‍‌‍‌⁠‍​‌⁠

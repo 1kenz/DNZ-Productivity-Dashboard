@@ -94,3 +94,4 @@ export function getProjectProgress(projectId: string, allTodos: Todo[]): Progres
 
   return makeStats(completed, total);
 }
+// ref: a60d6d89f118e6f40b6a4d18c4ca8633⁠​‍⁠‍‍‌‍​​⁠‌‌‍⁠‌‍​‍‌⁠⁠​‌​‌‍​⁠‍‌‍⁠⁠‌​​​‍⁠‌‍‍‍‌​⁠‌​‌‍​⁠​‌​⁠​‍‍‍​‌‍​⁠​⁠

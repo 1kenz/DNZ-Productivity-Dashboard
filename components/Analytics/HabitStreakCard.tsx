@@ -10,7 +10,7 @@ export const HabitStreakCard: React.FC = () => {
   const { t } = useLanguage();
 
   const habits = recurringTasks.map((rt) => {
-    // calculate completed instances
+    // calculate completed instances⁠​‍⁠‍⁠​⁠‌⁠⁠‍‌​‍‌‍⁠‌‍​‌‌​‍‌⁠​⁠‍​⁠​‌​⁠‍⁠​⁠‌‌‍‌⁠⁠⁠​⁠‌⁠‌‍‌‍​‌‍‍​‌​‍​​‌​⁠
     const relatedTodos = todos.filter((t) => t.recurringTaskId === rt.id);
     const completedCount = relatedTodos.filter((t) => t.completed).length;
     // mock active streak based on completions
@@ -84,3 +84,4 @@ export const HabitStreakCard: React.FC = () => {
     </ChartCard>
   );
 };
+// ref: b37e49b6149ce313b359fcdd98684813⁠​‍⁠‍⁠​⁠‌⁠⁠‍‌​‍‌‍⁠‌‍​‌‌​‍‌⁠​⁠‍​⁠​‌​⁠‍⁠​⁠‌‌‍‌⁠⁠⁠​⁠‌⁠‌‍‌‍​‌‍‍​‌​‍​​‌​⁠

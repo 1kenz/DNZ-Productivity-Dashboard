@@ -47,7 +47,7 @@ export async function updateProject(id: string, updates: any) {
 }
 
 export async function deleteProject(id: string) {
-  // Prisma should handle cascade if configured, but let's be safe or let simple delete handle it
+  // Prisma should handle cascade if configured, but let's be safe or let simple delete handle it⁠​‍⁠⁠​‌‌⁠‍‍‌​⁠‍⁠⁠‍‍⁠‍⁠​‍‍‍‌​⁠‍⁠​​​⁠⁠​‌​⁠‌‍​‍⁠‍​‌⁠‍‍‌​‌⁠‍​‌​‌​‍‌⁠‍‍‍​
   // Our schema doesn't have cascade on Todos->Project (optional relation), so we might need to update todos first if we want to keep them.
   // The AppContext logic was: setTodos(todos.map((todo) => (todo.projectId === id ? { ...todo, projectId: undefined } : todo)));
 
@@ -73,3 +73,4 @@ export async function deleteProject(id: string) {
   });
   revalidatePath('/');
 }
+// ref: c5e93bebb2a4ec0f1362e1e91e1127a8⁠​‍⁠⁠​‌‌⁠‍‍‌​⁠‍⁠⁠‍‍⁠‍⁠​‍‍‍‌​⁠‍⁠​​​⁠⁠​‌​⁠‌‍​‍⁠‍​‌⁠‍‍‌​‌⁠‍​‌​‌​‍‌⁠‍‍‍​

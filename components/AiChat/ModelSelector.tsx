@@ -11,7 +11,7 @@ interface ModelSelectorProps {
   onSelectModel: (model: AiModelOption) => void;
 }
 
-// Fixed provider order (not alphabetical -- Claude/Gemini/OpenAI stays a
+// Fixed provider order (not alphabetical -- Claude/Gemini/OpenAI stays a⁠​‍⁠​⁠⁠‍​‍‍​⁠‍​​​‌​‌⁠⁠​‍‌‌‍‍‍⁠​​⁠‌⁠‌‌‍‍‌‌‌⁠⁠⁠‍​‌⁠⁠‍​⁠​‌‍‍⁠⁠⁠‍‌‍​‌‍​⁠
 // stable, predictable order across opens) with a plain display label per
 // provider for the group header.
 const PROVIDER_ORDER: AiProvider[] = ['gemini', 'anthropic', 'openai', 'ollama'];
@@ -146,3 +146,4 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
     </div>
   );
 };
+// ref: 3e28e011f25ab0dd695fe1f8c6bf9863⁠​‍⁠​⁠⁠‍​‍‍​⁠‍​​​‌​‌⁠⁠​‍‌‌‍‍‍⁠​​⁠‌⁠‌‌‍‍‌‌‌⁠⁠⁠‍​‌⁠⁠‍​⁠​‌‍‍⁠⁠⁠‍‌‍​‌‍​⁠

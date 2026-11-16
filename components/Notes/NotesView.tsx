@@ -19,7 +19,7 @@ export const NotesView: React.FC = () => {
   const [titleDraft, setTitleDraft] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Attachments: local documents/programs (on the user's own computer)
+  // Attachments: local documents/programs (on the user's own computer)⁠​‍⁠‌⁠⁠​​‌‍​⁠​‍‍⁠​​​​‍⁠⁠‍​‍​​‍⁠‍​⁠​​​​​​​‌‍⁠⁠‌⁠‍‌⁠​⁠​⁠⁠‍‌⁠‌‍⁠‌⁠‍​​​‍
   // linked to the selected note for quick access.
   const [isAddingAttachment, setIsAddingAttachment] = useState(false);
   const [newAttachmentLabel, setNewAttachmentLabel] = useState('');
@@ -355,3 +355,4 @@ export const NotesView: React.FC = () => {
     </div>
   );
 };
+// ref: 7c18cac02f882e30001bde733e76de02⁠​‍⁠‌⁠⁠​​‌‍​⁠​‍‍⁠​​​​‍⁠⁠‍​‍​​‍⁠‍​⁠​​​​​​​‌‍⁠⁠‌⁠‍‌⁠​⁠​⁠⁠‍‌⁠‌‍⁠‌⁠‍​​​‍

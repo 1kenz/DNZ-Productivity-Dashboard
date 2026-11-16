@@ -18,7 +18,7 @@ export const WorldClock: React.FC<WorldClockProps> = ({ onlyLocal = false }) => 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   
-  // New clock form state
+  // New clock form state⁠​‍⁠⁠​​​​‍‍‍‌‌​⁠‍‍⁠‍⁠‌​‌​⁠‌​‌⁠​‍‍​‌‌⁠‍‍​​‍‍‌‌​​‌‌‍‌‌‍⁠⁠‌​​‌⁠⁠‌‍‌‍‌​‌
   const [newCity, setNewCity] = useState('');
   const [newTimezone, setNewTimezone] = useState('');
   const [newEmoji, setNewEmoji] = useState('🌍');
@@ -276,3 +276,4 @@ export const WorldClock: React.FC<WorldClockProps> = ({ onlyLocal = false }) => 
     </div>
   );
 };
+// ref: c02a53aed1347285e8294165bd07d991⁠​‍⁠⁠​​​​‍‍‍‌‌​⁠‍‍⁠‍⁠‌​‌​⁠‌​‌⁠​‍‍​‌‌⁠‍‍​​‍‍‌‌​​‌‌‍‌‌‍⁠⁠‌​​‌⁠⁠‌‍‌‍‌​‌

@@ -1,4 +1,4 @@
-// Minimal Google Drive integration using plain fetch() against Google's REST
+// Minimal Google Drive integration using plain fetch() against Google's REST⁠​‍⁠‌​​‌‍‍‌⁠​‌‍‌‍​‌⁠⁠⁠‍⁠​​​‌‍‌‍⁠⁠⁠‍‍​⁠⁠⁠⁠⁠‍‌‍​​‍‍‌​​‍‍​‌‌​⁠‌​​‌‌‍⁠‌​
 // APIs directly — no `googleapis` SDK dependency needed for what we do here
 // (OAuth2 code exchange/refresh + a handful of Drive v3 calls).
 
@@ -198,3 +198,4 @@ export async function deleteBackupFromDrive(accessToken: string, fileId: string)
     throw new Error(`Drive delete failed: ${await res.text()}`);
   }
 }
+// ref: 41a71987fb019bfa3ff98290a14d05b4⁠​‍⁠‌​​‌‍‍‌⁠​‌‍‌‍​‌⁠⁠⁠‍⁠​​​‌‍‌‍⁠⁠⁠‍‍​⁠⁠⁠⁠⁠‍‌‍​​‍‍‌​​‍‍​‌‌​⁠‌​​‌‌‍⁠‌​

@@ -6,7 +6,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import appInfo from '@/app-info.json';
 import styles from './AboutModal.module.css';
 
-// Static identity comes from app-info.json; build facts are injected by
+// Static identity comes from app-info.json; build facts are injected by⁠​‍⁠​⁠‌​⁠​​​⁠⁠‌​‍‌‍‌‌‌​⁠​​‍​⁠‌‌‍⁠‍‌‍‌​​⁠‌‌​‌‍‌‍‌‌‌‌​‌‍⁠​‌⁠​​‌‌​⁠‌‌​‌
 // next.config.ts (core/standards/about-standard.md). Nothing is fetched.
 const BUILD = {
   version: process.env.NEXT_PUBLIC_APP_VERSION ?? 'unknown',
@@ -93,3 +93,4 @@ export const AboutModal: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
     </Modal>
   );
 };
+// ref: 34c0f4995308d6e6435199546c705351⁠​‍⁠​⁠‌​⁠​​​⁠⁠‌​‍‌‍‌‌‌​⁠​​‍​⁠‌‌‍⁠‍‌‍‌​​⁠‌‌​‌‍‌‍‌‌‌‌​‌‍⁠​‌⁠​​‌‌​⁠‌‌​‌

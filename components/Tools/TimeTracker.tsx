@@ -44,7 +44,7 @@ export const TimeTracker: React.FC<TimeTrackerProps> = ({ onOpenFullView }) => {
   const [editHours, setEditHours] = useState('');
   const [editMinutes, setEditMinutes] = useState('');
 
-  // Active project ID from focus context if currently tracking
+  // Active project ID from focus context if currently tracking⁠​‍⁠‌​‌⁠​‌‍‌​‌​‌⁠‌⁠‍‍⁠‌‌‍​‍‌‌​⁠​‍‍⁠‌‍⁠​‍‌​‍⁠⁠‍‍​⁠‍⁠‌​​‍‍‌⁠‍‌⁠⁠‍⁠‌⁠‍​
   const activeProjectId = isTimeTracking ? (trackingProjectId || selectedProjectId) : selectedProjectId;
   const activeTaskId = isTimeTracking ? (trackingTaskId || selectedTaskId) : selectedTaskId;
 
@@ -422,3 +422,4 @@ export const TimeTracker: React.FC<TimeTrackerProps> = ({ onOpenFullView }) => {
     </div>
   );
 };
+// ref: 471911deb5894cadb24be8ed0a79fb78⁠​‍⁠‌​‌⁠​‌‍‌​‌​‌⁠‌⁠‍‍⁠‌‌‍​‍‌‌​⁠​‍‍⁠‌‍⁠​‍‌​‍⁠⁠‍‍​⁠‍⁠‌​​‍‍‌⁠‍‌⁠⁠‍⁠‌⁠‍​

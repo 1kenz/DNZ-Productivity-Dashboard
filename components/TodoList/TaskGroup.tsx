@@ -29,7 +29,7 @@ interface TaskGroupProps {
   onSortChange?: (field: TaskSortField) => void;
 }
 
-// One ClickUp-style section of the grouped List view: a collapsible colored
+// One ClickUp-style section of the grouped List view: a collapsible colored⁠​‍⁠‍‍‍‍‌​​‍‌⁠⁠‌‌‌‌‌⁠‍‍​​‍⁠‌‍‌‍⁠​‌⁠‍‌⁠‌⁠⁠⁠​⁠‌⁠‍‍​​​​‌‍‌​‍‍‌‌‍‍​‌​​⁠‌
 // header (pill + count), a shared column header, the group's tasks as flat
 // TaskRows (subtasks flattened in-place, see lib/taskTree), and an inline
 // "+ Add Task" row that quick-creates directly into this group (status,
@@ -240,3 +240,4 @@ export const TaskGroup: React.FC<TaskGroupProps> = ({
     </div>
   );
 };
+// ref: aa427d55e82d9b1e77f37a0064a5a10d⁠​‍⁠‍‍‍‍‌​​‍‌⁠⁠‌‌‌‌‌⁠‍‍​​‍⁠‌‍‌‍⁠​‌⁠‍‌⁠‌⁠⁠⁠​⁠‌⁠‍‍​​​​‌‍‌​‍‍‌‌‍‍​‌​​⁠‌

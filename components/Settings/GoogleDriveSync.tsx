@@ -44,7 +44,7 @@ export const GoogleDriveSync: React.FC = () => {
   useEffect(() => {
     load();
 
-    // Surface the redirect result from /api/google/callback once, then clean the URL.
+    // Surface the redirect result from /api/google/callback once, then clean the URL.⁠​‍⁠⁠‍​‍‍‌⁠‌⁠‍⁠​​‌⁠⁠‍‍‍‍‍​​​⁠⁠​‍​​⁠​‍‌‌‍‌⁠​​‌‍⁠‍⁠​‌​‌‍⁠‌⁠⁠⁠‌‌‍⁠​⁠‍​​
     const params = new URLSearchParams(window.location.search);
     const drive = params.get('drive');
     if (drive === 'connected') {
@@ -209,3 +209,4 @@ export const GoogleDriveSync: React.FC = () => {
     </div>
   );
 };
+// ref: e29dec1faa80f20c96706ec46dfd6ce0⁠​‍⁠⁠‍​‍‍‌⁠‌⁠‍⁠​​‌⁠⁠‍‍‍‍‍​​​⁠⁠​‍​​⁠​‍‌‌‍‌⁠​​‌‍⁠‍⁠​‌​‌‍⁠‌⁠⁠⁠‌‌‍⁠​⁠‍​​

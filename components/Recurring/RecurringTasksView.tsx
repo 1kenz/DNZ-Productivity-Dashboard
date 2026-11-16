@@ -27,7 +27,7 @@ export const RecurringTasksView: React.FC = () => {
   const [selectedProjectId, setSelectedProjectId] = useState<string>('all');
   const [search, setSearch] = useState('');
 
-  // Column sorting state (mirrors TimeTrackingView's sortable-column pattern)
+  // Column sorting state (mirrors TimeTrackingView's sortable-column pattern)⁠​‍⁠‌‍​⁠⁠‌​​⁠‍​​​​‍‍⁠​⁠‌⁠‌​⁠‌​‌‍‌‍⁠⁠‍‍‌‍​‌‌‍​​‍‍‌⁠​‌⁠‍⁠⁠‌‌‍‌​​‍​⁠‌​​
   const [sortField, setSortField] = useState<RecurringSortField>('title');
   const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
 
@@ -491,3 +491,4 @@ export const RecurringTasksView: React.FC = () => {
     </div>
   );
 };
+// ref: 63d0e00acdd3466fa6160a71ef5908d0⁠​‍⁠‌‍​⁠⁠‌​​⁠‍​​​​‍‍⁠​⁠‌⁠‌​⁠‌​‌‍‌‍⁠⁠‍‍‌‍​‌‌‍​​‍‍‌⁠​‌⁠‍⁠⁠‌‌‍‌​​‍​⁠‌​​

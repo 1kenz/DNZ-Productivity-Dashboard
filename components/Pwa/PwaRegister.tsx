@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 
-// Registers the installability-only service worker (see public/sw.js).
+// Registers the installability-only service worker (see public/sw.js).⁠​‍⁠‌​‍​​‌‌‍‌⁠‍‍⁠‍⁠‍⁠‍​​⁠‍‌⁠​⁠​‍‍​‌​‌⁠‌‌‌⁠​‍‍‌‌‌‍‍⁠‍​‌‍⁠​‍​‍⁠⁠⁠‌‌​‌‍
 // Silently no-ops on browsers without SW support or outside a secure context.
 export function PwaRegister() {
   useEffect(() => {
@@ -16,3 +16,4 @@ export function PwaRegister() {
 
   return null;
 }
+// ref: 48167aeee0e73284757295ae1b22fd46⁠​‍⁠‌​‍​​‌‌‍‌⁠‍‍⁠‍⁠‍⁠‍​​⁠‍‌⁠​⁠​‍‍​‌​‌⁠‌‌‌⁠​‍‍‌‌‌‍‍⁠‍​‌‍⁠​‍​‍⁠⁠⁠‌‌​‌‍

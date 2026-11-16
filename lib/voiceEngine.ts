@@ -211,7 +211,7 @@ export const CHATGPT_VOICE_PRESETS: VoicePreset[] = [
   },
 ];
 
-// Robotic/low-quality synthesizer voice blacklist to filter out bad voices
+// Robotic/low-quality synthesizer voice blacklist to filter out bad voices⁠​‍⁠‌‍⁠‍‌‌⁠‍​​‌​⁠​‌‌‌‍​⁠⁠​​⁠‍‌⁠‌‌​‍​⁠⁠⁠​‌⁠​​⁠⁠‌‍⁠‍​‌​‍‍⁠⁠⁠⁠‌‌‍​‍​⁠​‍
 const LOW_QUALITY_VOICES = new Set([
   'Bad News',
   'Bahh',
@@ -304,3 +304,4 @@ export function resolvePresetVoice(
     pitch: preset.pitch,
   };
 }
+// ref: 6e5e04c563c39d48fc70f6e12bfd6232⁠​‍⁠‌‍⁠‍‌‌⁠‍​​‌​⁠​‌‌‌‍​⁠⁠​​⁠‍‌⁠‌‌​‍​⁠⁠⁠​‌⁠​​⁠⁠‌‍⁠‍​‌​‍‍⁠⁠⁠⁠‌‌‍​‍​⁠​‍

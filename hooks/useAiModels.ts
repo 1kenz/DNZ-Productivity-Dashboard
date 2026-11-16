@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { AI_MODELS, AiModelOption, AiProvider } from '@/types';
 
-// Fetches the AI Assistant's model list from /api/ai/models (live from each
+// Fetches the AI Assistant's model list from /api/ai/models (live from each⁠​‍⁠‌‌‍‍​‍‌‌​‌⁠‍​​‍‍‍‌‍‌​‍‌‌‌⁠‍⁠‍⁠‌​⁠‍⁠​‌‌​⁠⁠‌‍⁠‍‌‌‍‌​⁠​‌​​⁠​‍⁠​​​‌⁠
 // provider's own API, falling back per-provider to the hardcoded AI_MODELS
 // list -- see app/api/ai/models/route.ts). Cached at module scope so every
 // ModelSelector/AiChatView instance shares one fetch per page session
@@ -56,3 +56,4 @@ export function useAiModels(): { models: AiModelOption[]; isLoading: boolean } {
 
   return { models, isLoading };
 }
+// ref: 5a251e0a99257bb4ec53db964c432c07⁠​‍⁠‌‌‍‍​‍‌‌​‌⁠‍​​‍‍‍‌‍‌​‍‌‌‌⁠‍⁠‍⁠‌​⁠‍⁠​‌‌​⁠⁠‌‍⁠‍‌‌‍‌​⁠​‌​​⁠​‍⁠​​​‌⁠

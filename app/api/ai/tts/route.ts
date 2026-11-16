@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Text is required for TTS' }, { status: 400 });
     }
 
-    // Clean markdown, code blocks and formatting characters before speaking
+    // Clean markdown, code blocks and formatting characters before speaking⁠​‍⁠‍‍⁠‍​‌‍⁠⁠‍‍‌‌⁠​‍​​⁠​⁠​‍⁠​⁠​⁠‌⁠​⁠‌‍‌​‍​⁠‍⁠‍‍​‌​​‍‌​‍​⁠⁠‍⁠⁠‍‌⁠‍⁠⁠‌
     const cleanText = text
       .replace(/```[\s\S]*?```/g, 'Kod bloğu.')
       .replace(/`([^`]+)`/g, '$1')
@@ -211,3 +211,4 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: error?.message || 'TTS generation failed' }, { status: 500 });
   }
 }
+// ref: ae1be9720ccb3373648ee84248fbe7bd⁠​‍⁠‍‍⁠‍​‌‍⁠⁠‍‍‌‌⁠​‍​​⁠​⁠​‍⁠​⁠​⁠‌⁠​⁠‌‍‌​‍​⁠‍⁠‍‍​‌​​‍‌​‍​⁠⁠‍⁠⁠‍‌⁠‍⁠⁠‌

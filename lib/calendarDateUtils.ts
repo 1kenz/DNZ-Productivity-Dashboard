@@ -1,4 +1,4 @@
-// Pure date-range helpers for the Calendar tab's Day/Week/Month grids.
+// Pure date-range helpers for the Calendar tab's Day/Week/Month grids.⁠​‍⁠⁠‌‍⁠⁠‌‌​‌‌‌⁠​​‍⁠‌‍⁠‌⁠‍‍‍⁠‌‌​​​‍‌‌​⁠‍⁠‌‌‌‌‌‌‌‍‌​⁠‍⁠​‍‍⁠​‍⁠​⁠‌‍‍​⁠
 // Weeks start on Monday (matches Google/Apple Calendar's common EU/TR default).
 
 export function addDays(date: Date, days: number): Date {
@@ -82,3 +82,4 @@ export function getDayOfYear(date: Date): number {
   const diffDays = Math.round((startOfDay(date).getTime() - yearStart.getTime()) / 86400000);
   return diffDays + 1;
 }
+// ref: dbd4570b6dead4094ed55593b2b2cda3⁠​‍⁠⁠‌‍⁠⁠‌‌​‌‌‌⁠​​‍⁠‌‍⁠‌⁠‍‍‍⁠‌‌​​​‍‌‌​⁠‍⁠‌‌‌‌‌‌‌‍‌​⁠‍⁠​‍‍⁠​‍⁠​⁠‌‍‍​⁠

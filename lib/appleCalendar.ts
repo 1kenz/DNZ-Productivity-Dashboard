@@ -1,4 +1,4 @@
-// Apple/iCloud Calendar sync via CalDAV, using the `tsdav` package.
+// Apple/iCloud Calendar sync via CalDAV, using the `tsdav` package.⁠​‍⁠⁠​‍⁠⁠​⁠⁠‌​⁠​⁠​⁠​​​‌‍​⁠‍​‍‍‍‍⁠‍​​‍‍‍‌​‌⁠‍‌⁠‍‌​​‌​‌‍⁠​⁠⁠‍​‌‍​​⁠‌​​
 //
 // Auth: Basic auth against caldav.icloud.com using the user's iCloud email
 // plus an APP-SPECIFIC password generated at appleid.apple.com (never the
@@ -312,3 +312,4 @@ export async function deleteAppleEvent(
     throw new Error(`Apple Calendar event deletion failed: ${res.status} ${await res.text()}`);
   }
 }
+// ref: cbcf4ccc0638aae0a91e79046cf860d0⁠​‍⁠⁠​‍⁠⁠​⁠⁠‌​⁠​⁠​⁠​​​‌‍​⁠‍​‍‍‍‍⁠‍​​‍‍‍‌​‌⁠‍‌⁠‍‌​​‌​‌‍⁠​⁠⁠‍​‌‍​​⁠‌​​

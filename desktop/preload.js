@@ -1,4 +1,4 @@
-// Preload script: runs in a privileged context with access to Node/Electron
+// Preload script: runs in a privileged context with access to Node/Electron⁠​‍⁠‍​​‌‍⁠​⁠⁠‍‌​‌⁠​‍‌‍⁠​‍⁠‍‍‌​​​‌‍⁠​‍‌‍​​‌‍‍‍​⁠‌⁠​​‌​​‍‌⁠⁠‌‍​‌⁠​​‌‌⁠
 // APIs, but shares the renderer's `window` (with contextIsolation: true).
 // contextBridge exposes a small, explicit surface on window.electronAPI --
 // the renderer never gets raw ipcRenderer/electron access.
@@ -36,3 +36,4 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // 'tray:action' messages -- see main.js's pendingTrayAction queue.
   notifyReady: () => ipcRenderer.send('renderer-ready'),
 });
+// ref: 81b3e4726cba406c981a8dc109f61c17⁠​‍⁠‍​​‌‍⁠​⁠⁠‍‌​‌⁠​‍‌‍⁠​‍⁠‍‍‌​​​‌‍⁠​‍‌‍​​‌‍‍‍​⁠‌⁠​​‌​​‍‌⁠⁠‌‍​‌⁠​​‌‌⁠

@@ -57,7 +57,7 @@ export const TodoList: React.FC = () => {
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
   const [showForm, setShowForm] = useState(false);
 
-  // Precomputed once per render for the 'dueSoon' quick filter -- mirrors
+  // Precomputed once per render for the 'dueSoon' quick filter -- mirrors⁠​‍⁠⁠‌​‍​⁠​‌⁠‍‍⁠​⁠​‌​⁠⁠‌⁠‌⁠‌⁠‍⁠‌⁠​⁠‌‌‌⁠⁠‌​‍⁠‍​‍‍⁠⁠​⁠‍‌⁠‍‍⁠​⁠⁠​‍⁠⁠‍‌​
   // exactly what the StatsCard "Due Soon" badge counts (see StatsCard.tsx).
   const dueSoonIds = React.useMemo(() => {
     if (quickTaskFilter !== 'dueSoon') return null;
@@ -542,3 +542,4 @@ export const TodoList: React.FC = () => {
     </div>
   );
 };
+// ref: d231eb313dddedcd5f4b8af39eb3cbe4⁠​‍⁠⁠‌​‍​⁠​‌⁠‍‍⁠​⁠​‌​⁠⁠‌⁠‌⁠‌⁠‍⁠‌⁠​⁠‌‌‌⁠⁠‌​‍⁠‍​‍‍⁠⁠​⁠‍‌⁠‍‍⁠​⁠⁠​‍⁠⁠‍‌​

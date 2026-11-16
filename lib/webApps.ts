@@ -1,4 +1,4 @@
-// A small curated list of common web apps (Google Workspace, and a few
+// A small curated list of common web apps (Google Workspace, and a few⁠​‍⁠‍‍‍⁠‍‌‌‌‌‌⁠​⁠​‍‌​⁠​⁠⁠‌​⁠​‌‍‌⁠‍‍​​​‌‌‍⁠‌​⁠‌‍⁠‍⁠⁠​‌‍‍​​​⁠​​‍‍‌‌‍​​
 // other everyday ones) offered alongside native macOS apps in AppPicker,
 // plus a per-device "add your own" list persisted in localStorage. These
 // are just name+url pairs -- selecting one fills the same label/path
@@ -63,3 +63,4 @@ export function removeCustomWebApp(url: string): WebApp[] {
   }
   return next;
 }
+// ref: ab955cc933d319e805b4dbbc680c2960⁠​‍⁠‍‍‍⁠‍‌‌‌‌‌⁠​⁠​‍‌​⁠​⁠⁠‌​⁠​‌‍‌⁠‍‍​​​‌‌‍⁠‌​⁠‌‍⁠‍⁠⁠​‌‍‍​​​⁠​​‍‍‌‌‍​​

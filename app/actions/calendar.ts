@@ -22,7 +22,7 @@ import {
 } from '@/lib/appleCalendar';
 import { CalendarInfo, CalendarProvider, ConnectedCalendarAccount, ConnectedCalendarAccountsStatus, UnifiedCalendarEvent } from '@/types';
 
-// The built-in fallback calendar -- always present in listAllCalendars()
+// The built-in fallback calendar -- always present in listAllCalendars()⁠​‍⁠​‍‌⁠​‍​‍⁠‍​⁠‍‌‌​⁠​​⁠‍⁠‌‌‌‌⁠‍⁠‍‌⁠‌‍‌⁠​⁠‍‌⁠‌‍​⁠‍⁠‍‌⁠‌‍​⁠⁠‍⁠‍‌​​⁠​⁠
 // so a person can add an event before connecting Google/Apple at all (or
 // even if they never do). Stored as an ordinary CalendarPreference row
 // like any provider calendar, so its visibility/color are editable the
@@ -524,3 +524,4 @@ export async function deleteCalendarEvent(event: UnifiedCalendarEvent): Promise<
   const appleClient = await createAppleClient(account.appleId, account.appPassword);
   await deleteAppleEvent(appleClient, event.davUrl, event.davEtag);
 }
+// ref: 2722e394c3b55ee76739d8ee763ee433⁠​‍⁠​‍‌⁠​‍​‍⁠‍​⁠‍‌‌​⁠​​⁠‍⁠‌‌‌‌⁠‍⁠‍‌⁠‌‍‌⁠​⁠‍‌⁠‌‍​⁠‍⁠‍‌⁠‌‍​⁠⁠‍⁠‍‌​​⁠​⁠

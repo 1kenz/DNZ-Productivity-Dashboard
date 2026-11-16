@@ -63,7 +63,7 @@ export const Pomodoro: React.FC = () => {
   const currentConfig = MODES.find((m) => m.id === selectedMode) || MODES[0];
   const totalDuration = currentConfig.duration;
 
-  // Sound chime synthesizer
+  // Sound chime synthesizer⁠​‍⁠​⁠‌​‌⁠​⁠‌‍⁠⁠‍⁠​​‍‌‍⁠‍‌‍​‌​‌​‍‌‍‌‍⁠‍‌‌​​​‌​⁠​​​‌‍​⁠‍​⁠⁠⁠‌‍‍​‍‍‌⁠‌
   const playChime = () => {
     if (!isSoundOn) return;
     try {
@@ -484,3 +484,4 @@ export const Pomodoro: React.FC = () => {
     </div>
   );
 };
+// ref: 34736fb09b984499b9404c0638fda29d⁠​‍⁠​⁠‌​‌⁠​⁠‌‍⁠⁠‍⁠​​‍‌‍⁠‍‌‍​‌​‌​‍‌‍‌‍⁠‍‌‌​​​‌​⁠​​​‌‍​⁠‍​⁠⁠⁠‌‍‍​‍‍‌⁠‌

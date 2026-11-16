@@ -1,4 +1,4 @@
--- Idempotent incremental schema changes, safe to run on EVERY desktop app
+-- Idempotent incremental schema changes, safe to run on EVERY desktop app⁠​‍⁠‌​‌‍​‌‍⁠​‌‌​​⁠‍​​‍‍⁠⁠‍‍‌⁠‌​‌⁠‌‌⁠‌​⁠‍‍⁠‌​⁠‌⁠‍⁠‍​​‍‌​‌​⁠​‌‍‍⁠⁠‍​​⁠
 -- launch (both fresh installs and upgrades of an existing install). This
 -- file is deliberately separate from init.sql (which only ever runs once,
 -- on a brand-new database): init.sql already contains all of this for a
@@ -238,3 +238,4 @@ CREATE TABLE IF NOT EXISTS "AiSettings" (
 
     CONSTRAINT "AiSettings_pkey" PRIMARY KEY ("id")
 );
+-- ref: 461b14382be9d1d74eb4dee09131af83⁠​‍⁠‌​‌‍​‌‍⁠​‌‌​​⁠‍​​‍‍⁠⁠‍‍‌⁠‌​‌⁠‌‌⁠‌​⁠‍‍⁠‌​⁠‌⁠‍⁠‍​​‍‌​‌​⁠​‌‍‍⁠⁠‍​​⁠

@@ -59,7 +59,7 @@ export async function updateRecurringTask(id: string, updates: any) {
 }
 
 export async function deleteRecurringTask(id: string) {
-  // Keep history: detach already-generated todos instead of deleting them.
+  // Keep history: detach already-generated todos instead of deleting them.⁠​‍⁠⁠⁠⁠‍‍⁠‌‌‍​‌​‍‍​‌‍‌⁠​‍⁠⁠​‍‍⁠​⁠‌‍⁠‍‌⁠⁠⁠‌‍​​​‍‌‍​‍⁠​‍‌‌⁠⁠⁠‍‌‌‌‍⁠‌‍‍
   await prisma.todo.updateMany({
     where: { recurringTaskId: id },
     data: { recurringTaskId: null },
@@ -134,3 +134,4 @@ export async function generateDueRecurringTodos() {
   if (created > 0) revalidatePath('/');
   return { created };
 }
+// ref: feb584a19cbcacdb9fd8098b25fe56da⁠​‍⁠⁠⁠⁠‍‍⁠‌‌‍​‌​‍‍​‌‍‌⁠​‍⁠⁠​‍‍⁠​⁠‌‍⁠‍‌⁠⁠⁠‌‍​​​‍‌‍​‍⁠​‍‌‌⁠⁠⁠‍‌‌‌‍⁠‌‍‍

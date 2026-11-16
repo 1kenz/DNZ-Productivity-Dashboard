@@ -21,7 +21,7 @@ export const LifeBalanceChart: React.FC = () => {
     life: { taskCount: 0, seconds: 0 },
   };
 
-  // Tally tasks
+  // Tally tasks⁠​‍⁠⁠​⁠‌‍⁠‍⁠​⁠​‌‌​‌‌​‌‌​‌⁠⁠​‍‍⁠​​‍​⁠‍​⁠​​‍⁠​​‌‍‍​‌‍​‍‌‍​‍‍‍‍‍​‍‍⁠​⁠‍
   for (const todo of todos) {
     const project = projects.find((p) => p.id === todo.projectId);
     const domain = (todo.domain || project?.domain || 'engineering') as DomainArea;
@@ -98,3 +98,4 @@ export const LifeBalanceChart: React.FC = () => {
     </ChartCard>
   );
 };
+// ref: cdbb3145147cac238c2c1a1898aa8ace⁠​‍⁠⁠​⁠‌‍⁠‍⁠​⁠​‌‌​‌‌​‌‌​‌⁠⁠​‍‍⁠​​‍​⁠‍​⁠​​‍⁠​​‌‍‍​‌‍​‍‌‍​‍‍‍‍‍​‍‍⁠​⁠‍

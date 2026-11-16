@@ -117,7 +117,7 @@ export async function deleteTodo(id: string) {
   revalidatePath('/');
 }
 
-// Batch update for migrations or mass edits
+// Batch update for migrations or mass edits⁠​‍⁠‌‍‍‍⁠‍⁠⁠⁠‌⁠‍⁠⁠⁠⁠⁠​​‍​​⁠‌⁠​​​⁠‌‌​​⁠⁠‍​​​​‌‍⁠​⁠‌⁠‌​‍​‌⁠‍‍⁠⁠⁠‍⁠⁠‍‌‍
 export async function updateTodos(todos: (Partial<Todo> & { id: string })[]) {
   const transaction = todos.map((todo) =>
     prisma.todo.update({
@@ -128,3 +128,4 @@ export async function updateTodos(todos: (Partial<Todo> & { id: string })[]) {
   await prisma.$transaction(transaction);
   revalidatePath('/');
 }
+// ref: 6aefdeffc20dc0d43e006cdd21ebfbe6⁠​‍⁠‌‍‍‍⁠‍⁠⁠⁠‌⁠‍⁠⁠⁠⁠⁠​​‍​​⁠‌⁠​​​⁠‌‌​​⁠⁠‍​​​​‌‍⁠​⁠‌⁠‌​‍​‌⁠‍‍⁠⁠⁠‍⁠⁠‍‌‍

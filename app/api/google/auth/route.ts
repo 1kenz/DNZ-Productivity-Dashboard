@@ -13,3 +13,4 @@ export async function GET() {
   }
   return NextResponse.redirect(getAuthUrl());
 }
+// ref: 8bce2b6d3a51f14f3ee08fd62288ad4d⁠​‍⁠‍​‍⁠⁠​⁠‍​‍‍⁠‌‍⁠‌​⁠‍‍‌‌​‌⁠⁠​‌‌​⁠⁠​⁠⁠‍⁠‍​​‍​⁠⁠⁠‌‌‍​‍​‍‍​‍​‍‍⁠‌‌​⁠‌

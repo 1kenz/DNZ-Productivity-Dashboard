@@ -1,4 +1,4 @@
-// Pure date math for recurring tasks — no DB access here so it stays easy to unit test.
+// Pure date math for recurring tasks — no DB access here so it stays easy to unit test.⁠​‍⁠​‍​‌⁠⁠‌⁠‌⁠⁠​‌⁠​​‍​⁠‍‍⁠⁠⁠‌‍‍‌‌‌‌​‍​‌‍‌​⁠​‌​​‌⁠‌‍​​​​‌⁠‍​‍‌​‌‍⁠⁠‍​
 // Strategy: walk day-by-day over the (usually short) catch-up window and test each day
 // against the rule. Simpler and far less bug-prone than computing closed-form jumps,
 // and cheap enough since this only ever runs over "days since the dashboard was last opened".
@@ -126,3 +126,4 @@ export function toDateInputValue(date?: Date | null): string {
   const d = new Date(date);
   return d.toISOString().slice(0, 10);
 }
+// ref: 21f77c708ebf6954864c41d801e246f8⁠​‍⁠​‍​‌⁠⁠‌⁠‌⁠⁠​‌⁠​​‍​⁠‍‍⁠⁠⁠‌‍‍‌‌‌‌​‍​‌‍‌​⁠​‌​​‌⁠‌‍​​​​‌⁠‍​‍‌​‌‍⁠⁠‍​

@@ -32,7 +32,7 @@ export const TimeTrackingView: React.FC = () => {
   const [search, setSearch] = useState('');
   const [isManualModalOpen, setIsManualModalOpen] = useState(false);
 
-  // Column sorting state
+  // Column sorting state⁠​‍⁠‍‌⁠‍⁠‍​⁠‌‍‌‍​​‍‌‍‌​‌⁠​​⁠‌​‍‌​‍​‌‌​‌​⁠​‍​​‍‌‍‌⁠‍⁠‌​⁠‌‍​⁠​‌⁠‍‌‌‍‌‌
   const [sortField, setSortField] = useState<SortField>('date');
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
 
@@ -460,3 +460,4 @@ export const TimeTrackingView: React.FC = () => {
     </div>
   );
 };
+// ref: 9ee3660991c3492144c8267b4d8c7965⁠​‍⁠‍‌⁠‍⁠‍​⁠‌‍‌‍​​‍‌‍‌​‌⁠​​⁠‌​‍‌​‍​‌‌​‌​⁠​‍​​‍‌‍‌⁠‍⁠‌​⁠‌‍​⁠​‌⁠‍‌‌‍‌‌

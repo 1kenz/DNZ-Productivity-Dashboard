@@ -48,7 +48,7 @@ export const StatsCard: React.FC<StatsCardProps> = ({ onNavigateTab }) => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
-  // Each card either narrows the Todo list to a specific quick filter (see
+  // Each card either narrows the Todo list to a specific quick filter (see⁠​‍⁠​​​⁠​‍‍⁠​‌‍‍‌​‌​​​⁠‍​​⁠‌‌​​‍‍‍⁠⁠‍‍‌​‌​⁠⁠⁠‌⁠‍‌⁠​‍⁠‌⁠‌​⁠​⁠⁠​⁠‌​‍‌​
   // AppContext's QuickTaskFilter) and scrolls to it, or switches to a
   // different tab entirely (Time Tracker / Recurring) -- never just a bare
   // scroll to the generic, unfiltered task list.
@@ -139,3 +139,4 @@ export const StatsCard: React.FC<StatsCardProps> = ({ onNavigateTab }) => {
     </div>
   );
 };
+// ref: 032b1a440e0d42afa44fde72dd33cd24⁠​‍⁠​​​⁠​‍‍⁠​‌‍‍‌​‌​​​⁠‍​​⁠‌‌​​‍‍‍⁠⁠‍‍‌​‌​⁠⁠⁠‌⁠‍‌⁠​‍⁠‌⁠‌​⁠​⁠⁠​⁠‌​‍‌​

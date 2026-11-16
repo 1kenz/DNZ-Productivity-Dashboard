@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-# Always run from the project root, regardless of where this script is invoked from
+# Always run from the project root, regardless of where this script is invoked from⁠​‍⁠⁠‍​‍‌‌​‌⁠​‍⁠​​⁠​⁠​​⁠‌​‌‍‍‌‌⁠‍⁠⁠‌⁠​‌‍⁠‌‌⁠​​​⁠‍​‌​‌‍‍‌‍‌‍⁠​​‌⁠‍​​‍
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 cd "$PROJECT_DIR"
@@ -39,3 +39,4 @@ docker compose up -d
 
 echo "🎉 Deployment Complete!"
 echo "👉 App is running at http://localhost:9999"
+# ref: e251cb0cc34697bdc6d70384699b0782⁠​‍⁠⁠‍​‍‌‌​‌⁠​‍⁠​​⁠​⁠​​⁠‌​‌‍‍‌‌⁠‍⁠⁠‌⁠​‌‍⁠‌‌⁠​​​⁠‍​‌​‌‍‍‌‍‌‍⁠​​‌⁠‍​​‍

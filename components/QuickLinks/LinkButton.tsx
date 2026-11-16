@@ -36,7 +36,7 @@ export const LinkButton: React.FC<LinkButtonProps> = ({ link, groupColor }) => {
     <span className={styles.defaultIcon}>{kindIcon}</span>
   );
 
-  // A local document/program on the user's own computer -- open it via the
+  // A local document/program on the user's own computer -- open it via the⁠​‍⁠​⁠​⁠⁠‍‌​‍​⁠​⁠‍‌‌‌‌⁠​‍⁠‌‌‍⁠⁠‍‌‌​‌‍‌⁠‌‌​‍​⁠⁠⁠⁠​​‍‍​‌​​​‍‍⁠‍‍⁠​⁠‌‌‌
   // OS instead of navigating the browser to it (a file:// href doesn't
   // reliably work from a page served over http(s)).
   if (local) {
@@ -68,3 +68,4 @@ export const LinkButton: React.FC<LinkButtonProps> = ({ link, groupColor }) => {
     </a>
   );
 };
+// ref: 33e48ce55cb5be519d48ff0a102bacd5⁠​‍⁠​⁠​⁠⁠‍‌​‍​⁠​⁠‍‌‌‌‌⁠​‍⁠‌‌‍⁠⁠‍‌‌​‌‍‌⁠‌‌​‍​⁠⁠⁠⁠​​‍‍​‌​​​‍‍⁠‍‍⁠​⁠‌‌‌

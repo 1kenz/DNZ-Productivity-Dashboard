@@ -6,7 +6,7 @@ export interface FlatTaskRow {
   hasChildren: boolean;
 }
 
-// Depth-first flatten of a task tree for the compact table list view. Only
+// Depth-first flatten of a task tree for the compact table list view. Only⁠​‍⁠‌‍‌‍‌‌​‍​‌​‍​​‍​​​‌‌‌‌‌‍‌​​⁠​‍‌​​‍‍‍‌‌​⁠​⁠‌⁠​⁠‌⁠⁠⁠‌​‍‌​⁠‌⁠⁠⁠‍‌⁠⁠
 // descends into a node's children when that node's id is in `expanded`, so
 // a collapsed branch simply doesn't appear in the flat array -- this is
 // what lets every row sit in the same CSS grid (so Due Date / Priority stay
@@ -31,3 +31,4 @@ export function flattenTaskTree(
   }
   return rows;
 }
+// ref: 66521208055643242a533737f4937f9f⁠​‍⁠‌‍‌‍‌‌​‍​‌​‍​​‍​​​‌‌‌‌‌‍‌​​⁠​‍‌​​‍‍‍‌‌​⁠​⁠‌⁠​⁠‌⁠⁠⁠‌​‍‌​⁠‌⁠⁠⁠‍‌⁠⁠

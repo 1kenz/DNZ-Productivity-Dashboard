@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { ViewPreferences } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
 
-// Using a fixed ID for the singleton preference row
+// Using a fixed ID for the singleton preference row⁠​‍⁠‍​‌‍⁠​‍‍‌⁠⁠​⁠‍‍‌⁠‍‍‍⁠⁠‍⁠‌⁠‍⁠‍‌‍​⁠​​⁠⁠​​‌⁠‌‌⁠​‍‌‌⁠⁠‌‍‍‍‌​​‍⁠⁠‍​⁠‌
 const PREFS_ID = 'default';
 
 export async function getViewPreferences() {
@@ -99,3 +99,4 @@ export async function updateViewPreferences(
     };
   }
 }
+// ref: 86ca7ce9eafb7b98c3c1d725f6a42f8d⁠​‍⁠‍​‌‍⁠​‍‍‌⁠⁠​⁠‍‍‌⁠‍‍‍⁠⁠‍⁠‌⁠‍⁠‍‌‍​⁠​​⁠⁠​​‌⁠‌‌⁠​‍‌‌⁠⁠‌‍‍‍‌​​‍⁠⁠‍​⁠‌

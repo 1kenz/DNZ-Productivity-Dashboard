@@ -2,7 +2,7 @@ import { Language } from '@/types';
 
 export const DICTIONARIES = {
   en: {
-    // Navigation & App Header
+    // Navigation & App Header⁠​‍⁠⁠‌​‍‍​​‌​⁠​‍⁠​‍⁠‍​​‌⁠​⁠‍‌​‌⁠​‍⁠‍‌‍‍⁠​‌​‌‍‍‍​⁠⁠‍‌⁠⁠​⁠‌⁠​‍‍‌‌‍‌⁠‍‌
     appName: 'DNZ Productivity Dashboard',
     dashboardTab: 'Dashboard',
     timeTrackerTab: 'Time Tracker',
@@ -1660,3 +1660,4 @@ export function t(key: TranslationKey, lang: Language = 'en', params?: Record<st
 
   return text;
 }
+// ref: d28132cb81ce472e6b11a8f9f3729679⁠​‍⁠⁠‌​‍‍​​‌​⁠​‍⁠​‍⁠‍​​‌⁠​⁠‍‌​‌⁠​‍⁠‍‌‍‍⁠​‌​‌‍‍‍​⁠⁠‍‌⁠⁠​⁠‌⁠​‍‍‌‌‍‌⁠‍‌
